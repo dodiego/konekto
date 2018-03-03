@@ -1,0 +1,22 @@
+{
+  "name": "aghanim",
+  "version": "0.1.0",
+  "description": "a json to cypher mapper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "agensgraph",
+    "neo4j",
+    "graph",
+    "json",
+    "mapper"
+  ],
+  "author": "Diego de Oliveira",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.5",
+    "uuid": "^3.2.1"
+  }
+}
