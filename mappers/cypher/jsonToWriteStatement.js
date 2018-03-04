@@ -2,21 +2,8 @@
 
 const uuid = require('uuid')
 const _ = require('lodash')
-
-class CypherNode {
-  constructor (cypher, id, node) {
-    this.cypher = cypher
-    this.id = id
-    this.node = node
-  }
-}
-
-class Statement {
-  constructor (cypher, parameters) {
-    this.cypher = cypher
-    this.parameters = parameters
-  }
-}
+const CypherNode = require('../../models/cypher_node')
+const Statement = require('../../models/statement')
 
 function nodeToCypherNode (idGenerator, node) {
   let nodeId = idGenerator()
@@ -32,23 +19,33 @@ function nodeKeyToRelationshipCypher (key, isArray) {
 }
 
 function onMatchCypher (nodeId) {
-  return `ON MATCH SET ${nodeId} = $${nodeId}`
+  return `ON MATCH SET ${nodeId} = $${nodeId} ON CREATE SET ${nodeId} = $${nodeId}`
 }
 
 function cypherNodeToMergeStatement (idGenerator, cypherNode) {
+  let uuidParam = idGenerator()
   return new Statement(
-    `MERGE ${cypherNode.cypher} ${onMatchCypher(cypherNode.id)}`,
+    `MERGE (${cypherNode.id} {uuid: $${uuidParam}}) ${onMatchCypher(
+      cypherNode.id)}`,
     {
       [cypherNode.id]: cypherNode.node,
+      [uuidParam]: cypherNode.node.uuid,
     },
   )
 }
 
-function parentChildToMergeCypher (
-  parentCypherNode, key, childCypherNode, isArray) {
+function parentChildToMergeStatement (
+  idGenerator, parentCypherNode, key, childCypherNode, isArray) {
   let relationshipCypher = nodeKeyToRelationshipCypher(key, isArray)
-  return `MERGE ${parentCypherNode.cypher}${relationshipCypher}${childCypherNode.cypher} ${onMatchCypher(
-    childCypherNode.id)}`
+  let uuidChildParam = idGenerator()
+  return new Statement(
+    `MERGE (${parentCypherNode.id})` +
+    `${relationshipCypher}(${childCypherNode.id} {uuid: $${uuidChildParam}})` +
+    ` ${onMatchCypher(childCypherNode.id)}`,
+    {
+      [uuidChildParam]: childCypherNode.node.uuid
+    },
+  )
 }
 
 function jsonToNode (json, nextNodes) {
@@ -76,7 +73,7 @@ function jsonToWriteStatement (json) {
   }
   let parentCypherNode = nodeToCypherNode(idGenerator, parentNode)
   let firstStatement = cypherNodeToMergeStatement(idGenerator, parentCypherNode)
-  let otherStatements = jsonToWriteStatements(idGenerator, parentCypherNode,
+  let otherStatements = getRelationshipStatements(idGenerator, parentCypherNode,
     nextNodes)
 
   let parameters = _.merge({}, firstStatement.parameters,
@@ -84,48 +81,28 @@ function jsonToWriteStatement (json) {
   let cypher = [
     firstStatement.cypher,
     ..._.map(otherStatements, 'cypher')].join('\n')
-  console.log(parameters)
-  console.log(cypher)
+
+  return {
+    parameters,
+    cypher,
+  }
 }
 
-function jsonToWriteStatements (
-  idGenerator, parentCypherNode, childs, statements = []) {
-  _.each(childs, item => {
+function getRelationshipStatements (
+  idGenerator, parentCypherNode, children, statements = []) {
+  _.each(children, item => {
     let nextNodes = []
     let node = jsonToNode(item.value, nextNodes)
     let cypherNode = nodeToCypherNode(idGenerator, node)
-    statements.push(new Statement(
-      parentChildToMergeCypher(parentCypherNode, item.key, cypherNode,
-        item.isArray),
-      {[cypherNode.id]: node},
-    ))
+    let statement = parentChildToMergeStatement(idGenerator, parentCypherNode,
+      item.key, cypherNode, item.isArray)
+    statement.parameters[cypherNode.id] = node
+    statements.push(statement)
 
-    jsonToWriteStatements(idGenerator, cypherNode, nextNodes, statements)
+    getRelationshipStatements(idGenerator, cypherNode, nextNodes, statements)
   })
   return statements
 }
 
-jsonToWriteStatement({
-  name: 'Diego',
-  friends: [
-    {
-      name: 'Amanda',
-    }, {
-      name: 'Rafael',
-    }],
-  city: {
-    name: 'Curitiba',
-    country: {
-      name: 'brazil',
-      planet: {
-        name: 'earth',
-        neighboors: [
-          {
-            'name': 'venus',
-          }, {
-            name: 'mars',
-          }],
-      },
-    },
-  },
-})
+exports = jsonToWriteStatement
+
