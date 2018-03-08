@@ -105,4 +105,3 @@ function getRelationshipStatements (
 }
 
 exports = jsonToWriteStatement
-
