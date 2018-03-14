@@ -16,7 +16,9 @@
   "author": "Diego de Oliveira",
   "license": "ISC",
   "dependencies": {
-    "acorn": "^5.5.0",
+    "@flatten/array": "^1.1.4",
+    "acorn": "^5.5.3",
+    "ajv": "^6.2.1",
     "lodash": "^4.17.5",
     "neo4j-driver": "1.5.0",
     "uuid": "^3.2.1"

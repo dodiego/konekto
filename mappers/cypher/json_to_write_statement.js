@@ -104,4 +104,4 @@ function getRelationshipStatements (
   return statements
 }
 
-exports = jsonToWriteStatement
+module. exports = jsonToWriteStatement
