@@ -6,34 +6,44 @@ const session = driver.session();
 
 
 //let statement = cypherMapper.jsonToWriteStatement({
-//  name: 'diego 2',
+//  name: 'diego',
 //  friends: [{
-//    name: 'rafael 2'
+//    name: 'rafael'
 //  }, {
-//    name: 'amanda 2',
+//    name: 'amanda',
 //    address: {
-//      city: 'sao caetano 2',
+//      city: 'haha',
 //      arraylul: [{
-//        shit: 'rofl 2'
+//        shit: 'rofl'
 //      }, {
-//        omega: 'lul 2'
+//        omega: 'lul'
 //      }]
 //    }
 //  }]
 //})
 //session.run(statement.cypher, statement.parameters).then(result => {
-//  console.log(result)
 //  session.close()
 //  driver.close()
 //})
-//console.log(statement.cypher)
-//console.log(statement.parameters)
-//
-session.run('match p=(n)-[r]->(m) return p').then(result => {
+
+
+//let statement = cypherMapper.jsonToWriteStatement({
+//  osfrog: 'balanced'
+//})
+//session.run(statement.cypher, statement.parameters).then(() => {
+//  session.close()
+//  driver.close()
+//})
+
+
+session.run('match p=(n) optional match q=(n)-[r]->(m) return p,q').then(result => {
   let array = cypherMapper.readStatementResultToJson(result)
-//  console.log(JSON.stringify(array, null, 2))
-//  console.log(array.length)
-//  console.log(array[0].start.identity.toNumber())
+  console.log(JSON.stringify(array, null, 2))
   session.close()
   driver.close()
 })
+
+//session.run('match (n) detach delete n').then(() => {
+//  session.close()
+//  driver.close()
+//})

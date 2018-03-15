@@ -1,45 +1,61 @@
-const flatten = require('@flatten/array')
-
-function getSegments(result) {
-  // neo4j objects comes from the "_fields" property in each item of the "records" array
-  let fields = flatten(result.records.map(s => s._fields))
-  // segments stores the relationship between objects in each row
-  return flatten(fields.map(s => s.segments))
-
+function getFields (result) {
+  let fields = []
+  for (let i = 0, resultLength = result.records.length; i < resultLength; i++) {
+    let item = result.records[i]
+    for (let j = 0, rowFieldsLength = item._fields.length; j < rowFieldsLength; j++) {
+      let field = item._fields[j]
+      if (field) {
+        fields.push(field)
+      }
+    }
+  }
+  return fields
 }
 
-function segmentsToJson(segments) {
+function fieldsToJson(fields) {
+  let result = {}
   let related = {}
-  let nodes = segments.reduce((result, segment) => {
-    if (!result[segment.start.properties.uuid]) {
-      result[segment.start.properties.uuid] = segment.start.properties
-    }
+  for (let i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
+    let row = fields[i]
 
-    if (!result[segment.end.properties.uuid]) {
-      result[segment.end.properties.uuid] = segment.end.properties
-    }
+    if (row.segments.length) {
+      for (let j = 0, segmentsLength = row.segments.length; j < segmentsLength; j++) {
+        let segment = row.segments[j]
+        if (!result[segment.start.properties.uuid]) {
+          result[segment.start.properties.uuid] = segment.start.properties
+        }
 
-    if (segment.relationship.properties.isArray) {
-      if (!result[segment.start.properties.uuid][segment.relationship.type]) {
-        result[segment.start.properties.uuid][segment.relationship.type] = []
+        if (!result[segment.end.properties.uuid]) {
+          result[segment.end.properties.uuid] = segment.end.properties
+        }
+
+        if (segment.relationship.properties.isArray) {
+          if (!result[segment.start.properties.uuid][segment.relationship.type]) {
+            result[segment.start.properties.uuid][segment.relationship.type] = []
+          }
+
+          result[segment.start.properties.uuid][segment.relationship.type].push(result[segment.end.properties.uuid])
+        } else {
+          result[segment.start.properties.uuid][segment.relationship.type] = result[segment.end.properties.uuid]
+        }
+
+        related[segment.end.properties.uuid] = segment.end.properties
       }
-
-      result[segment.start.properties.uuid][segment.relationship.type].push(result[segment.end.properties.uuid])
     } else {
-      result[segment.start.properties.uuid][segment.relationship.type] = result[segment.end.properties.uuid]
+      if (!result[row.start.properties.uuid]) {
+        result[row.start.properties.uuid] = row.start.properties
+      }
     }
 
-    related[segment.end.properties.uuid] = segment.end.properties
-    return result
-  }, {})
+  }
 
-  return Object.values(nodes).filter(node => !related[node.uuid])
+  return Object.values(result).filter(node => !related[node.uuid])
 }
 
 function readStamentResultToJson (result) {
 
-  let segments = getSegments(result)
-  let json = segmentsToJson(segments)
+  let fields = getFields(result)
+  let json = fieldsToJson(fields)
   return json
 }
 
