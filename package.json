@@ -19,9 +19,15 @@
     "@flatten/array": "^1.1.4",
     "acorn": "^5.5.3",
     "ajv": "^6.2.1",
-    "lodash": "^4.17.5",
     "neo4j-driver": "1.5.0",
-    "uuid": "^3.2.1",
-    "xregexp": "^4.1.1"
+    "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1"
   }
 }

@@ -1,12 +1,12 @@
 'use strict'
 
 const uuid = require('uuid')
-const _ = require('lodash')
 const CypherNode = require('../../models/cypher_node')
 const Statement = require('../../models/statement')
+const IdGenerator = require('./id_generator')
 
 function nodeToCypherNode (idGenerator, node) {
-  let nodeId = idGenerator()
+  let nodeId = idGenerator.nextId()
   if (!node.uuid) {
     node.uuid = uuid.v4()
   }
@@ -23,39 +23,37 @@ function onMatchCypher (nodeId) {
 }
 
 function cypherNodeToMergeStatement (idGenerator, cypherNode) {
-  let uuidParam = idGenerator()
+  let uuidParam = idGenerator.nextId()
   return new Statement(
     `MERGE (${cypherNode.id} {uuid: $${uuidParam}}) ${onMatchCypher(
       cypherNode.id)}`,
     {
       [cypherNode.id]: cypherNode.node,
-      [uuidParam]: cypherNode.node.uuid,
-    },
+      [uuidParam]: cypherNode.node.uuid
+    }
   )
 }
 
-function parentChildToMergeStatement (
-  idGenerator, parentCypherNode, key, childCypherNode, isArray) {
+function parentChildToMergeStatement (idGenerator, parentCypherNode, key, childCypherNode, isArray) {
   let relationshipCypher = nodeKeyToRelationshipCypher(key, isArray)
-  let uuidChildParam = idGenerator()
+  let uuidChildParam = idGenerator.nextId()
   return new Statement(
     `MERGE (${parentCypherNode.id})` +
     `${relationshipCypher}(${childCypherNode.id} {uuid: $${uuidChildParam}})` +
     ` ${onMatchCypher(childCypherNode.id)}`,
     {
       [uuidChildParam]: childCypherNode.node.uuid
-    },
+    }
   )
 }
 
 function jsonToNode (json, nextNodes) {
-  return _.reduce(json, (result, value, key) => {
-    if (_.isObjectLike(value)) {
-      if (_.isArray(value)) {
-        nextNodes.push(
-          ..._.map(value, item => ({key: key, value: item, isArray: true})))
+  return Object.entries(json).reduce((result, [key, value]) => {
+    if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        nextNodes.push(...value.map(item => ({key, value: item, isArray: true})))
       } else {
-        nextNodes.push({key: key, value})
+        nextNodes.push({key, value})
       }
     } else {
       result[key] = value
@@ -64,33 +62,8 @@ function jsonToNode (json, nextNodes) {
   }, {})
 }
 
-function jsonToWriteStatement (json) {
-  let nextNodes = []
-  let parentNode = jsonToNode(json, nextNodes)
-  let helper = _.runInContext()
-  let idGenerator = function () {
-    return helper.uniqueId('v')
-  }
-  let parentCypherNode = nodeToCypherNode(idGenerator, parentNode)
-  let firstStatement = cypherNodeToMergeStatement(idGenerator, parentCypherNode)
-  let otherStatements = getRelationshipStatements(idGenerator, parentCypherNode,
-    nextNodes)
-
-  let parameters = _.merge({}, firstStatement.parameters,
-    ..._.map(otherStatements, 'parameters'))
-  let cypher = [
-    firstStatement.cypher,
-    ..._.map(otherStatements, 'cypher')].join('\n')
-
-  return {
-    parameters,
-    cypher,
-  }
-}
-
-function getRelationshipStatements (
-  idGenerator, parentCypherNode, children, statements = []) {
-  _.each(children, item => {
+function getRelationshipStatements (idGenerator, parentCypherNode, children, statements = []) {
+  for (let item of children) {
     let nextNodes = []
     let node = jsonToNode(item.value, nextNodes)
     let cypherNode = nodeToCypherNode(idGenerator, node)
@@ -100,8 +73,28 @@ function getRelationshipStatements (
     statements.push(statement)
 
     getRelationshipStatements(idGenerator, cypherNode, nextNodes, statements)
-  })
+  }
   return statements
 }
 
-module. exports = jsonToWriteStatement
+function jsonToWriteStatement (json) {
+  let nextNodes = []
+  let parentNode = jsonToNode(json, nextNodes)
+  let idGenerator = new IdGenerator()
+  let parentCypherNode = nodeToCypherNode(idGenerator, parentNode)
+  let firstStatement = cypherNodeToMergeStatement(idGenerator, parentCypherNode)
+  let otherStatements = getRelationshipStatements(idGenerator, parentCypherNode, nextNodes)
+  return [firstStatement, ...otherStatements].reduce((result, statement, index, array) => {
+    Object.assign(result.parameters, statement.parameters)
+    result.cypher += statement.cypher
+    if (index + 1 < array.length) {
+      result.cypher += '\n'
+    }
+    return result
+  }, {
+    cypher: [],
+    parameters: {}
+  })
+}
+
+module.exports = jsonToWriteStatement
