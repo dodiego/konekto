@@ -113,41 +113,32 @@ function getPagination (idGenerator, nodeId, queryObject) {
   return filterCypherParts
 }
 
-function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, cypherParts = [], returnNames = []) {
+function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables = [], cypherParts = [], returnNames = []) {
   if (queryObject.include) {
     for (let include of queryObject.include) {
       let relatedId = idGenerator.nextId()
       let patternId = idGenerator.nextId()
-      let parameters = []
       let includeCypherParts = [
-        new Statement(
-          [
-            `CALL apoc.cypher.run('WITH {${parentId}} as ${parentId}`,
-            `OPTIONAL MATCH ${patternId} = (${parentId})-[:${include.name}*0..1]->(${relatedId})`
-          ].join(' ')
-        )
+        new Statement(`OPTIONAL MATCH ${patternId} = (${parentId})-[:${include.name}]->(${relatedId})`)
       ]
       if (include.where) {
-        let whereStatement = queryObjectWhereToCypher(idGenerator, include, relatedId)
-        parameters.push(...Object.keys(whereStatement.parameters))
-        includeCypherParts.push(whereStatement)
+        includeCypherParts.push(queryObjectWhereToCypher(idGenerator, include, relatedId))
       }
-      includeCypherParts.push(new Statement(`RETURN ${patternId}`))
-      if (include.skip || include.limit) {
-        let pagination = getPagination(idGenerator, relatedId, include)
-        parameters.push(...pagination.map(p => Object.keys(p.parameters)))
-        includeCypherParts.push(...pagination)
-      }
-      includeCypherParts.push(new Statement(`', {${parentId}:${parentId}, ${parameters.map(p => `${p}:$${p}`)}}) YIELD value as ${patternId}`))
-      includeCypherParts.push(new Statement(`WITH v1, v4`))
+      // if (include.skip || include.limit) {
+      //   let pagination = getPagination(idGenerator, relatedId, include)
+      //   parameters.push(...pagination.map(p => Object.keys(p.parameters)))
+      //   includeCypherParts.push(...pagination)
+      // }
+      withVariables.push(patternId, relatedId)
+      includeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
       let includeStatement = includeCypherParts.reduce((result, statement) => {
         Object.assign(result.parameters, statement.parameters)
         result.cypher += `${statement.cypher} `
         return result
       }, new Statement())
       cypherParts.push(includeStatement)
-      returnNames.push(`${patternId}.${patternId}`)
-      queryObjectIncludeToCypher(relatedId, idGenerator, include, cypherParts, returnNames)
+      returnNames.push(`${patternId}`)
+      queryObjectIncludeToCypher(relatedId, idGenerator, include, withVariables, cypherParts, returnNames)
     }
   }
   return {
@@ -161,26 +152,29 @@ function queryObjectToReadStatement (queryObject) {
   let nodeId = idGenerator.nextId()
   let firstNodeCypherParts = []
   let returnNames = []
+  let withVariables = []
   let firstPatternId = idGenerator.nextId()
   firstNodeCypherParts.push(new Statement(`MATCH ${firstPatternId} = (${nodeId})`))
+  withVariables.push(firstPatternId, nodeId)
   if (queryObject.where) {
     firstNodeCypherParts.push(queryObjectWhereToCypher(idGenerator, queryObject, nodeId))
   }
   // ...getPagination(idGenerator, nodeId, queryObject)
+  firstNodeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
   returnNames.push(firstPatternId)
-  firstNodeCypherParts.push(new Statement(`WITH ${firstPatternId}, ${nodeId}`))
   let firstStatement = firstNodeCypherParts.reduce((result, statement) => {
     Object.assign(result.parameters, statement.parameters)
     result.cypher += `${statement.cypher} `
     return result
   }, new Statement())
-  let includes = queryObjectIncludeToCypher(nodeId, idGenerator, queryObject)
+  let includes = queryObjectIncludeToCypher(nodeId, idGenerator, queryObject, withVariables)
+  returnNames.push(...includes.returnNames)
   let statement = [firstStatement, ...includes.cypherParts].reduce((result, statement) => {
     Object.assign(result.parameters, statement.parameters)
     result.cypher += `${statement.cypher}\n`
     return result
   }, new Statement())
-  statement.cypher += `\nRETURN ${[firstPatternId, ...includes.returnNames].join(', ')}`
+  statement.cypher += `\nRETURN ${returnNames.map(n => `collect(${n})`).join(', ')}`
   return statement
 }
 

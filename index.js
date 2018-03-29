@@ -36,21 +36,17 @@ const session = driver.session();
 //  driver.close()
 //})
 
-// let subquery = `CALL apoc.cypher.run('
-//  WITH {n} AS n
-//  optional match q = (n)-[r]->(m)
-//  RETURN q LIMIT 2',
-//  {n:n}) YIELD value as q`
 // session.run([
-//   'match p=(n)',
-//   `${subquery}`,
-//   'return p,q.q'
+//   'match p = (n) where n.name CONTAINS "d" with n, p',
+//   'optional match q = (n)-[:friends]->(v3) with p, q',
+//   'return collect(p), collect(q)'
 // ].join('\n')).then(result => {
-//   let array = cypherMapper.readStatementResultToJson(result)
+//   let array = cypherMapper.readStatementResultToJson(result, false)
 //   console.log(JSON.stringify(array, null, 2))
 //   session.close()
 //   driver.close()
 // })
+
 let statement = cypherMapper.queryObjectToReadStatement({
   where: (node, args) => node.name.endsWith(args.ending),
   args: {
