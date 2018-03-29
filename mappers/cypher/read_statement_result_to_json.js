@@ -1,23 +1,22 @@
-function getFields (result) {
-  let fields = []
+function getRows (result) {
+  let rows = []
   for (let i = 0, resultLength = result.records.length; i < resultLength; i++) {
     let item = result.records[i]
     for (let j = 0, rowFieldsLength = item._fields.length; j < rowFieldsLength; j++) {
-      let field = item._fields[j]
-      if (field) {
-        fields.push(field)
+      let row = item._fields[j]
+      if (row) {
+        rows.push(row)
       }
     }
   }
-  return fields
+  return rows
 }
 
-function fieldsToJson(fields) {
+function rowsToJson (rows, removeDuplicates) {
   let result = {}
   let related = {}
-  for (let i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
-    let row = fields[i]
-
+  for (let i = 0, fieldsLength = rows.length; i < fieldsLength; i++) {
+    let row = rows[i]
     if (row.segments.length) {
       for (let j = 0, segmentsLength = row.segments.length; j < segmentsLength; j++) {
         let segment = row.segments[j]
@@ -46,16 +45,16 @@ function fieldsToJson(fields) {
         result[row.start.properties.uuid] = row.start.properties
       }
     }
-
   }
-
+  if (!removeDuplicates) {
+    return Object.values(result)
+  }
   return Object.values(result).filter(node => !related[node.uuid])
 }
 
-function readStamentResultToJson (result) {
-
-  let fields = getFields(result)
-  let json = fieldsToJson(fields)
+function readStamentResultToJson (result, removeDuplicates = true) {
+  let rows = getRows(result)
+  let json = rowsToJson(rows, removeDuplicates)
   return json
 }
 

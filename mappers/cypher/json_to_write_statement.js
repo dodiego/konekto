@@ -84,17 +84,14 @@ function jsonToWriteStatement (json) {
   let parentCypherNode = nodeToCypherNode(idGenerator, parentNode)
   let firstStatement = cypherNodeToMergeStatement(idGenerator, parentCypherNode)
   let otherStatements = getRelationshipStatements(idGenerator, parentCypherNode, nextNodes)
-  return [firstStatement, ...otherStatements].reduce((result, statement, index, array) => {
+  let statement = [firstStatement, ...otherStatements].reduce((result, statement) => {
     Object.assign(result.parameters, statement.parameters)
-    result.cypher += statement.cypher
-    if (index + 1 < array.length) {
-      result.cypher += '\n'
-    }
+    result.cypher += `${statement.cypher}\n`
     return result
-  }, {
-    cypher: [],
-    parameters: {}
-  })
+  }, new Statement())
+
+  statement.cypher = statement.cypher.slice(0, -1)
+  return statement
 }
 
 module.exports = jsonToWriteStatement
