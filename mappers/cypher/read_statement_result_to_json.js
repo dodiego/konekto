@@ -17,7 +17,35 @@ function rowsToJson (rows, removeDuplicates) {
   let related = {}
   for (let i = 0, fieldsLength = rows.length; i < fieldsLength; i++) {
     let row = rows[i]
-    for (let item of row) {
+    if (Array.isArray(row)) {
+      for (let item of row) {
+        if (item.segments.length) {
+          for (let j = 0, segmentsLength = item.segments.length; j < segmentsLength; j++) {
+            let segment = item.segments[j]
+            if (!result[segment.start.properties.uuid]) {
+              result[segment.start.properties.uuid] = segment.start.properties
+            }
+
+            if (segment.relationship.properties.isArray) {
+              if (!result[segment.start.properties.uuid][segment.relationship.type]) {
+                result[segment.start.properties.uuid][segment.relationship.type] = []
+              }
+
+              result[segment.start.properties.uuid][segment.relationship.type].push(segment.end.properties)
+            } else {
+              result[segment.start.properties.uuid][segment.relationship.type] = segment.end.properties
+            }
+
+            related[segment.end.properties.uuid] = segment.end.properties
+          }
+        } else {
+          if (!result[item.start.properties.uuid]) {
+            result[item.start.properties.uuid] = item.start.properties
+          }
+        }
+      }
+    } else {
+      let item = row
       if (item.segments.length) {
         for (let j = 0, segmentsLength = item.segments.length; j < segmentsLength; j++) {
           let segment = item.segments[j]

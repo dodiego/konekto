@@ -100,19 +100,6 @@ function queryObjectWhereToCypher (idGenerator, queryObject, nodeId) {
   return new Statement(predicateToCypher(queryObject.where, parameters, nodeId), cypherParameters)
 }
 
-function getPagination (idGenerator, nodeId, queryObject) {
-  let filterCypherParts = []
-  if (queryObject.skip) {
-    let skip = idGenerator.nextId()
-    filterCypherParts.push(new Statement(`SKIP $${skip}`, { [skip]: queryObject.skip }))
-  }
-  if (queryObject.limit) {
-    let limit = idGenerator.nextId()
-    filterCypherParts.push(new Statement(`LIMIT $${limit}`, { [limit]: queryObject.limit }))
-  }
-  return filterCypherParts
-}
-
 function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables = [], cypherParts = [], returnNames = []) {
   if (queryObject.include) {
     for (let include of queryObject.include) {
@@ -124,20 +111,28 @@ function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVar
       if (include.where) {
         includeCypherParts.push(queryObjectWhereToCypher(idGenerator, include, relatedId))
       }
-      // if (include.skip || include.limit) {
-      //   let pagination = getPagination(idGenerator, relatedId, include)
-      //   parameters.push(...pagination.map(p => Object.keys(p.parameters)))
-      //   includeCypherParts.push(...pagination)
-      // }
+      let parameters = {}
+      let slice = '['
+      let skipParameter = idGenerator.nextId()
+      slice += `$${skipParameter}`
+      parameters[skipParameter] = include.skip || 0
+      slice += '..'
+      if (Number.isInteger(include.limit)) {
+        let limit = idGenerator.nextId()
+        slice += `$${limit}`
+        parameters[limit] = include.limit + parameters[skipParameter]
+      }
+      slice += ']'
+      let sliceStatement = new Statement(slice, parameters)
       withVariables.push(patternId, relatedId)
       includeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
       let includeStatement = includeCypherParts.reduce((result, statement) => {
         Object.assign(result.parameters, statement.parameters)
         result.cypher += `${statement.cypher} `
         return result
-      }, new Statement())
+      }, new Statement('', sliceStatement.parameters))
       cypherParts.push(includeStatement)
-      returnNames.push(`${patternId}`)
+      returnNames.push(`collect(${patternId})${sliceStatement.cypher}`)
       queryObjectIncludeToCypher(relatedId, idGenerator, include, withVariables, cypherParts, returnNames)
     }
   }
@@ -159,7 +154,6 @@ function queryObjectToReadStatement (queryObject) {
   if (queryObject.where) {
     firstNodeCypherParts.push(queryObjectWhereToCypher(idGenerator, queryObject, nodeId))
   }
-  // ...getPagination(idGenerator, nodeId, queryObject)
   firstNodeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
   returnNames.push(firstPatternId)
   let firstStatement = firstNodeCypherParts.reduce((result, statement) => {
@@ -174,32 +168,21 @@ function queryObjectToReadStatement (queryObject) {
     result.cypher += `${statement.cypher}\n`
     return result
   }, new Statement())
-  statement.cypher += `\nRETURN ${returnNames.map(n => `collect(${n})`).join(', ')}`
+  statement.cypher += `\nRETURN ${returnNames.join(', ')}`
+  let pagination = []
+  if (Number.isInteger(queryObject.skip)) {
+    let skipParameter = idGenerator.nextId()
+    pagination.push(new Statement(`SKIP $${skipParameter}`, { [skipParameter]: queryObject.skip }))
+  }
+  if (Number.isInteger(queryObject.limit)) {
+    let limitParameter = idGenerator.nextId()
+    pagination.push(new Statement(`LIMIT $${limitParameter}`, { [limitParameter]: queryObject.limit }))
+  }
+  if (pagination.length) {
+    statement.cypher += ` ${pagination.map(p => p.cypher).join(' ')}`
+    Object.assign(statement.parameters, ...pagination.map(p => p.parameters))
+  }
   return statement
 }
-
-queryObjectToReadStatement({
-  skip: 1,
-  limit: 3,
-  reference: 'xd',
-  args: {
-    potato: 'tomato',
-    two: 2
-  },
-  where: (node, args) => node.name > args.two && (node.lul === node.rofl || !node.lastName.startsWith(args.potato)),
-  include: [{
-    name: 'rel'
-  }, {
-    name: 'rel2',
-    include: [{
-      name: 'subrel2',
-      skip: 1,
-      include: [{
-        name: 'subsubrel2',
-        limit: 2
-      }]
-    }]
-  }]
-})
 
 module.exports = queryObjectToReadStatement

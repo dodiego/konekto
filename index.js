@@ -39,7 +39,7 @@ const session = driver.session();
 // session.run([
 //   'match p = (n) where n.name CONTAINS "d" with n, p',
 //   'optional match q = (n)-[:friends]->(v3) with p, q',
-//   'return collect(p), collect(q)'
+//   'return collect(p), collect(q)[..1]'
 // ].join('\n')).then(result => {
 //   let array = cypherMapper.readStatementResultToJson(result, false)
 //   console.log(JSON.stringify(array, null, 2))
@@ -48,18 +48,19 @@ const session = driver.session();
 // })
 
 let statement = cypherMapper.queryObjectToReadStatement({
-  where: (node, args) => node.name.endsWith(args.ending),
   args: {
-    ending: '2'
+    ending: 'd'
   },
+  limit: 1,
+  skip: 3,
   include: [{
     name: 'friends',
     where: (node, args) => node.name.includes(args.ending),
     args: {
       ending: 'a'
     },
-    skip: 1,
-    limit: 1
+    skip: 0,
+    limit: 2
   }]
 })
 console.log(statement.cypher)
