@@ -138,18 +138,16 @@ function paginateInclude (idGenerator, include) {
   return new Statement(slice, parameters)
 }
 
-function getOrder (queryObject, nodeId) {
-  return new Statement(`ORDER BY ${nodeId}.${queryObject.order}`)
-}
-
 function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables = [], cypherParts = [], returnNames = []) {
   if (queryObject.include) {
     for (let include of queryObject.include) {
       let relatedId = idGenerator.nextId()
       let patternId = idGenerator.nextId()
-      let includeCypherParts = [
-        new Statement(`OPTIONAL MATCH ${patternId} = (${parentId})-[:${include.name}]->(${relatedId})`)
-      ]
+      let matchStatement = new Statement(`MATCH ${patternId} = (${parentId})-[:${include.name}]->(${relatedId})`)
+      if (!include.mandatory) {
+        matchStatement.cypher = `OPTIONAL ${matchStatement.cypher}`
+      }
+      let includeCypherParts = [ matchStatement ]
       if (include.where) {
         includeCypherParts.push(queryObjectWhereToCypher(idGenerator, include, relatedId))
       }
@@ -194,14 +192,13 @@ function queryObjectToReadStatement (queryObject) {
   let firstNodeCypherParts = []
   let returnNames = []
   let withVariables = []
-  let firstPatternId = idGenerator.nextId()
-  firstNodeCypherParts.push(new Statement(`MATCH ${firstPatternId} = (${nodeId})`))
-  withVariables.push(firstPatternId, nodeId)
+  firstNodeCypherParts.push(new Statement(`MATCH (${nodeId})`))
+  withVariables.push(nodeId)
   if (queryObject.where) {
     firstNodeCypherParts.push(queryObjectWhereToCypher(idGenerator, queryObject, nodeId))
   }
   firstNodeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
-  returnNames.push(firstPatternId)
+  returnNames.push(nodeId)
   let firstStatement = firstNodeCypherParts.reduce((result, statement) => {
     Object.assign(result.parameters, statement.parameters)
     result.cypher += `${statement.cypher} `
@@ -214,7 +211,10 @@ function queryObjectToReadStatement (queryObject) {
     result.cypher += `${statement.cypher}\n`
     return result
   }, new Statement())
-  statement.cypher += `\nRETURN ${returnNames.join(', ')}`
+  statement.cypher += `RETURN ${returnNames.join(', ')}`
+  if (queryObject.order) {
+    statement.cypher += ` ${queryObjectOrderToCypher(queryObject.order, nodeId).cypher}`
+  }
   let pagination = paginateResults(idGenerator, queryObject)
   if (pagination.length) {
     statement.cypher += ` ${pagination.map(p => p.cypher).join(' ')}`

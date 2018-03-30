@@ -39,7 +39,7 @@ function rowsToJson (rows, removeDuplicates) {
         }
       }
     } else {
-      result[row.start.properties.uuid] = row.start.properties
+      result[row.properties.uuid] = row.properties
     }
   }
   if (!removeDuplicates) {
