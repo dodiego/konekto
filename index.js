@@ -51,8 +51,7 @@ let statement = cypherMapper.queryObjectToReadStatement({
   args: {
     ending: 'd'
   },
-  limit: 1,
-  skip: 3,
+  order: (node) => node.name,
   include: [{
     name: 'friends',
     where: (node, args) => node.name.includes(args.ending),
@@ -60,7 +59,8 @@ let statement = cypherMapper.queryObjectToReadStatement({
       ending: 'a'
     },
     skip: 0,
-    limit: 2
+    limit: 2,
+    order: (node) => node.name
   }]
 })
 console.log(statement.cypher)

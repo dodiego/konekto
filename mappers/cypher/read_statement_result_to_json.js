@@ -19,42 +19,10 @@ function rowsToJson (rows, removeDuplicates) {
     let row = rows[i]
     if (Array.isArray(row)) {
       for (let item of row) {
-        if (item.segments.length) {
-          for (let j = 0, segmentsLength = item.segments.length; j < segmentsLength; j++) {
-            let segment = item.segments[j]
-            if (!result[segment.start.properties.uuid]) {
-              result[segment.start.properties.uuid] = segment.start.properties
-            }
-
-            if (segment.relationship.properties.isArray) {
-              if (!result[segment.start.properties.uuid][segment.relationship.type]) {
-                result[segment.start.properties.uuid][segment.relationship.type] = []
-              }
-
-              result[segment.start.properties.uuid][segment.relationship.type].push(segment.end.properties)
-            } else {
-              result[segment.start.properties.uuid][segment.relationship.type] = segment.end.properties
-            }
-
-            related[segment.end.properties.uuid] = segment.end.properties
-          }
-        } else {
-          if (!result[item.start.properties.uuid]) {
-            result[item.start.properties.uuid] = item.start.properties
-          }
-        }
-      }
-    } else {
-      let item = row
-      if (item.segments.length) {
         for (let j = 0, segmentsLength = item.segments.length; j < segmentsLength; j++) {
           let segment = item.segments[j]
           if (!result[segment.start.properties.uuid]) {
             result[segment.start.properties.uuid] = segment.start.properties
-          }
-
-          if (!result[segment.end.properties.uuid]) {
-            result[segment.end.properties.uuid] = segment.end.properties
           }
 
           if (segment.relationship.properties.isArray) {
@@ -62,18 +30,16 @@ function rowsToJson (rows, removeDuplicates) {
               result[segment.start.properties.uuid][segment.relationship.type] = []
             }
 
-            result[segment.start.properties.uuid][segment.relationship.type].push(result[segment.end.properties.uuid])
+            result[segment.start.properties.uuid][segment.relationship.type].push(segment.end.properties)
           } else {
-            result[segment.start.properties.uuid][segment.relationship.type] = result[segment.end.properties.uuid]
+            result[segment.start.properties.uuid][segment.relationship.type] = segment.end.properties
           }
 
           related[segment.end.properties.uuid] = segment.end.properties
         }
-      } else {
-        if (!result[item.start.properties.uuid]) {
-          result[item.start.properties.uuid] = item.start.properties
-        }
       }
+    } else {
+      result[row.start.properties.uuid] = row.start.properties
     }
   }
   if (!removeDuplicates) {

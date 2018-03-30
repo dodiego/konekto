@@ -2,7 +2,6 @@ const acorn = require('acorn')
 const walk = require('acorn/dist/walk')
 const Statement = require('../../models/statement')
 const CypherPart = require('../../models/cypher_part')
-const CypherPattern = require('../../models/cypher_pattern')
 const IdGenerator = require('./id_generator')
 const operators = {
   '==': '=',
@@ -41,7 +40,7 @@ function getCypherName (node, args, parameters, nodeId) {
   return node.object.name === args.node ? `${nodeId}.${node.property.name}` : `$${parameters[node.property.name]}`
 }
 
-function predicateToCypher (predicate, parameters, nodeId) {
+function predicateToWhereStatement (predicate, parameters, nodeId) {
   let tree = acorn.parse(predicate.toString(), {
     preserveParens: true
   })
@@ -97,7 +96,50 @@ function queryObjectWhereToCypher (idGenerator, queryObject, nodeId) {
     parameters[key] = id
     cypherParameters[id] = value
   }
-  return new Statement(predicateToCypher(queryObject.where, parameters, nodeId), cypherParameters)
+  return new Statement(predicateToWhereStatement(queryObject.where, parameters, nodeId), cypherParameters)
+}
+
+function queryObjectOrderToCypher (predicate, nodeId) {
+  let parts = []
+  let tree = acorn.parse(predicate.toString())
+  walk.ancestor(tree, {
+    UnaryExpression (node) {
+      let part = new CypherPart(node.argument.start, `${nodeId}.${node.argument.property.name}`)
+      if (node.operator === '!') {
+        part.body += ` DESC`
+      }
+      console.log(node)
+      parts.push(part)
+    },
+    MemberExpression (node, ancestors) {
+      if (!ancestors.some(node => node.type === 'UnaryExpression')) {
+        parts.push(new CypherPart(node.start, `${nodeId}.${node.property.name}`))
+      }
+    }
+  })
+  let cypher = parts.sort((a, b) => a.start - b.start).map(n => n.body).join(', ')
+  cypher = `ORDER BY ${cypher}`
+  return new Statement(cypher)
+}
+
+function paginateInclude (idGenerator, include) {
+  let parameters = {}
+  let slice = '['
+  let skipParameter = idGenerator.nextId()
+  slice += `$${skipParameter}`
+  parameters[skipParameter] = include.skip || 0
+  slice += '..'
+  if (Number.isInteger(include.limit)) {
+    let limit = idGenerator.nextId()
+    slice += `$${limit}`
+    parameters[limit] = include.limit + parameters[skipParameter]
+  }
+  slice += ']'
+  return new Statement(slice, parameters)
+}
+
+function getOrder (queryObject, nodeId) {
+  return new Statement(`ORDER BY ${nodeId}.${queryObject.order}`)
 }
 
 function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables = [], cypherParts = [], returnNames = []) {
@@ -111,21 +153,12 @@ function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVar
       if (include.where) {
         includeCypherParts.push(queryObjectWhereToCypher(idGenerator, include, relatedId))
       }
-      let parameters = {}
-      let slice = '['
-      let skipParameter = idGenerator.nextId()
-      slice += `$${skipParameter}`
-      parameters[skipParameter] = include.skip || 0
-      slice += '..'
-      if (Number.isInteger(include.limit)) {
-        let limit = idGenerator.nextId()
-        slice += `$${limit}`
-        parameters[limit] = include.limit + parameters[skipParameter]
-      }
-      slice += ']'
-      let sliceStatement = new Statement(slice, parameters)
+      let sliceStatement = paginateInclude(idGenerator, include)
       withVariables.push(patternId, relatedId)
       includeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
+      if (include.order) {
+        includeCypherParts.push(queryObjectOrderToCypher(include.order, relatedId))
+      }
       let includeStatement = includeCypherParts.reduce((result, statement) => {
         Object.assign(result.parameters, statement.parameters)
         result.cypher += `${statement.cypher} `
@@ -140,6 +173,19 @@ function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVar
     cypherParts,
     returnNames
   }
+}
+
+function paginateResults (idGenerator, queryObject) {
+  let pagination = []
+  if (Number.isInteger(queryObject.skip)) {
+    let skipParameter = idGenerator.nextId()
+    pagination.push(new Statement(`SKIP $${skipParameter}`, { [skipParameter]: queryObject.skip }))
+  }
+  if (Number.isInteger(queryObject.limit)) {
+    let limitParameter = idGenerator.nextId()
+    pagination.push(new Statement(`LIMIT $${limitParameter}`, { [limitParameter]: queryObject.limit }))
+  }
+  return pagination
 }
 
 function queryObjectToReadStatement (queryObject) {
@@ -169,15 +215,7 @@ function queryObjectToReadStatement (queryObject) {
     return result
   }, new Statement())
   statement.cypher += `\nRETURN ${returnNames.join(', ')}`
-  let pagination = []
-  if (Number.isInteger(queryObject.skip)) {
-    let skipParameter = idGenerator.nextId()
-    pagination.push(new Statement(`SKIP $${skipParameter}`, { [skipParameter]: queryObject.skip }))
-  }
-  if (Number.isInteger(queryObject.limit)) {
-    let limitParameter = idGenerator.nextId()
-    pagination.push(new Statement(`LIMIT $${limitParameter}`, { [limitParameter]: queryObject.limit }))
-  }
+  let pagination = paginateResults(idGenerator, queryObject)
   if (pagination.length) {
     statement.cypher += ` ${pagination.map(p => p.cypher).join(' ')}`
     Object.assign(statement.parameters, ...pagination.map(p => p.parameters))
