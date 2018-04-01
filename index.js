@@ -1,32 +1,37 @@
-const neo4j = require('neo4j-driver').v1;
+const neo4j = require('neo4j-driver').v1
 const cypherMapper = require('./mappers/cypher')
 
-const driver = neo4j.driver('bolt://localhost');
-const session = driver.session();
-
+const driver = neo4j.driver('bolt://localhost')
+const session = driver.session()
 
 // let statement = cypherMapper.jsonToWriteStatement({
-//  name: 'diego',
-//  friends: [{
-//    name: 'rafael'
-//  }, {
-//    name: 'amanda',
-//    address: {
-//      city: 'haha',
-//      arraylul: [{
-//        shit: 'rofl'
-//      }, {
-//        omega: 'lul'
-//      }]
-//    }
-//  }]
+//   name: 'diego',
+//   _label: 'man',
+//   friends: [{
+//     name: 'rafael',
+//     _label: 'man',
+//   }, {
+//     name: 'amanda',
+//     _label: 'woman',
+//     address: {
+//       city: 'haha',
+//       _label: 'place',
+//       arraylul: [{
+//         shit: 'rofl',
+//         _label: 'haha'
+//       }, {
+//         omega: 'lul',
+//         _label: 'haha'
+//       }]
+//     }
+//   }]
 // })
 // console.log(statement.cypher)
-//session.run(statement.cypher, statement.parameters).then(result => {
-//  session.close()
-//  driver.close()
-//})
-
+// console.log(statement.parameters)
+// session.run(statement.cypher, statement.parameters).then(result => {
+//   session.close()
+//   driver.close()
+// })
 
 //let statement = cypherMapper.jsonToWriteStatement({
 //  osfrog: 'balanced'
@@ -51,11 +56,10 @@ let statement = cypherMapper.queryObjectToReadStatement({
   args: {
     ending: 'd'
   },
-  label: 'lul',
+  label: 'man',
   order: (node) => node.city,
   include: [{
     name: 'friends',
-    mandatory: true,
     where: (node, args) => node.name.includes(args.ending),
     args: {
       ending: 'a'
@@ -68,7 +72,6 @@ let statement = cypherMapper.queryObjectToReadStatement({
 console.log(statement.cypher)
 console.log(statement.parameters)
 session.run(`${statement.cypher}`, statement.parameters).then(result => {
-  console.log(JSON.stringify(result, null, 2))
   console.log(JSON.stringify(cypherMapper.readStatementResultToJson(result, false), null, 2))
   session.close()
   driver.close()

@@ -1,6 +1,6 @@
 module.exports = class CypherNode {
-  constructor (cypher, id, node) {
-    this.cypher = cypher
+  constructor (label, id, node) {
+    this.label = label
     this.id = id
     this.node = node
   }

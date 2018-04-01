@@ -10,7 +10,9 @@ function nodeToCypherNode (idGenerator, node) {
   if (!node.uuid) {
     node.uuid = uuid.v4()
   }
-  return new CypherNode(`(${nodeId} $${nodeId})`, nodeId, node)
+  let label = node._label
+  delete node._label
+  return new CypherNode(label, nodeId, node)
 }
 
 function nodeKeyToRelationshipCypher (key, isArray) {
@@ -25,7 +27,7 @@ function onMatchCypher (nodeId) {
 function cypherNodeToMergeStatement (idGenerator, cypherNode) {
   let uuidParam = idGenerator.nextId()
   return new Statement(
-    `MERGE (${cypherNode.id} {uuid: $${uuidParam}}) ${onMatchCypher(
+    `MERGE (${cypherNode.id}:${cypherNode.label} {uuid: $${uuidParam}}) ${onMatchCypher(
       cypherNode.id)}`,
     {
       [cypherNode.id]: cypherNode.node,
@@ -39,7 +41,7 @@ function parentChildToMergeStatement (idGenerator, parentCypherNode, key, childC
   let uuidChildParam = idGenerator.nextId()
   return new Statement(
     `MERGE (${parentCypherNode.id})` +
-    `${relationshipCypher}(${childCypherNode.id} {uuid: $${uuidChildParam}})` +
+    `${relationshipCypher}(${childCypherNode.id}:${childCypherNode.label} {uuid: $${uuidChildParam}})` +
     ` ${onMatchCypher(childCypherNode.id)}`,
     {
       [uuidChildParam]: childCypherNode.node.uuid
