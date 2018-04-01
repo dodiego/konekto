@@ -82,12 +82,10 @@ function predicateToWhereStatement (predicate, parameters, nodeId) {
       parts.push(new CypherPart(node.end, ')'))
     }
   })
-  let cypher = parts.sort((a, b) => a.start - b.start).map(n => n.body).join(' ')
-  cypher = `WHERE ${cypher}`
-  return cypher
+  return parts.sort((a, b) => a.start - b.start).map(n => n.body).join(' ')
 }
 
-function queryObjectWhereToCypher (idGenerator, queryObject, nodeId) {
+function queryObjectWhereToStatement (idGenerator, queryObject, nodeId) {
   let entries = Object.entries(queryObject.args)
   let parameters = {}
   let cypherParameters = {}
@@ -99,7 +97,7 @@ function queryObjectWhereToCypher (idGenerator, queryObject, nodeId) {
   return new Statement(predicateToWhereStatement(queryObject.where, parameters, nodeId), cypherParameters)
 }
 
-function queryObjectOrderToCypher (predicate, nodeId) {
+function queryObjectOrderToStatement (predicate, nodeId) {
   let parts = []
   let tree = acorn.parse(predicate.toString())
   walk.ancestor(tree, {
@@ -138,31 +136,38 @@ function paginateInclude (idGenerator, include) {
   return new Statement(slice, parameters)
 }
 
-function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables = [], cypherParts = [], returnNames = []) {
+function addWithStatement (cypherParts, withVariables) {
+  cypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
+}
+
+function reduceCypherParts (cypherParts, initalParameters, separator = ' ') {
+  return cypherParts.reduce((result, statement) => {
+    Object.assign(result.parameters, statement.parameters)
+    result.cypher += `${statement.cypher}${separator}`
+    return result
+  }, new Statement('', initalParameters))
+}
+
+function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables, cypherParts = [], returnNames = []) {
   if (queryObject.include) {
     for (let include of queryObject.include) {
       let relatedId = idGenerator.nextId()
       let patternId = idGenerator.nextId()
+      let includeCypherParts = []
       let matchStatement = new Statement(`MATCH ${patternId} = (${parentId})-[:${include.name}]->(${relatedId})`)
       if (!include.mandatory) {
         matchStatement.cypher = `OPTIONAL ${matchStatement.cypher}`
       }
-      let includeCypherParts = [ matchStatement ]
-      if (include.where) {
-        includeCypherParts.push(queryObjectWhereToCypher(idGenerator, include, relatedId))
-      }
+      includeCypherParts.push(matchStatement)
+      includeCypherParts.push(...filterResults(idGenerator, include, relatedId))
       let sliceStatement = paginateInclude(idGenerator, include)
       withVariables.push(patternId, relatedId)
+      addWithStatement(includeCypherParts, withVariables)
       includeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
       if (include.order) {
-        includeCypherParts.push(queryObjectOrderToCypher(include.order, relatedId))
+        includeCypherParts.push(queryObjectOrderToStatement(include.order, relatedId))
       }
-      let includeStatement = includeCypherParts.reduce((result, statement) => {
-        Object.assign(result.parameters, statement.parameters)
-        result.cypher += `${statement.cypher} `
-        return result
-      }, new Statement('', sliceStatement.parameters))
-      cypherParts.push(includeStatement)
+      cypherParts.push(reduceCypherParts(includeCypherParts, sliceStatement.parameters))
       returnNames.push(`collect(${patternId})${sliceStatement.cypher}`)
       queryObjectIncludeToCypher(relatedId, idGenerator, include, withVariables, cypherParts, returnNames)
     }
@@ -171,6 +176,25 @@ function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVar
     cypherParts,
     returnNames
   }
+}
+
+function filterResults (idGenerator, queryObject, nodeId) {
+  let cypherParts = []
+  if (queryObject.label) {
+    if (Array.isArray(queryObject.label)) {
+      cypherParts.push(new Statement(`WHERE (${queryObject.label.map(l => `${nodeId}:${l}`).join(' OR ')})`))
+    } else {
+      cypherParts.push(new Statement(`WHERE (${nodeId}:${queryObject.label})`))
+    }
+    if (queryObject.where) {
+      let whereStatement = queryObjectWhereToStatement(idGenerator, queryObject, nodeId)
+      cypherParts.push(new Statement(` AND (${whereStatement.cypher})`, whereStatement.parameters))
+    }
+  } else {
+    let whereStatement = queryObjectWhereToStatement(idGenerator, queryObject, nodeId)
+    cypherParts.push(new Statement(`WHERE ${whereStatement.cypher}`, whereStatement.parameters))
+  }
+  return cypherParts
 }
 
 function paginateResults (idGenerator, queryObject) {
@@ -189,38 +213,23 @@ function paginateResults (idGenerator, queryObject) {
 function queryObjectToReadStatement (queryObject) {
   let idGenerator = new IdGenerator()
   let nodeId = idGenerator.nextId()
-  let firstNodeCypherParts = []
+  let headCypherParts = []
+  let tailCypherParts = []
   let returnNames = []
   let withVariables = []
-  firstNodeCypherParts.push(new Statement(`MATCH (${nodeId})`))
+  headCypherParts.push(new Statement(`MATCH (${nodeId})`))
+  headCypherParts.push(...filterResults(idGenerator, queryObject, nodeId))
   withVariables.push(nodeId)
-  if (queryObject.where) {
-    firstNodeCypherParts.push(queryObjectWhereToCypher(idGenerator, queryObject, nodeId))
-  }
-  firstNodeCypherParts.push(new Statement(`WITH ${withVariables.join(', ')}`))
+  addWithStatement(headCypherParts, withVariables)
   returnNames.push(nodeId)
-  let firstStatement = firstNodeCypherParts.reduce((result, statement) => {
-    Object.assign(result.parameters, statement.parameters)
-    result.cypher += `${statement.cypher} `
-    return result
-  }, new Statement())
   let includes = queryObjectIncludeToCypher(nodeId, idGenerator, queryObject, withVariables)
   returnNames.push(...includes.returnNames)
-  let statement = [firstStatement, ...includes.cypherParts].reduce((result, statement) => {
-    Object.assign(result.parameters, statement.parameters)
-    result.cypher += `${statement.cypher}\n`
-    return result
-  }, new Statement())
-  statement.cypher += `RETURN ${returnNames.join(', ')}`
+  tailCypherParts.push(new Statement(`RETURN ${returnNames.join(', ')}`))
   if (queryObject.order) {
-    statement.cypher += ` ${queryObjectOrderToCypher(queryObject.order, nodeId).cypher}`
+    tailCypherParts.push(queryObjectOrderToStatement(queryObject.order, nodeId))
   }
-  let pagination = paginateResults(idGenerator, queryObject)
-  if (pagination.length) {
-    statement.cypher += ` ${pagination.map(p => p.cypher).join(' ')}`
-    Object.assign(statement.parameters, ...pagination.map(p => p.parameters))
-  }
-  return statement
+  tailCypherParts.push(...paginateResults(idGenerator, queryObject))
+  return reduceCypherParts([reduceCypherParts(headCypherParts), ...includes.cypherParts, ...tailCypherParts], {}, '\n')
 }
 
 module.exports = queryObjectToReadStatement

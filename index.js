@@ -51,6 +51,7 @@ let statement = cypherMapper.queryObjectToReadStatement({
   args: {
     ending: 'd'
   },
+  label: 'lul',
   order: (node) => node.city,
   include: [{
     name: 'friends',
@@ -66,7 +67,8 @@ let statement = cypherMapper.queryObjectToReadStatement({
 })
 console.log(statement.cypher)
 console.log(statement.parameters)
-session.run(statement.cypher, statement.parameters).then(result => {
+session.run(`${statement.cypher}`, statement.parameters).then(result => {
+  console.log(JSON.stringify(result, null, 2))
   console.log(JSON.stringify(cypherMapper.readStatementResultToJson(result, false), null, 2))
   session.close()
   driver.close()
@@ -76,3 +78,9 @@ session.run(statement.cypher, statement.parameters).then(result => {
 //  session.close()
 //  driver.close()
 //})
+
+// session.run('PROFILE match (n) where n:LABEL OR n:LABEL2 RETURN n').then((result) => {
+//   console.log(JSON.stringify(result, null, 2))
+//  session.close()
+//  driver.close()
+// })
