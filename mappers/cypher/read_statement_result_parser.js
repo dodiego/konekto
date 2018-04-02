@@ -48,10 +48,34 @@ function rowsToJson (rows, removeDuplicates) {
   return Object.values(result).filter(node => !related[node.uuid])
 }
 
-function readStamentResultToJson (result, removeDuplicates = true) {
-  let rows = getRows(result)
-  let json = rowsToJson(rows, removeDuplicates)
-  return json
+function rowsToUuid (rows) {
+  return Object.keys(rows.reduce((result, row) => {
+    if (Array.isArray(row)) {
+      for (let item of row) {
+        for (let segment of item.segments) {
+          result[segment.start.properties.uuid] = true
+          result[segment.end.properties.uuid] = true
+        }
+      }
+    } else {
+      result[row.properties.uuid] = true
+    }
+    return result
+  }, {}))
 }
 
-module.exports = readStamentResultToJson
+function readStatementResultToUuidArray (result) {
+  let rows = getRows(result)
+  return rowsToUuid(rows)
+}
+
+function readStamentResultToJson (result, options) {
+  options = Object.assign({}, options, {removeDuplicates: false})
+  let rows = getRows(result)
+  return rowsToJson(rows, options.removeDuplicates)
+}
+
+module.exports = {
+  toJson: readStamentResultToJson,
+  toUuidArray: readStatementResultToUuidArray
+}

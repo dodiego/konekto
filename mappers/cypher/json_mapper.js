@@ -43,7 +43,8 @@ function cypherNodeToMergeStatement (idGenerator, cypherNode) {
     {
       [cypherNode.id]: cypherNode.node,
       [uuidParam]: cypherNode.node.uuid
-    }
+    },
+    cypherNode.node.uuid
   )
 }
 
@@ -94,7 +95,7 @@ function getRelationshipStatements (idGenerator, parentCypherNode, children, sta
   return statements
 }
 
-function jsonToWriteStatement (json) {
+function jsonMapper (json) {
   let nextNodes = []
   let parentNode = jsonToNode(json, nextNodes)
   let idGenerator = new IdGenerator()
@@ -108,7 +109,8 @@ function jsonToWriteStatement (json) {
   }, new Statement())
 
   statement.cypher = statement.cypher.slice(0, -1)
+  statement.root = firstStatement.uuid
   return statement
 }
 
-module.exports = jsonToWriteStatement
+module.exports = jsonMapper
