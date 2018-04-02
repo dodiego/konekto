@@ -4,20 +4,31 @@ const uuid = require('uuid')
 const CypherNode = require('../../models/cypher_node')
 const Statement = require('../../models/statement')
 const IdGenerator = require('./id_generator')
+const wordRegex = /(\w+)\s*/g
 
 function nodeToCypherNode (idGenerator, node) {
   let nodeId = idGenerator.nextId()
   if (!node.uuid) {
     node.uuid = uuid.v4()
   }
-  let label = node._label
+  if (typeof node._label !== 'string') {
+    throw new Error('Objects must have an _label property of string type')
+  }
+  let words = node._label.match(wordRegex)
+  if (words.length !== 1) {
+    throw new Error('label must be a single word string')
+  }
   delete node._label
-  return new CypherNode(label, nodeId, node)
+  return new CypherNode(words[0], nodeId, node)
 }
 
 function nodeKeyToRelationshipCypher (key, isArray) {
   let properties = isArray ? ' { isArray: true }' : ''
-  return `-[:${key}${properties}]->`
+  let words = key.match(wordRegex)
+  if (words.length !== 1) {
+    throw new Error('Object keys must be a single word identifier')
+  }
+  return `-[:${words[0]}${properties}]->`
 }
 
 function onMatchCypher (nodeId) {
@@ -53,7 +64,11 @@ function jsonToNode (json, nextNodes) {
   return Object.entries(json).reduce((result, [key, value]) => {
     if (typeof value === 'object') {
       if (Array.isArray(value)) {
-        nextNodes.push(...value.map(item => ({key, value: item, isArray: true})))
+        if (value.length > 0 && typeof value[0] === 'object') {
+          nextNodes.push(...value.map(item => ({key, value: item, isArray: true})))
+        } else {
+          result[key] = value
+        }
       } else {
         nextNodes.push({key, value})
       }

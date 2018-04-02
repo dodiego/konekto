@@ -30,7 +30,7 @@ const operators = {
   'in': 'IN',
   'test': '=~'
 }
-const wordRegex = /(\w+)\s/
+const wordRegex = /(\w+)\s*/
 
 function getCypherName (node, args, parameters, nodeId) {
   // TODO: add links to official docs
@@ -210,7 +210,7 @@ function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVar
       let patternId = idGenerator.nextId()
       let includeCypherParts = []
       let matchStatement = new Statement(`MATCH ${patternId} = ` +
-                                         `(${parentId})-[:${wordRegex.exec(include.name)[0]}]->(${relatedId})`)
+                                         `(${parentId})-[:${include.name.match(wordRegex)[0]}]->(${relatedId})`)
       if (!include.mandatory) {
         matchStatement.cypher = `OPTIONAL ${matchStatement.cypher}`
       }
@@ -241,13 +241,13 @@ function filterResults (idGenerator, queryObject, nodeId) {
       if (queryObject.label.some(label => typeof label !== 'string')) {
         throw new Error('label must be an array of strings or a string itself')
       }
-      let labels = queryObject.label.map(label => `${nodeId}:${wordRegex.exec(label)}`).join(' OR ')
+      let labels = queryObject.label.map(label => `${nodeId}:${label.match(wordRegex)[0]}`).join(' OR ')
       cypherParts.push(new Statement(`WHERE (${labels})`))
     } else {
       if (typeof queryObject.label !== 'string') {
         throw new Error('label must be an array of strings or a string itself')
       }
-      cypherParts.push(new Statement(`WHERE (${nodeId}:${wordRegex.exec(queryObject.label)})`))
+      cypherParts.push(new Statement(`WHERE (${nodeId}:${queryObject.label.match(wordRegex)[0]})`))
     }
     if (queryObject.where) {
       let whereStatement = queryObjectWhereToStatement(idGenerator, queryObject, nodeId)
