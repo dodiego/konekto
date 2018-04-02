@@ -30,14 +30,26 @@ const operators = {
   'in': 'IN',
   'test': '=~'
 }
-
-// console.log(JSON.stringify(acorn.parse('a.test'), null, 2))
-// console.log(JSON.stringify(acorn.parse('a["test"]'), null, 2))
-// console.log(JSON.stringify(acorn.parse('a[test]'), null, 2))
-// console.log(typeof acorn.parse('a.ladshflkjasd'))
+const wordRegex = /(\w+)\s/
 
 function getCypherName (node, args, parameters, nodeId) {
-  return node.object.name === args.node ? `${nodeId}.${node.property.name}` : `$${parameters[node.property.name]}`
+  // TODO: add links to official docs
+  if (node.property.type === 'Literal') {
+    throw new Error('literal property names are not allowed, ' +
+                    'use dot notation or a variable name as a property accessor instead.')
+  }
+  if (!parameters[node.property.name]) {
+    throw new Error(`undefined parameter reference "${node.object.name}.${node.property.name}", 
+    check the value passed to the correspondent queryObject.args.${node.property.name} `)
+  }
+  let cypherNames = {
+    [args.node]: `${nodeId}.${node.property.name}`,
+    [args.params]: `$${parameters[node.property.name]}`
+  }
+  if (!cypherNames[node.object.name]) {
+    // TODO: add a explanation
+  }
+  return cypherNames[node.object.name]
 }
 
 function predicateToWhereStatement (predicate, parameters, nodeId) {
@@ -45,6 +57,12 @@ function predicateToWhereStatement (predicate, parameters, nodeId) {
     preserveParens: true
   })
   let arrowFunctionNode = tree.body[0].expression
+  if (arrowFunctionNode.type !== 'ArrowFunctionExpression' ||
+      arrowFunctionNode.body.type === 'BlockStatement' ||
+      arrowFunctionNode.params.length !== 2) {
+    // TODO: add links to official docs
+    throw new Error('queryObject.where should be an single line arrow function with two parameters')
+  }
   let args = {}
   let parts = []
 
@@ -66,16 +84,33 @@ function predicateToWhereStatement (predicate, parameters, nodeId) {
           operators[operator],
           getCypherName(right, args, parameters, nodeId)
         ].join(' ')))
+      } else {
+        // TODO: add links to official docs
+        throw new Error('Method not supported, check the docs for a full list of supported methods')
       }
     },
     BinaryExpression (node) {
-      parts.push(new CypherPart(node.left.end + 1, operators[node.operator]))
+      if (operators[node.operator]) {
+        parts.push(new CypherPart(node.left.end + 1, operators[node.operator]))
+      } else {
+        // TODO: add links to official docs
+        throw new Error('Operator not supported, check the docs for a full list of supported operators')
+      }
     },
     UnaryExpression (node) {
-      parts.push(new CypherPart(node.start, operators[node.operator]))
+      if (node.operator === '!') {
+        parts.push(new CypherPart(node.start, operators[node.operator]))
+      } else {
+        throw new Error('Only negation (!) is a valid operator in unary expressions')
+      }
     },
     LogicalExpression (node) {
-      parts.push(new CypherPart(node.left.end + 1, operators[node.operator]))
+      if (operators[node.operator]) {
+        parts.push(new CypherPart(node.left.end + 1, operators[node.operator]))
+      } else {
+        // TODO: add links to official docs
+        throw new Error('Operator not supported, check the docs for a full list of supported operators')
+      }
     },
     ParenthesizedExpression (node) {
       parts.push(new CypherPart(node.start, '('))
@@ -86,6 +121,11 @@ function predicateToWhereStatement (predicate, parameters, nodeId) {
 }
 
 function queryObjectWhereToStatement (idGenerator, queryObject, nodeId) {
+  if (!queryObject.args) {
+    // TODO: add links to official docs
+    throw new Error('You need to provide queryObject.args object ' +
+                    'that will be injected as a second argument at the queryOject.where function')
+  }
   let entries = Object.entries(queryObject.args)
   let parameters = {}
   let cypherParameters = {}
@@ -100,16 +140,28 @@ function queryObjectWhereToStatement (idGenerator, queryObject, nodeId) {
 function queryObjectOrderToStatement (predicate, nodeId) {
   let parts = []
   let tree = acorn.parse(predicate.toString())
+  let arrowFunctionNode = tree.body[0].expression
+  if (arrowFunctionNode.type !== 'ArrowFunctionExpression' ||
+      arrowFunctionNode.body.type === 'BlockStatement' ||
+      arrowFunctionNode.params.length !== 2) {
+    // TODO: add links to official docs
+    throw new Error('queryObject.where should be an single line arrow function with two parameters')
+  }
   walk.ancestor(tree, {
     UnaryExpression (node) {
       let part = new CypherPart(node.argument.start, `${nodeId}.${node.argument.property.name}`)
       if (node.operator === '!') {
         part.body += ` DESC`
+      } else {
+        throw new Error('Only negation (!) is allowed as a unary operator in queryObject.order')
       }
-      console.log(node)
       parts.push(part)
     },
     MemberExpression (node, ancestors) {
+      if (node.property.type === 'Literal') {
+        throw new Error('literal property names are not allowed, ' +
+                        'use dot notation or a variable name as a property accessor instead.')
+      }
       if (!ancestors.some(node => node.type === 'UnaryExpression')) {
         parts.push(new CypherPart(node.start, `${nodeId}.${node.property.name}`))
       }
@@ -151,10 +203,14 @@ function reduceCypherParts (cypherParts, initalParameters, separator = ' ') {
 function queryObjectIncludeToCypher (parentId, idGenerator, queryObject, withVariables, cypherParts = [], returnNames = []) {
   if (queryObject.include) {
     for (let include of queryObject.include) {
+      if (typeof include.name !== 'string') {
+        throw new Error('relationship name must be a string')
+      }
       let relatedId = idGenerator.nextId()
       let patternId = idGenerator.nextId()
       let includeCypherParts = []
-      let matchStatement = new Statement(`MATCH ${patternId} = (${parentId})-[:${include.name}]->(${relatedId})`)
+      let matchStatement = new Statement(`MATCH ${patternId} = ` +
+                                         `(${parentId})-[:${wordRegex.exec(include.name)[0]}]->(${relatedId})`)
       if (!include.mandatory) {
         matchStatement.cypher = `OPTIONAL ${matchStatement.cypher}`
       }
@@ -182,9 +238,16 @@ function filterResults (idGenerator, queryObject, nodeId) {
   let cypherParts = []
   if (queryObject.label) {
     if (Array.isArray(queryObject.label)) {
-      cypherParts.push(new Statement(`WHERE (${queryObject.label.map(l => `${nodeId}:${l}`).join(' OR ')})`))
+      if (queryObject.label.some(label => typeof label !== 'string')) {
+        throw new Error('label must be an array of strings or a string itself')
+      }
+      let labels = queryObject.label.map(label => `${nodeId}:${wordRegex.exec(label)}`).join(' OR ')
+      cypherParts.push(new Statement(`WHERE (${labels})`))
     } else {
-      cypherParts.push(new Statement(`WHERE (${nodeId}:${queryObject.label})`))
+      if (typeof queryObject.label !== 'string') {
+        throw new Error('label must be an array of strings or a string itself')
+      }
+      cypherParts.push(new Statement(`WHERE (${nodeId}:${wordRegex.exec(queryObject.label)})`))
     }
     if (queryObject.where) {
       let whereStatement = queryObjectWhereToStatement(idGenerator, queryObject, nodeId)
@@ -201,11 +264,11 @@ function paginateResults (idGenerator, queryObject) {
   let pagination = []
   if (Number.isInteger(queryObject.skip)) {
     let skipParameter = idGenerator.nextId()
-    pagination.push(new Statement(`SKIP $${skipParameter}`, { [skipParameter]: queryObject.skip }))
+    pagination.push(new Statement(`SKIP $${skipParameter}`, {[skipParameter]: queryObject.skip}))
   }
   if (Number.isInteger(queryObject.limit)) {
     let limitParameter = idGenerator.nextId()
-    pagination.push(new Statement(`LIMIT $${limitParameter}`, { [limitParameter]: queryObject.limit }))
+    pagination.push(new Statement(`LIMIT $${limitParameter}`, {[limitParameter]: queryObject.limit}))
   }
   return pagination
 }
