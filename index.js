@@ -26,20 +26,16 @@ module.exports = class Aghanim {
     options = Object.assign({}, { returnResults: false, parseResults: true, parseOptions: null }, options)
     let session = this.driver.session()
     let statement = cypherMapper.queryObjectMapper(queryObject)
-    try {
-      let result = await session.run(statement.cypher, statement.parameters)
-      let uuids = cypherMapper.readStatementResultParser.toUuidArray(result)
-      await session.run(`MATCH (n) WHERE n.uuid in $uuids DETACH DELETE n`, { uuids })
-      session.close()
-      if (options.returnResults) {
-        if (options.parseResults) {
-          return cypherMapper.readStatementResultParser.toJson(result, options.parseOptions)
-        } else {
-          return uuids
-        }
+    let result = await session.run(statement.cypher, statement.parameters)
+    let uuids = cypherMapper.readStatementResultParser.toUuidArray(result)
+    await session.run(`MATCH (n) WHERE n.uuid in $uuids DETACH DELETE n`, { uuids })
+    session.close()
+    if (options.returnResults) {
+      if (options.parseResults) {
+        return cypherMapper.readStatementResultParser.toJson(result, options.parseOptions)
+      } else {
+        return uuids
       }
-    } catch (err) {
-      console.log(err)
     }
   }
 }

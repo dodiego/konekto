@@ -15,12 +15,10 @@ function getRows (result) {
 function rowsToJson (rows, removeDuplicates) {
   let result = {}
   let related = {}
-  for (let i = 0, fieldsLength = rows.length; i < fieldsLength; i++) {
-    let row = rows[i]
+  for (let row of rows) {
     if (Array.isArray(row)) {
       for (let item of row) {
-        for (let j = 0, segmentsLength = item.segments.length; j < segmentsLength; j++) {
-          let segment = item.segments[j]
+        for (let segment of item.segments) {
           if (!result[segment.start.properties.uuid]) {
             result[segment.start.properties.uuid] = segment.start.properties
           }
