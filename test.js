@@ -36,7 +36,7 @@ let aghanim = new Aghanim();
   }))
 
   console.log(await aghanim.remove({
-    label: ['man lul', 'woman'],
+    label: ['man', 'woman'],
     order: (node) => node.city,
     include: [{
       name: 'friends',

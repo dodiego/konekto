@@ -21,6 +21,7 @@ function rowsToJson (rows, removeDuplicates) {
         for (let segment of item.segments) {
           if (!result[segment.start.properties.uuid]) {
             result[segment.start.properties.uuid] = segment.start.properties
+            result[segment.start.properties.uuid]._label = segment.start.labels[0]
           }
 
           if (segment.relationship.properties.isArray) {
@@ -38,6 +39,7 @@ function rowsToJson (rows, removeDuplicates) {
       }
     } else {
       result[row.properties.uuid] = row.properties
+      result[row.properties.uuid]._label = row.labels[0]
     }
   }
   if (!removeDuplicates) {

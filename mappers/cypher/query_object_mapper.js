@@ -30,8 +30,8 @@ const operators = {
   'in': 'IN',
   'test': '=~'
 }
-const wordRegex = /(\w+)\s*/
-
+const wordRegex = /(\w+)\s*/g
+const REGEX_MAX_LENGTH = 1
 function getCypherName (node, args, parameters, nodeId) {
   // TODO: add links to official docs
   if (node.property.type === 'Literal') {
@@ -237,13 +237,13 @@ function filterResults (idGenerator, queryObject, nodeId) {
   let cypherParts = []
   if (queryObject.label) {
     if (Array.isArray(queryObject.label)) {
-      if (queryObject.label.some(label => typeof label !== 'string' || label.match(wordRegex).length > 1)) {
+      if (queryObject.label.some(label => typeof label !== 'string' || label.match(wordRegex).length !== REGEX_MAX_LENGTH)) {
         throw new Error('label must be an array of single word strings or a single word string itself')
       }
       let labels = queryObject.label.map(label => `${nodeId}:${label.match(wordRegex)[0]}`).join(' OR ')
       cypherParts.push(new Statement(`WHERE (${labels})`))
     } else {
-      if (typeof queryObject.label !== 'string' || queryObject.label.match(wordRegex).length > 1) {
+      if (typeof queryObject.label !== 'string' || queryObject.label.match(wordRegex).length !== REGEX_MAX_LENGTH) {
         throw new Error('label must be an array of single word strings or a single word string itself')
       }
       cypherParts.push(new Statement(`WHERE (${nodeId}:${queryObject.label.match(wordRegex)[0]})`))

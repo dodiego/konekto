@@ -5,6 +5,7 @@ const CypherNode = require('../../models/cypher_node')
 const Statement = require('../../models/statement')
 const IdGenerator = require('./id_generator')
 const wordRegex = /(\w+)\s*/g
+const REGEX_MAX_LENGTH = 1
 
 function nodeToCypherNode (idGenerator, node) {
   let nodeId = idGenerator.nextId()
