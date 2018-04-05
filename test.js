@@ -1,8 +1,8 @@
-let Aghanim = require('./index')
+let Aghanim = require('./lib/index')
 let aghanim = new Aghanim();
 
 (async () => {
-  console.log(await aghanim.write({
+  console.log(await aghanim.save({
     name: 'diego',
     _label: 'man',
     friends: [{
@@ -26,7 +26,7 @@ let aghanim = new Aghanim();
   })
   )
 
-  console.log(await aghanim.read({
+  console.log(await aghanim.findByQueryObject({
     label: ['man', 'woman'],
     order: (node) => node.city,
     include: [{
@@ -48,4 +48,6 @@ let aghanim = new Aghanim();
     returnResults: true,
     parseResults: true
   }))
+
+  console.log(await aghanim.findByUuid('40808608-efe6-43f0-8e37-e49dce8c9f63'))
 })()
