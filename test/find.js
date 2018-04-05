@@ -344,7 +344,6 @@ describe('find', () => {
             mandatory: true
           }]
         })
-        console.log(result)
         expect(result).to.be.an('array').that.have.lengthOf(2)
         expect(result).all.have.property('skills').that.is.an('array')
         done()
@@ -637,7 +636,6 @@ describe('find', () => {
             }]
           }]
         })
-        console.log(result)
         expect(result).to.be.an('array').that.have.lengthOf(1)
         expect(result[0]).to.have.property('skills').that.is.an('array')
         expect(result).all.to.have.property('uuid')
