@@ -33,9 +33,9 @@ let aghanim = new Aghanim();
       name: 'friends',
       order: (node) => node.name
     }]
-  }))
+  }, { removeDuplicates: true }))
 
-  console.log(await aghanim.remove({
+  await aghanim.remove({
     label: ['man', 'woman'],
     order: (node) => node.city,
     include: [{
@@ -47,7 +47,7 @@ let aghanim = new Aghanim();
   }, {
     returnResults: true,
     parseResults: true
-  }))
+  })
 
-  console.log(await aghanim.findByUuid('40808608-efe6-43f0-8e37-e49dce8c9f63'))
+  await aghanim.findByUuid('40808608-efe6-43f0-8e37-e49dce8c9f63')
 })()
