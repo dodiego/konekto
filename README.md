@@ -1,5 +1,5 @@
 # Aghanim
-
+ 
 ## What is it?
 Aghanim is an node.js OGM (Object-Graph Mapper) intended to be used with neo4j and
 focused on simplicity.
