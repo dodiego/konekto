@@ -20,6 +20,7 @@
     "acorn": "^5.5.3",
     "ajv": "^6.2.1",
     "neo4j-driver": "1.5.0",
+    "pg": "^7.9.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
