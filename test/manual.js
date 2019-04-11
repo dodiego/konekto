@@ -27,7 +27,21 @@ async function run () {
   }
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
-  await aghanim.save(json)
+  // await aghanim.save(json)
+  await aghanim.findByQueryObject({
+    [label]: 'xd',
+    rel: [
+      {
+        [label]: 'xd2',
+        subRel: {
+          [label]: 'xd3'
+        }
+      },
+      {
+        [label]: 'xd3'
+      }
+    ]
+  })
 }
 
 run().then(
