@@ -10,10 +10,20 @@ async function run () {
   let json = {
     [label]: 'xd',
     name: 'omegalul',
-    rel: {
-      [label]: 'xd2',
-      bool: true
-    }
+    rel: [
+      {
+        [label]: 'xd2',
+        bool: true
+      },
+      {
+        [label]: 'xd2',
+        number: 10,
+        subRel: {
+          [label]: 'xd3',
+          date: new Date()
+        }
+      }
+    ]
   }
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
