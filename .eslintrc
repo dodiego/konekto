@@ -1,3 +1,10 @@
 {
-  "extends": "standard"
+  "extends": "standard",
+  "rules": {
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "always"]
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  }
 }
