@@ -9,7 +9,8 @@ const aghanim = new Aghanim({
 async function run () {
   let json = {
     [label]: 'xd',
-    name: 'omegalul',
+    _id: '5.3',
+    name: 'omegalul2',
     rel: [
       {
         [label]: 'xd2',
@@ -27,11 +28,11 @@ async function run () {
   }
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
-  // await aghanim.save(json)
+  await aghanim.save(json)
   console.log(
     await aghanim.findByQueryObject({
       [label]: 'xd',
-      name: 'omegalul',
+      name: 'omegalul2',
       rel: [
         {
           [label]: 'xd2',
