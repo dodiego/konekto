@@ -1128,6 +1128,11 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
 
+sql-from-mongo@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/sql-from-mongo/-/sql-from-mongo-0.2.1.tgz#d9e6daefe8528c1e4e5e4a2499624d78a18d50de"
+  integrity sha1-2eba7+hSjB5OXkokmWJNeKGNUN4=
+
 string-width@^2.1.0, string-width@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-2.1.1.tgz#ab93f27a8dc13d28cac815c462143a6d9012ae9e"

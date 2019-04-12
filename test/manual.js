@@ -30,6 +30,7 @@ async function run () {
   // await aghanim.save(json)
   await aghanim.findByQueryObject({
     [label]: 'xd',
+    name: 'omegalul',
     rel: [
       {
         [label]: 'xd2',
