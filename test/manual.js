@@ -33,7 +33,9 @@ async function run () {
     rel: [
       {
         [label]: 'xd2',
-        [where]: { number: 11 },
+        [where]: {
+          $or: [ { number: 11 }, { bool: true } ]
+        },
         subRel: {
           [label]: 'xd3',
           [where]: {
@@ -48,10 +50,10 @@ async function run () {
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
   console.log(JSON.stringify(await aghanim.save(json), null, 2))
-  let result = await aghanim.findByQueryObject(queryObject)
-  console.log(JSON.stringify(result, null, 2))
-  await aghanim.deleteById(result[0]._id)
-  // JSON.stringify(await aghanim.deleteByQueryObject(queryObject), null, 2)
+  console.log(JSON.stringify(await aghanim.findByQueryObject(queryObject), null, 2))
+  // await aghanim.deleteById(result[0]._id)
+  console.log(await aghanim.deleteRelationships(queryObject))
+  console.log(JSON.stringify(await aghanim.findByQueryObject(queryObject), null, 2))
   // console.log(JSON.stringify(await aghanim.findById('5.1'), null, 2))
 }
 
