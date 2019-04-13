@@ -29,30 +29,36 @@ async function run () {
   }
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
-  // await aghanim.save(json)
-  console.log(
-    JSON.stringify(
-      await aghanim.findByQueryObject({
-        [label]: 'xd',
-        name: 'omegalul2',
-        rel: [
-          {
-            [label]: 'xd2',
-            [where]: {
-              number: {
-                $gte: 10
-              }
-            },
-            subRel: {
-              [label]: 'xd3'
-            }
-          }
-        ]
-      }),
-      null,
-      2
-    )
-  )
+  // // await aghanim.save(json)
+  // console.log(
+  //   JSON.stringify(
+  //     await aghanim.findByQueryObject({
+  //       [label]: 'xd',
+  //       name: 'omegalul2',
+  //       rel: [
+  //         {
+  //           [label]: 'xd2',
+  //           [where]: {
+  //             number: {
+  //               $gte: 10
+  //             }
+  //           },
+  //           subRel: {
+  //             [label]: 'xd3',
+  //             [where]: {
+  //               date: {
+  //                 $eq: '2019-04-13T01:21:14.291Z'
+  //               }
+  //             }
+  //           }
+  //         }
+  //       ]
+  //     }),
+  //     null,
+  //     2
+  //   )
+  // )
+  console.log(JSON.stringify(await aghanim.findById('5.1'), null, 2))
 }
 
 run().then(
