@@ -1,5 +1,5 @@
 const Aghanim = require('../lib')
-const { label } = require('../lib/utils')
+const { label, where } = require('../lib/utils')
 const aghanim = new Aghanim({
   user: 'agens',
   pass: 'agens',
@@ -9,8 +9,9 @@ const aghanim = new Aghanim({
 async function run () {
   let json = {
     [label]: 'xd',
-    _id: '5.3',
-    name: 'omegalul2',
+    [where]: {
+      name: 'omegalul2'
+    },
     rel: [
       {
         [label]: 'xd2',
@@ -18,7 +19,7 @@ async function run () {
       },
       {
         [label]: 'xd2',
-        number: 10,
+        number: 11,
         subRel: {
           [label]: 'xd3',
           date: new Date()
@@ -28,23 +29,29 @@ async function run () {
   }
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
-  await aghanim.save(json)
+  // await aghanim.save(json)
   console.log(
-    await aghanim.findByQueryObject({
-      [label]: 'xd',
-      name: 'omegalul2',
-      rel: [
-        {
-          [label]: 'xd2',
-          subRel: {
-            [label]: 'xd3'
+    JSON.stringify(
+      await aghanim.findByQueryObject({
+        [label]: 'xd',
+        name: 'omegalul2',
+        rel: [
+          {
+            [label]: 'xd2',
+            [where]: {
+              number: {
+                $gte: 10
+              }
+            },
+            subRel: {
+              [label]: 'xd3'
+            }
           }
-        },
-        {
-          [label]: 'xd3'
-        }
-      ]
-    })
+        ]
+      }),
+      null,
+      2
+    )
   )
 }
 
