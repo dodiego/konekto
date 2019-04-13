@@ -27,12 +27,20 @@ async function run () {
   }
   let queryObject = {
     [label]: 'xd',
-    name: 'omegalul2',
+    [where]: {
+      name: 'omegalul2'
+    },
     rel: [
       {
         [label]: 'xd2',
+        [where]: { number: 11 },
         subRel: {
-          [label]: 'xd3'
+          [label]: 'xd3',
+          [where]: {
+            date: {
+              $lte: new Date()
+            }
+          }
         }
       }
     ]
