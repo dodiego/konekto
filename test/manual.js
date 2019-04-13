@@ -39,7 +39,7 @@ async function run () {
   }
   await aghanim.connect('agens_graph')
   await aghanim.createSchema(json)
-  await aghanim.save(json)
+  console.log(JSON.stringify(await aghanim.save(json), null, 2))
   let result = await aghanim.findByQueryObject(queryObject)
   console.log(JSON.stringify(result, null, 2))
   await aghanim.deleteById(result[0]._id)
