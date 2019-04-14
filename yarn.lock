@@ -3005,6 +3005,11 @@ mkdirp@^0.5.0, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
+mongo-parse@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/mongo-parse/-/mongo-parse-2.1.0.tgz#66422e83074dc21c3448f873631c9501d8ccb493"
+  integrity sha1-ZkIugwdNwhw0SPhzYxyVAdjMtJM=
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
