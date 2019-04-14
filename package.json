@@ -4,7 +4,7 @@
   "description": "a json to cypher mapper",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha"
+    "test": "jest"
   },
   "keywords": [
     "agensgraph",
@@ -16,18 +16,21 @@
   "author": "Diego de Oliveira",
   "license": "ISC",
   "dependencies": {
+    "@types/jest": "^24.0.11",
     "bluebird": "^3.5.4",
     "pg": "^7.9.0",
     "sql-from-mongo": "^0.2.1",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
+    "eslint": "^5.16.0",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jest": "^22.4.1",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "jest": "^24.7.1",
     "prettier-eslint": "^8.8.2"
   }
 }
