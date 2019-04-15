@@ -8,11 +8,16 @@
   },
   "keywords": [
     "agensgraph",
-    "neo4j",
     "graph",
     "json",
-    "mapper"
+    "mapper",
+    "orm",
+    "ogm"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dodiego/aghanim"
+  },
   "author": "Diego de Oliveira",
   "license": "ISC",
   "dependencies": {
