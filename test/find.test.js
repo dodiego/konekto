@@ -209,3 +209,28 @@ test('optional relationship', async () => {
 
   expect(result).toEqual(jsonDb.rel2)
 })
+
+test('order relationship', async () => {
+  let result = await aghanim.findByQueryObject({
+    [label]: 'test3',
+    sub_rel: {
+      order: 'number'
+    }
+  })
+  jsonDb.rel2[1].sub_rel = jsonDb.rel2[1].sub_rel.sort((a, b) => (a.number && b.number ? a.number > b.number : 1))
+  expect(result).toEqual(jsonDb.rel2)
+})
+
+test('paginate relationship', async () => {
+  let result = await aghanim.findByQueryObject({
+    [label]: 'test3',
+    sub_rel: {
+      order: 'number',
+      skip: 1,
+      limit: 1
+    }
+  })
+  jsonDb.rel2[1].sub_rel.shift()
+  delete jsonDb.rel2[0].sub_rel
+  expect(result).toEqual(jsonDb.rel2)
+})
