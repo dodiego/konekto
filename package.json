@@ -21,6 +21,7 @@
   "author": "Diego de Oliveira",
   "license": "ISC",
   "dependencies": {
+    "@flatten/array": "^1.1.7",
     "@types/jest": "^24.0.11",
     "bluebird": "^3.5.4",
     "pg": "^7.9.0",

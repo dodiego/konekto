@@ -139,6 +139,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@flatten/array@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@flatten/array/-/array-1.1.7.tgz#f94659bbf32d558f692a6234304a247312a6fa38"
+  integrity sha512-qoKzWImYDQ3MR+bhycIZbRYmzeFabPXZKojrZJCO0QyFWZisob+1+OelW2XE3aRtWgOymdm08k8FlXN9jCZgkQ==
+
 "@jest/console@^24.7.1":
   version "24.7.1"
   resolved "https://registry.yarnpkg.com/@jest/console/-/console-24.7.1.tgz#32a9e42535a97aedfe037e725bd67e954b459545"

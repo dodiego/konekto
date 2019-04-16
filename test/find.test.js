@@ -46,7 +46,7 @@ beforeEach(async () => {
       },
       {
         [label]: 'test3',
-        date: new Date()
+        date: new Date().toISOString()
       }
     ]
   }
@@ -55,7 +55,7 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
-  return aghanim.deleteByQueryObject({ [label]: [ 'test', 'test2', 'test3' ] })
+  return aghanim.deleteById(jsonDb._id)
 })
 
 afterAll(() => {
