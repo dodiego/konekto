@@ -23,7 +23,7 @@ beforeEach(async () => {
     },
     rel2: [
       {
-        [label]: 'test',
+        [label]: 'test3',
         name: 'abc',
         sub_rel: {
           [label]: 'test2',
@@ -31,7 +31,7 @@ beforeEach(async () => {
         }
       },
       {
-        [label]: 'test',
+        [label]: 'test3',
         name: 'ghi',
         sub_rel: [
           {
@@ -45,20 +45,17 @@ beforeEach(async () => {
         ]
       },
       {
-        [label]: 'test2',
+        [label]: 'test3',
         date: new Date()
       }
     ]
   }
   await aghanim.createSchema(json)
   jsonDb = await aghanim.save(json)
-
-  jsonDb.rel2 = jsonDb.rel2.sort((a, b) => a.name.localeCompare(b.name))
-  jsonDb.rel2[1].sub_rel = jsonDb.rel2[1].sub_rel.sort((a, b) => a[label].localeCompare(b[label]))
 })
 
 afterEach(() => {
-  return aghanim.deleteByQueryObject({ [label]: [ 'test', 'test2' ] })
+  return aghanim.deleteByQueryObject({ [label]: [ 'test', 'test2', 'test3' ] })
 })
 
 afterAll(() => {
@@ -67,6 +64,8 @@ afterAll(() => {
 
 test('find by id', async () => {
   let result = await aghanim.findById(jsonDb._id)
+  result.rel2 = result.rel2.sort((a, b) => a.name.localeCompare(b.name))
+  result.rel2[1].sub_rel = result.rel2[1].sub_rel.sort((a, b) => a[label].localeCompare(b[label]))
   expect(result).toEqual(jsonDb)
 })
 
@@ -74,51 +73,51 @@ test('find by label', async () => {
   let result = await aghanim.findByQueryObject({
     [label]: 'test'
   })
-  expect(result.length).toBe(4)
+  expect(result.length).toBe(2)
 })
 
 test('find by multiple labels', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test', 'test2' ]
+    [label]: [ 'test', 'test2', 'test3' ]
   })
   expect(result.length).toBe(8)
 })
 
 test('order by field', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test' ],
+    [label]: [ 'test', 'test3' ],
     order: 'name'
   })
-  expect(result.map(n => n.name)).toEqual([ 'abc', 'def', 'ghi', undefined ])
+  expect(result.map(n => n.name)).toEqual([ 'abc', 'def', 'ghi', undefined, undefined ])
 })
 
 test('order by field desceding', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test' ],
+    [label]: [ 'test', 'test3' ],
     order: '!name'
   })
-  expect(result.map(n => n.name)).toEqual([ undefined, 'ghi', 'def', 'abc' ])
+  expect(result.map(n => n.name)).toEqual([ undefined, undefined, 'ghi', 'def', 'abc' ])
 })
 
 test('skip', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test' ],
+    [label]: [ 'test3' ],
     skip: 2
   })
-  expect(result.map(n => n.name)).toEqual([ 'ghi', undefined ])
+  expect(result.map(n => n.name)).toEqual([ undefined ])
 })
 
 test('limit', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test' ],
+    [label]: [ 'test', 'test3' ],
     limit: 2
   })
-  expect(result.map(n => n.name)).toEqual([ 'def', 'abc' ])
+  expect(result.map(n => n.name)).toEqual([ 'def', undefined ])
 })
 
 test('paginate', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test' ],
+    [label]: [ 'test3', 'test' ],
     limit: 2,
     skip: 1,
     order: 'name'
@@ -199,8 +198,14 @@ test('mandatory relationship', async () => {
   let nodeIndex = jsonDb.rel2.findIndex(n => n.date)
   jsonDb.rel2.splice(nodeIndex, 1)
 
-  result = result.sort((a, b) => a.name.localeCompare(b.name))
-  result[1].sub_rel = result[1].sub_rel.sort((a, b) => a[label].localeCompare(b[label]))
+  expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
+})
+
+test('optional relationship', async () => {
+  let result = await aghanim.findByQueryObject({
+    [label]: 'test3',
+    sub_rel: {}
+  })
 
   expect(result).toEqual(jsonDb.rel2)
 })
