@@ -27,7 +27,10 @@ beforeEach(async () => {
         name: 'abc',
         sub_rel: {
           [label]: 'test2',
-          number: 5
+          number: 5,
+          deeper_rel: {
+            [label]: 'test4'
+          }
         }
       },
       {
@@ -78,9 +81,9 @@ test('find by label', async () => {
 
 test('find by multiple labels', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: [ 'test', 'test2', 'test3' ]
+    [label]: [ 'test', 'test2', 'test3', 'test4' ]
   })
-  expect(result.length).toBe(8)
+  expect(result.length).toBe(9)
 })
 
 test('order by field', async () => {
@@ -156,6 +159,7 @@ test('where number lesser than', async () => {
   let result = await aghanim.findByQueryObject({
     where: 'number < 6'
   })
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
   expect(result).toEqual([ jsonDb.rel2[0].sub_rel ])
 })
 
@@ -163,6 +167,7 @@ test('where number lesser equal than', async () => {
   let result = await aghanim.findByQueryObject({
     where: 'number <= 5'
   })
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
   expect(result).toEqual([ jsonDb.rel2[0].sub_rel ])
 })
 
@@ -197,7 +202,7 @@ test('mandatory relationship', async () => {
   })
   let nodeIndex = jsonDb.rel2.findIndex(n => n.date)
   jsonDb.rel2.splice(nodeIndex, 1)
-
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
   expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
 })
 
@@ -206,8 +211,8 @@ test('optional relationship', async () => {
     [label]: 'test3',
     sub_rel: {}
   })
-
-  expect(result).toEqual(jsonDb.rel2)
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
+  expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
 })
 
 test('order relationship', async () => {
@@ -217,6 +222,7 @@ test('order relationship', async () => {
       order: 'number'
     }
   })
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
   jsonDb.rel2[1].sub_rel = jsonDb.rel2[1].sub_rel.sort((a, b) => (a.number && b.number ? a.number > b.number : 1))
   expect(result).toEqual(jsonDb.rel2)
 })
@@ -230,7 +236,22 @@ test('paginate relationship', async () => {
       limit: 1
     }
   })
-  jsonDb.rel2[1].sub_rel.shift()
-  delete jsonDb.rel2[0].sub_rel
-  expect(result).toEqual(jsonDb.rel2)
+  jsonDb.rel2.shift()
+  jsonDb.rel2.pop()
+  jsonDb.rel2[0].sub_rel.shift()
+  expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
+})
+
+test('relationship of relationship', async () => {
+  let result = await aghanim.findByQueryObject({
+    rel2: {
+      mandatory: true,
+      sub_rel: {
+        mandatory: true
+      }
+    }
+  })
+  delete jsonDb.rel1
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
+  expect(result).toEqual([ jsonDb ])
 })
