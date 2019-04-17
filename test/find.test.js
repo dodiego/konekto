@@ -227,6 +227,18 @@ test('order relationship', async () => {
   expect(result).toEqual(jsonDb.rel2)
 })
 
+test('where relationship', async () => {
+  let result = await aghanim.findByQueryObject({
+    sub_rel: {
+      where: 'name = "abc"'
+    }
+  })
+  jsonDb.rel2.pop()
+  jsonDb.rel2.pop()
+  delete jsonDb.rel2[0].sub_rel.deeper_rel
+  expect(result).toEqual(jsonDb.rel2)
+})
+
 test('paginate relationship', async () => {
   let result = await aghanim.findByQueryObject({
     [label]: 'test3',
