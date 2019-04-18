@@ -58,7 +58,9 @@ beforeEach(async () => {
 })
 
 afterEach(() => {
-  return aghanim.deleteById(jsonDb._id)
+  return aghanim.deleteByQueryObject({
+    [label]: [ 'test', 'test2', 'test3', 'test4' ]
+  })
 })
 
 afterAll(() => {
@@ -241,7 +243,6 @@ test('where relationship', async () => {
 
 test('paginate relationship', async () => {
   let result = await aghanim.findByQueryObject({
-    [label]: 'test3',
     sub_rel: {
       order: 'number',
       skip: 1,
