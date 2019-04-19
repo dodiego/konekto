@@ -1,16 +1,12 @@
 const Aghanim = require('../lib')
 const { label } = require('../lib/utils')
-const aghanim = new Aghanim({
-  user: 'agens',
-  pass: 'agens',
-  db: 'agens'
-})
+const aghanim = new Aghanim()
 
 let json
 let jsonDb
 
 beforeAll(async () => {
-  await aghanim.connect('agens_graph')
+  await aghanim.connect()
 })
 
 beforeEach(async () => {
