@@ -7,6 +7,7 @@ let jsonDb
 
 beforeAll(async () => {
   await aghanim.connect()
+  await aghanim.setGraph('agens_graph')
 })
 
 beforeEach(async () => {
