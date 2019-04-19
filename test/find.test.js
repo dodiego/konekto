@@ -265,3 +265,21 @@ test('relationship of relationship', async () => {
   delete jsonDb.rel2[0].sub_rel.deeper_rel
   expect(result).toEqual([ jsonDb ])
 })
+
+test('relationship of relationship of relationship', async () => {
+  let result = await aghanim.findByQueryObject({
+    rel2: {
+      mandatory: true,
+      sub_rel: {
+        mandatory: true,
+        deeper_rel: {
+          mandatory: true
+        }
+      }
+    }
+  })
+  delete jsonDb.rel1
+  jsonDb.rel2.pop()
+  jsonDb.rel2.pop()
+  expect(result).toEqual([ jsonDb ])
+})
