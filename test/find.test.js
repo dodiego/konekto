@@ -26,7 +26,8 @@ beforeEach(async () => {
           [label]: 'test2',
           number: 5,
           deeper_rel: {
-            [label]: 'test4'
+            [label]: 'test4',
+            value: 'xd'
           }
         }
       },
