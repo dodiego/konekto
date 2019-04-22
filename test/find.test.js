@@ -266,9 +266,12 @@ test('relationship of relationship', async () => {
   delete jsonDb.rel1
   delete jsonDb.rel2[0].sub_rel.deeper_rel
   jsonDb.rel2.pop()
-  jsonDb.rel2 = jsonDb.rel2.sort((a, b) => a._id < b._id)
-  jsonDb.rel2[0].sub_rel = jsonDb.rel2[0].sub_rel.sort((a, b) => a._id > b._id)
-  expect(result).toEqual([ jsonDb ])
+  for (const item of result) {
+    expect(item).toHaveProperty('rel2')
+    for (const subItem of item.rel2) {
+      expect(subItem).toHaveProperty('sub_rel')
+    }
+  }
 })
 
 test('relationship of relationship of relationship', async () => {
