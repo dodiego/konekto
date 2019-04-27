@@ -194,6 +194,13 @@ test('where string ends with', async () => {
   expect(result).toEqual([ jsonDb.rel2[0] ])
 })
 
+test('where string contains', async () => {
+  let result = await aghanim.findByQueryObject({
+    where: 'value CONTAINS "d"'
+  })
+  expect(result).toEqual([ jsonDb.rel2[0].sub_rel.deeper_rel ])
+})
+
 test('mandatory relationship', async () => {
   let result = await aghanim.findByQueryObject({
     sub_rel: {
