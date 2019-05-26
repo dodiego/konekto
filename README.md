@@ -31,7 +31,7 @@ or
 
 ## Getting Started
 
-### Creating client
+### Creating the client
 
 ```javascript
 const Aghanim = require('aghanim')
@@ -60,4 +60,3 @@ const port = 5432
 const database = 'agens'
 const aghanim = new Aghanim(`postgresql://${user}:${password}@${host}:${port}/${database}`)
 ```
-

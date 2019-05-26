@@ -28,7 +28,8 @@ describe('save', () => {
     await aghanim.createSchema(json)
     let saveResult = await aghanim.save(json)
     let findResult = await aghanim.findById(saveResult._id)
-    expect(saveResult).toEqual(findResult)
+    delete findResult._id
+    expect(json).toEqual(findResult)
   })
 
   test('cyclic in middle object', async () => {
@@ -46,6 +47,8 @@ describe('save', () => {
     await aghanim.createSchema(json)
     let saveResult = await aghanim.save(json)
     let findResult = await aghanim.findById(saveResult._id)
-    expect(saveResult).toEqual(findResult)
+    delete findResult._id
+    delete findResult.sub_rel._id
+    expect(json).toEqual(findResult)
   })
 })
