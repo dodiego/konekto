@@ -15,11 +15,11 @@ worry with migrations or trying to figure out how you gonna break your objects t
 
 You need a [Agensgraph](https://bitnine.net/agensgraph/) database running
 
-### Manual installation
+### AgensGraph - Manual installation
 
 Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your operational system
 
-### Using Docker
+### AgensGraph - Using Docker
 
 `docker run -p 5432:5432 -it bitnine/agensgraph:v2.1.1 agens`
 
@@ -29,7 +29,7 @@ Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your op
 or  
 `yarn add aghanim`
 
-## Getting Started
+## Tutorial
 
 ### Creating the client
 
