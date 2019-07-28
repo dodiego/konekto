@@ -1,15 +1,15 @@
-# Aghanim
+# Konekto
 
 ## What is it?
 
-Aghanim is an node.js OGM (Object-Graph Mapper) intended to be used with [AgensGraph](https://bitnine.net/) and
+Konekto is an node.js OGM (Object-Graph Mapper) intended to be used with [AgensGraph](https://bitnine.net/) and
 focused on simplicity.
 
 ## Why?
 
-Aghanim differs from any other Object-Whatever mapper because it doesn't require any
+Konekto differs from any other Object-Whatever mapper because it doesn't require any
 configuration to get started, this means that you don't have to create Models,
-worry with migrations or trying to figure out how you gonna break your objects to persist or query them.
+worry with migrations or trying to figure out how you gonna transform your objects to persist or query them.
 
 ## Requirements
 
@@ -25,24 +25,24 @@ Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your op
 
 ## Installation
 
-`npm install aghanim`  
+`npm install konekto`  
 or  
-`yarn add aghanim`
+`yarn add konekto`
 
 ## Tutorial
 
 ### Creating the client
 
 ```javascript
-const Aghanim = require('aghanim')
-const aghanim = new Aghanim() // this needs a agensgraph running at postgresql://agens:agens@localhost:5432/agens
+const Konekto = require('konekto')
+const konekto = new Konekto() // this needs a agensgraph running at postgresql://agens:agens@localhost:5432/agens
 ```
 
 You can also pass a [connection string](https://node-postgres.com/features/connecting#connection-uri) or a [node-postgres client configuration object](https://node-postgres.com/features/connecting#programmatic)
 
 ```javascript
-const Aghanim = require('aghanim')
-const aghanim = new Aghanim({
+const Konekto = require('konekto')
+const konekto = new Konekto({
   host: 'localhost',
   port: 5432,
   user: 'agens',
@@ -52,11 +52,11 @@ const aghanim = new Aghanim({
 ```
 
 ```javascript
-const Aghanim = require('aghanim')
+const Konekto = require('konekto')
 const user = 'agens'
 const password = 'agens'
 const host = 'localhost'
 const port = 5432
 const database = 'agens'
-const aghanim = new Aghanim(`postgresql://${user}:${password}@${host}:${port}/${database}`)
+const konekto = new Konekto(`postgresql://${user}:${password}@${host}:${port}/${database}`)
 ```
