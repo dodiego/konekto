@@ -1,0 +1,14 @@
+{
+  "extends": ["standard", "plugin:jest/recommended"],
+  "rules": {
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "always"]
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "plugins": ["jest"],
+  "env": {
+    "jest/globals": true
+  }
+}
