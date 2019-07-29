@@ -1,21 +1,21 @@
-const Aghanim = require('../lib')
-const aghanim = new Aghanim()
+const Konekto = require('../lib')
+const konekto = new Konekto()
 
 describe('save', () => {
   beforeAll(async () => {
-    await aghanim.connect()
-    await aghanim.createGraph('save_test')
-    await aghanim.setGraph('save_test')
+    await konekto.connect()
+    await konekto.createGraph('save_test')
+    await konekto.setGraph('save_test')
   })
 
   afterEach(() => {
-    return aghanim.deleteByQueryObject({
+    return konekto.deleteByQueryObject({
       _label: [ 'test', 'test2', 'test3', 'test4' ]
     })
   })
 
   afterAll(() => {
-    return aghanim.disconnect()
+    return konekto.disconnect()
   })
 
   test('cyclic object', async () => {
@@ -24,9 +24,9 @@ describe('save', () => {
       omegalul: 'xd'
     }
     json.sel_rel = json
-    await aghanim.createSchema(json)
-    let saveResult = await aghanim.save(json)
-    let findResult = await aghanim.findById(saveResult._id)
+    await konekto.createSchema(json)
+    let saveResult = await konekto.save(json)
+    let findResult = await konekto.findById(saveResult._id)
     delete findResult._id
     expect(json).toEqual(findResult)
   })
@@ -43,9 +43,9 @@ describe('save', () => {
     json.sub_rel = otherJson
     otherJson.parent_rel = json
     otherJson.self_rel = otherJson
-    await aghanim.createSchema(json)
-    let saveResult = await aghanim.save(json)
-    let findResult = await aghanim.findById(saveResult._id)
+    await konekto.createSchema(json)
+    let saveResult = await konekto.save(json)
+    let findResult = await konekto.findById(saveResult._id)
     delete findResult._id
     delete findResult.sub_rel._id
     expect(json).toEqual(findResult)
