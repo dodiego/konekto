@@ -1,5 +1,4 @@
 const Aghanim = require('../lib')
-const { label } = require('../lib/utils')
 const aghanim = new Aghanim()
 
 describe('save', () => {
@@ -11,7 +10,7 @@ describe('save', () => {
 
   afterEach(() => {
     return aghanim.deleteByQueryObject({
-      [label]: [ 'test', 'test2', 'test3', 'test4' ]
+      _label: [ 'test', 'test2', 'test3', 'test4' ]
     })
   })
 
@@ -21,7 +20,7 @@ describe('save', () => {
 
   test('cyclic object', async () => {
     let json = {
-      [label]: 'test1',
+      _label: 'test1',
       omegalul: 'xd'
     }
     json.sel_rel = json
@@ -34,11 +33,11 @@ describe('save', () => {
 
   test('cyclic in middle object', async () => {
     let json = {
-      [label]: 'test1',
+      _label: 'test1',
       omegalul: 'xd'
     }
     let otherJson = {
-      [label]: 'test2',
+      _label: 'test2',
       aahaha: 15
     }
     json.sub_rel = otherJson

@@ -1,5 +1,4 @@
 const Aghanim = require('../lib')
-const { label } = require('../lib/utils')
 const aghanim = new Aghanim()
 describe('find', () => {
   let json
@@ -12,41 +11,41 @@ describe('find', () => {
 
   beforeEach(async () => {
     json = {
-      [label]: 'test',
+      _label: 'test',
       name: 'def',
       rel1: {
-        [label]: 'test2',
+        _label: 'test2',
         number: 10
       },
       rel2: [
         {
-          [label]: 'test3',
+          _label: 'test3',
           name: 'abc',
           sub_rel: {
-            [label]: 'test2',
+            _label: 'test2',
             number: 5,
             deeper_rel: {
-              [label]: 'test4',
+              _label: 'test4',
               value: 'xd'
             }
           }
         },
         {
-          [label]: 'test3',
+          _label: 'test3',
           name: 'ghi',
           sub_rel: [
             {
-              [label]: 'test',
+              _label: 'test',
               bool_property: false
             },
             {
-              [label]: 'test2',
+              _label: 'test2',
               number: 15
             }
           ]
         },
         {
-          [label]: 'test3',
+          _label: 'test3',
           date: new Date().toISOString()
         }
       ]
@@ -57,7 +56,7 @@ describe('find', () => {
 
   afterEach(() => {
     return aghanim.deleteByQueryObject({
-      [label]: [ 'test', 'test2', 'test3', 'test4' ]
+      _label: [ 'test', 'test2', 'test3', 'test4' ]
     })
   })
 
@@ -68,27 +67,27 @@ describe('find', () => {
   test('find by id', async () => {
     let result = await aghanim.findById(jsonDb._id)
     result.rel2 = result.rel2.sort((a, b) => a.name.localeCompare(b.name))
-    result.rel2[1].sub_rel = result.rel2[1].sub_rel.sort((a, b) => a[label].localeCompare(b[label]))
+    result.rel2[1].sub_rel = result.rel2[1].sub_rel.sort((a, b) => a._label.localeCompare(b._label))
     expect(result).toEqual(jsonDb)
   })
 
   test('find by label', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: 'test'
+      _label: 'test'
     })
     expect(result.length).toBe(2)
   })
 
   test('find by multiple labels', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: [ 'test', 'test2', 'test3', 'test4' ]
+      _label: [ 'test', 'test2', 'test3', 'test4' ]
     })
     expect(result.length).toBe(9)
   })
 
   test('order by field', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: [ 'test', 'test3' ],
+      _label: [ 'test', 'test3' ],
       order: 'name'
     })
     expect(result.map(n => n.name)).toEqual([ 'abc', 'def', 'ghi', undefined, undefined ])
@@ -96,7 +95,7 @@ describe('find', () => {
 
   test('order by field desceding', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: [ 'test', 'test3' ],
+      _label: [ 'test', 'test3' ],
       order: '!name'
     })
     expect(result.map(n => n.name)).toEqual([ undefined, undefined, 'ghi', 'def', 'abc' ])
@@ -104,7 +103,7 @@ describe('find', () => {
 
   test('skip', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: [ 'test3' ],
+      _label: [ 'test3' ],
       skip: 2
     })
     expect(result.map(n => n.name)).toEqual([ undefined ])
@@ -112,7 +111,7 @@ describe('find', () => {
 
   test('limit', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: [ 'test', 'test3' ],
+      _label: [ 'test', 'test3' ],
       limit: 2
     })
     expect(result.map(n => n.name)).toEqual([ 'def', undefined ])
@@ -120,7 +119,7 @@ describe('find', () => {
 
   test('paginate', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: [ 'test3', 'test' ],
+      _label: [ 'test3', 'test' ],
       limit: 2,
       skip: 1,
       order: 'name'
@@ -215,7 +214,7 @@ describe('find', () => {
 
   test('optional relationship', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: 'test3',
+      _label: 'test3',
       sub_rel: {}
     })
     delete jsonDb.rel2[0].sub_rel.deeper_rel
@@ -224,7 +223,7 @@ describe('find', () => {
 
   test('order relationship', async () => {
     let result = await aghanim.findByQueryObject({
-      [label]: 'test3',
+      _label: 'test3',
       sub_rel: {
         order: 'number'
       }
