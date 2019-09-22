@@ -56,7 +56,7 @@ describe('find', () => {
 
   afterEach(() => {
     return konekto.deleteByQueryObject({
-      _label: [ 'test', 'test2', 'test3', 'test4' ]
+      _label: ['test', 'test2', 'test3', 'test4']
     })
   })
 
@@ -65,143 +65,143 @@ describe('find', () => {
   })
 
   test('find by id', async () => {
-    let result = await konekto.findById(jsonDb._id)
+    const result = await konekto.findById(jsonDb._id)
     result.rel2 = result.rel2.sort((a, b) => a.name.localeCompare(b.name))
     result.rel2[1].sub_rel = result.rel2[1].sub_rel.sort((a, b) => a._label.localeCompare(b._label))
     expect(result).toEqual(jsonDb)
   })
 
   test('find by label', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       _label: 'test'
     })
     expect(result.length).toBe(2)
   })
 
   test('find by multiple labels', async () => {
-    let result = await konekto.findByQueryObject({
-      _label: [ 'test', 'test2', 'test3', 'test4' ]
+    const result = await konekto.findByQueryObject({
+      _label: ['test', 'test2', 'test3', 'test4']
     })
     expect(result.length).toBe(9)
   })
 
   test('order by field', async () => {
-    let result = await konekto.findByQueryObject({
-      _label: [ 'test', 'test3' ],
+    const result = await konekto.findByQueryObject({
+      _label: ['test', 'test3'],
       order: 'name'
     })
-    expect(result.map(n => n.name)).toEqual([ 'abc', 'def', 'ghi', undefined, undefined ])
+    expect(result.map(n => n.name)).toEqual(['abc', 'def', 'ghi', undefined, undefined])
   })
 
   test('order by field desceding', async () => {
-    let result = await konekto.findByQueryObject({
-      _label: [ 'test', 'test3' ],
+    const result = await konekto.findByQueryObject({
+      _label: ['test', 'test3'],
       order: '!name'
     })
-    expect(result.map(n => n.name)).toEqual([ undefined, undefined, 'ghi', 'def', 'abc' ])
+    expect(result.map(n => n.name)).toEqual([undefined, undefined, 'ghi', 'def', 'abc'])
   })
 
   test('skip', async () => {
-    let result = await konekto.findByQueryObject({
-      _label: [ 'test3' ],
+    const result = await konekto.findByQueryObject({
+      _label: ['test3'],
       skip: 2
     })
-    expect(result.map(n => n.name)).toEqual([ undefined ])
+    expect(result.map(n => n.name)).toEqual([undefined])
   })
 
   test('limit', async () => {
-    let result = await konekto.findByQueryObject({
-      _label: [ 'test', 'test3' ],
+    const result = await konekto.findByQueryObject({
+      _label: ['test', 'test3'],
       limit: 2
     })
-    expect(result.map(n => n.name)).toEqual([ 'def', undefined ])
+    expect(result.map(n => n.name)).toEqual(['def', undefined])
   })
 
   test('paginate', async () => {
-    let result = await konekto.findByQueryObject({
-      _label: [ 'test3', 'test' ],
+    const result = await konekto.findByQueryObject({
+      _label: ['test3', 'test'],
       limit: 2,
       skip: 1,
       order: 'name'
     })
-    expect(result.map(n => n.name)).toEqual([ 'def', 'ghi' ])
+    expect(result.map(n => n.name)).toEqual(['def', 'ghi'])
   })
 
   test('where equals', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'number = 15'
     })
-    expect(result).toEqual([ jsonDb.rel2[1].sub_rel[1] ])
+    expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
   test('where boolean', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'bool_property = false'
     })
-    expect(result).toEqual([ jsonDb.rel2[1].sub_rel[0] ])
+    expect(result).toEqual([jsonDb.rel2[1].sub_rel[0]])
   })
 
   test('where number greater than', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'number > 14'
     })
-    expect(result).toEqual([ jsonDb.rel2[1].sub_rel[1] ])
+    expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
 
   test('where number greater equal than', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'number >= 15'
     })
-    expect(result).toEqual([ jsonDb.rel2[1].sub_rel[1] ])
+    expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
 
   test('where number lesser than', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'number < 6'
     })
     delete jsonDb.rel2[0].sub_rel.deeper_rel
-    expect(result).toEqual([ jsonDb.rel2[0].sub_rel ])
+    expect(result).toEqual([jsonDb.rel2[0].sub_rel])
   })
 
   test('where number lesser equal than', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'number <= 5'
     })
     delete jsonDb.rel2[0].sub_rel.deeper_rel
-    expect(result).toEqual([ jsonDb.rel2[0].sub_rel ])
+    expect(result).toEqual([jsonDb.rel2[0].sub_rel])
   })
 
   test('where or', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'number = 15 OR number = 10'
     })
-    expect(result).toEqual([ jsonDb.rel1, jsonDb.rel2[1].sub_rel[1] ])
+    expect(result).toEqual([jsonDb.rel1, jsonDb.rel2[1].sub_rel[1]])
   })
 
   test('where string starts with', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'name STARTSWITH "a"'
     })
     delete jsonDb.rel2[0].sub_rel
-    expect(result).toEqual([ jsonDb.rel2[0] ])
+    expect(result).toEqual([jsonDb.rel2[0]])
   })
 
   test('where string ends with', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'name ENDSWITH "c"'
     })
     delete jsonDb.rel2[0].sub_rel
-    expect(result).toEqual([ jsonDb.rel2[0] ])
+    expect(result).toEqual([jsonDb.rel2[0]])
   })
 
   test('where string contains', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       where: 'value CONTAINS "d"'
     })
-    expect(result).toEqual([ jsonDb.rel2[0].sub_rel.deeper_rel ])
+    expect(result).toEqual([jsonDb.rel2[0].sub_rel.deeper_rel])
   })
 
   test('mandatory relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       sub_rel: {
         mandatory: true
       }
@@ -213,7 +213,7 @@ describe('find', () => {
   })
 
   test('optional relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       _label: 'test3',
       sub_rel: {}
     })
@@ -222,7 +222,7 @@ describe('find', () => {
   })
 
   test('order relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       _label: 'test3',
       sub_rel: {
         order: 'number'
@@ -235,7 +235,7 @@ describe('find', () => {
   })
 
   test('where relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       sub_rel: {
         where: 'number = 5'
       }
@@ -247,7 +247,7 @@ describe('find', () => {
   })
 
   test('paginate relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       sub_rel: {
         order: 'number',
         skip: 1,
@@ -261,7 +261,7 @@ describe('find', () => {
   })
 
   test('relationship of relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       rel2: {
         mandatory: true,
         sub_rel: {
@@ -281,7 +281,7 @@ describe('find', () => {
   })
 
   test('relationship of relationship of relationship', async () => {
-    let result = await konekto.findByQueryObject({
+    const result = await konekto.findByQueryObject({
       rel2: {
         mandatory: true,
         sub_rel: {
@@ -295,6 +295,6 @@ describe('find', () => {
     delete jsonDb.rel1
     jsonDb.rel2.pop()
     jsonDb.rel2.pop()
-    expect(result).toEqual([ jsonDb ])
+    expect(result).toEqual([jsonDb])
   })
 })
