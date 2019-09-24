@@ -10,7 +10,7 @@ describe('save', () => {
 
   afterEach(() => {
     return konekto.deleteByQueryObject({
-      _label: [ 'test', 'test2', 'test3', 'test4' ]
+      _label: ['test', 'test2', 'test3', 'test4']
     })
   })
 
@@ -19,24 +19,24 @@ describe('save', () => {
   })
 
   test('cyclic object', async () => {
-    let json = {
+    const json = {
       _label: 'test1',
       omegalul: 'xd'
     }
     json.sel_rel = json
     await konekto.createSchema(json)
-    let saveResult = await konekto.save(json)
-    let findResult = await konekto.findById(saveResult._id)
+    const saveResult = await konekto.save(json)
+    const findResult = await konekto.findById(saveResult._id)
     delete findResult._id
     expect(json).toEqual(findResult)
   })
 
   test('cyclic in middle object', async () => {
-    let json = {
+    const json = {
       _label: 'test1',
       omegalul: 'xd'
     }
-    let otherJson = {
+    const otherJson = {
       _label: 'test2',
       aahaha: 15
     }
@@ -44,8 +44,8 @@ describe('save', () => {
     otherJson.parent_rel = json
     otherJson.self_rel = otherJson
     await konekto.createSchema(json)
-    let saveResult = await konekto.save(json)
-    let findResult = await konekto.findById(saveResult._id)
+    const saveResult = await konekto.save(json)
+    const findResult = await konekto.findById(saveResult._id)
     delete findResult._id
     delete findResult.sub_rel._id
     expect(json).toEqual(findResult)
