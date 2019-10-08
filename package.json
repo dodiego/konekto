@@ -25,7 +25,8 @@
     "@flatten/array": "^1.1.7",
     "pg": "^7.9.0",
     "sql-where-parser": "^2.2.1",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "wkx": "^0.4.8"
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",
