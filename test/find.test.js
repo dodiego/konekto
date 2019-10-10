@@ -129,34 +129,34 @@ describe('find', () => {
 
   test('where equals', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'number = 15'
+      where: '{this}.number = 15'
     })
     expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
   test('where boolean', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'bool_property = false'
+      where: '{this}.bool_property = false'
     })
     expect(result).toEqual([jsonDb.rel2[1].sub_rel[0]])
   })
 
   test('where number greater than', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'number > 14'
+      where: '{this}.number > 14'
     })
     expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
 
   test('where number greater equal than', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'number >= 15'
+      where: '{this}.number >= 15'
     })
     expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
 
   test('where number lesser than', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'number < 6'
+      where: '{this}.number < 6'
     })
     delete jsonDb.rel2[0].sub_rel.deeper_rel
     expect(result).toEqual([jsonDb.rel2[0].sub_rel])
@@ -164,7 +164,7 @@ describe('find', () => {
 
   test('where number lesser equal than', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'number <= 5'
+      where: '{this}.number <= 5'
     })
     delete jsonDb.rel2[0].sub_rel.deeper_rel
     expect(result).toEqual([jsonDb.rel2[0].sub_rel])
@@ -172,14 +172,14 @@ describe('find', () => {
 
   test('where or', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'number = 15 OR number = 10'
+      where: '{this}.number = 15 OR {this}.number = 10'
     })
     expect(result).toEqual([jsonDb.rel1, jsonDb.rel2[1].sub_rel[1]])
   })
 
   test('where string starts with', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'name STARTSWITH "a"'
+      where: '{this}.name STARTSWITH "a"'
     })
     delete jsonDb.rel2[0].sub_rel
     expect(result).toEqual([jsonDb.rel2[0]])
@@ -187,7 +187,7 @@ describe('find', () => {
 
   test('where string ends with', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'name ENDSWITH "c"'
+      where: '{this}.name ENDSWITH "c"'
     })
     delete jsonDb.rel2[0].sub_rel
     expect(result).toEqual([jsonDb.rel2[0]])
@@ -195,7 +195,7 @@ describe('find', () => {
 
   test('where string contains', async () => {
     const result = await konekto.findByQueryObject({
-      where: 'value CONTAINS "d"'
+      where: '{this}.value CONTAINS "d"'
     })
     expect(result).toEqual([jsonDb.rel2[0].sub_rel.deeper_rel])
   })
@@ -237,7 +237,7 @@ describe('find', () => {
   test('where relationship', async () => {
     const result = await konekto.findByQueryObject({
       sub_rel: {
-        where: 'number = 5'
+        where: '{this}.number = 5'
       }
     })
     jsonDb.rel2.pop()
