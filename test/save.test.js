@@ -10,7 +10,7 @@ describe('save', () => {
 
   afterEach(() => {
     return konekto.deleteByQueryObject({
-      _label: ['test', 'test2', 'test3', 'test4']
+      _label: ['test1', 'test', 'test2', 'test3', 'test4']
     })
   })
 
@@ -99,7 +99,6 @@ describe('save', () => {
     })
     delete findResult._id
     delete json.related
-    throw 'sadf'
     expect(json).toEqual(findResult)
   })
 })
