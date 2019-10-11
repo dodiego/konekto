@@ -84,11 +84,11 @@ describe('save', () => {
 
   test('save xd wkts', async () => {
     const json = {
-      _label: 'test1',
+      _label: 'test',
       omegalul: 'xd',
       _wkt: new wkx.Point(0, 0).toWkt(),
       related: {
-        _label: 'test1',
+        _label: 'test',
         _wkt: new wkx.Point(0, 1).toWkt()
       }
     }
@@ -99,6 +99,7 @@ describe('save', () => {
     })
     delete findResult._id
     delete json.related
+    throw 'sadf'
     expect(json).toEqual(findResult)
   })
 })
