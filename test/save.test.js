@@ -1,5 +1,6 @@
 const Konekto = require('../lib')
 const konekto = new Konekto()
+konekto.use(require('../lib/plugin'))
 const wkx = require('wkx')
 describe('save', () => {
   beforeAll(async () => {
@@ -48,6 +49,57 @@ describe('save', () => {
     const findResult = await konekto.findById(saveResult._id)
     delete findResult._id
     delete findResult.sub_rel._id
+    expect(json).toEqual(findResult)
+  })
+
+  test('save wkt', async () => {
+    const json = {
+      _label: 'test1',
+      omegalul: 'xd',
+      _wkt: new wkx.Point(0, 0).toWkt()
+    }
+    await konekto.createSchema(json)
+    const saveResult = await konekto.save(json)
+    const findResult = await konekto.findById(saveResult._id)
+    delete findResult._id
+    expect(json).toEqual(findResult)
+  })
+
+  test('save multiple wkts', async () => {
+    const json = {
+      _label: 'test1',
+      omegalul: 'xd',
+      _wkt: new wkx.Point(0, 0).toWkt(),
+      related: {
+        _label: 'test1',
+        _wkt: new wkx.Point(0, 1).toWkt()
+      }
+    }
+    await konekto.createSchema(json)
+    const saveResult = await konekto.save(json)
+    const findResult = await konekto.findById(saveResult._id)
+    delete findResult._id
+    delete findResult.related._id
+    expect(json).toEqual(findResult)
+  })
+
+  test('save xd wkts', async () => {
+    const json = {
+      _label: 'test',
+      omegalul: 'xd',
+      _wkt: new wkx.Point(0, 0).toWkt(),
+      related: {
+        _label: 'test',
+        _wkt: new wkx.Point(0, 1).toWkt()
+      }
+    }
+    await konekto.createSchema(json)
+    const saveResult = await konekto.save(json)
+    const findResult = await konekto.findOneByQueryObject({
+      where: `id({this}) = ${saveResult._id}`
+    })
+    delete findResult._id
+    delete json.related
     expect(json).toEqual(findResult)
   })
 })
