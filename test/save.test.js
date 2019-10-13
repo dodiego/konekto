@@ -1,7 +1,5 @@
 const Konekto = require('../lib')
 const konekto = new Konekto()
-konekto.use(require('../lib/plugin'))
-const wkx = require('wkx')
 describe('save', () => {
   beforeAll(async () => {
     await konekto.connect()
