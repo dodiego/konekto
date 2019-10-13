@@ -1,6 +1,5 @@
 const Konekto = require('../lib')
 const konekto = new Konekto()
-
 describe('save', () => {
   beforeAll(async () => {
     await konekto.connect()
@@ -10,7 +9,7 @@ describe('save', () => {
 
   afterEach(() => {
     return konekto.deleteByQueryObject({
-      _label: ['test', 'test2', 'test3', 'test4']
+      _label: ['test1', 'test', 'test2', 'test3', 'test4']
     })
   })
 
