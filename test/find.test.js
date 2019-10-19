@@ -1,57 +1,10 @@
 const Konekto = require('../lib')
 const konekto = new Konekto()
 describe('find', () => {
-  let json
-  let jsonDb
   beforeAll(async () => {
     await konekto.connect()
     await konekto.createGraph('find_test')
     await konekto.setGraph('find_test')
-  })
-
-  beforeEach(async () => {
-    json = {
-      _label: 'test',
-      name: 'def',
-      rel1: {
-        _label: 'test2',
-        number: 10
-      },
-      rel2: [
-        {
-          _label: 'test3',
-          name: 'abc',
-          sub_rel: {
-            _label: 'test2',
-            number: 5,
-            deeper_rel: {
-              _label: 'test4',
-              value: 'xd'
-            }
-          }
-        },
-        {
-          _label: 'test3',
-          name: 'ghi',
-          sub_rel: [
-            {
-              _label: 'test',
-              bool_property: false
-            },
-            {
-              _label: 'test2',
-              number: 15
-            }
-          ]
-        },
-        {
-          _label: 'test3',
-          date: new Date().toISOString()
-        }
-      ]
-    }
-    await konekto.createSchema(json)
-    jsonDb = await konekto.save(json)
   })
 
   afterEach(() => {
@@ -133,6 +86,14 @@ describe('find', () => {
     })
     expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
   })
+
+  test('where different', async () => {
+    const result = await konekto.findByQueryObject({
+      where: '{this}.number <> 15'
+    })
+    expect(result).toEqual([jsonDb.rel1, json.rel2[0].sub_rel])
+  })
+
   test('where boolean', async () => {
     const result = await konekto.findByQueryObject({
       where: '{this}.bool_property = false'
