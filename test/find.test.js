@@ -179,7 +179,7 @@ describe('find', () => {
 
   test('where string starts with', async () => {
     const result = await konekto.findByQueryObject({
-      where: '{this}.name STARTSWITH "a"'
+      where: "{this}.name STARTS WITH 'a'"
     })
     delete jsonDb.rel2[0].sub_rel
     expect(result).toEqual([jsonDb.rel2[0]])
@@ -187,7 +187,7 @@ describe('find', () => {
 
   test('where string ends with', async () => {
     const result = await konekto.findByQueryObject({
-      where: '{this}.name ENDSWITH "c"'
+      where: "{this}.name ENDS WITH 'c'"
     })
     delete jsonDb.rel2[0].sub_rel
     expect(result).toEqual([jsonDb.rel2[0]])
@@ -195,7 +195,7 @@ describe('find', () => {
 
   test('where string contains', async () => {
     const result = await konekto.findByQueryObject({
-      where: '{this}.value CONTAINS "d"'
+      where: "{this}.value CONTAINS 'd'"
     })
     expect(result).toEqual([jsonDb.rel2[0].sub_rel.deeper_rel])
   })

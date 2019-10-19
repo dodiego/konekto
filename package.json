@@ -20,11 +20,11 @@
     "url": "https://github.com/dodiego/konekto"
   },
   "author": "Diego de Oliveira",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@flatten/array": "^1.1.7",
+    "cypher-parser": "^0.1.4",
     "pg": "^7.9.0",
-    "sql-where-parser": "^2.2.1",
     "uuid": "^3.2.1",
     "wkx": "^0.4.8"
   },
