@@ -17,245 +17,596 @@ describe('find', () => {
     return konekto.disconnect()
   })
 
+  async function insertJson (json) {
+    await konekto.createSchema(json)
+    return konekto.save(json)
+  }
+
   test('find by id', async () => {
-    const result = await konekto.findById(jsonDb._id)
-    result.rel2 = result.rel2.sort((a, b) => a.name.localeCompare(b.name))
-    result.rel2[1].sub_rel = result.rel2[1].sub_rel.sort((a, b) => a._label.localeCompare(b._label))
-    expect(result).toEqual(jsonDb)
+    const result = await insertJson({
+      _label: 'test'
+    })
+    const findResult = await konekto.findById(result._id)
+    expect(result).toEqual(findResult)
   })
 
   test('find by label', async () => {
-    const result = await konekto.findByQueryObject({
+    const result1 = await insertJson({
       _label: 'test'
     })
-    expect(result.length).toBe(2)
+    await insertJson({
+      _label: 'test2'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test'
+    })
+    expect(findResult).toStrictEqual([result1])
   })
 
   test('find by multiple labels', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: ['test', 'test2', 'test3', 'test4']
+    const result1 = await insertJson({
+      _label: 'test'
     })
-    expect(result.length).toBe(9)
+    const result2 = await insertJson({
+      _label: 'test2'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: ['test', 'test2']
+    })
+    expect(findResult).toStrictEqual([result1, result2])
   })
 
   test('order by field', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: ['test', 'test3'],
+    const result1 = await insertJson({
+      _label: 'test',
+      name: 'b'
+    })
+    const result2 = await insertJson({
+      _label: 'test',
+      name: 'a'
+    })
+    const result3 = await insertJson({
+      _label: 'test',
+      name: 'c'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: ['test'],
       order: 'name'
     })
-    expect(result.map(n => n.name)).toEqual(['abc', 'def', 'ghi', undefined, undefined])
+    expect(findResult).toStrictEqual([result2, result1, result3])
   })
 
   test('order by field desceding', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: ['test', 'test3'],
+    const result1 = await insertJson({
+      _label: 'test',
+      name: 'b'
+    })
+    const result2 = await insertJson({
+      _label: 'test',
+      name: 'a'
+    })
+    const result3 = await insertJson({
+      _label: 'test',
+      name: 'c'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: ['test'],
       order: '!name'
     })
-    expect(result.map(n => n.name)).toEqual([undefined, undefined, 'ghi', 'def', 'abc'])
+    expect(findResult).toStrictEqual([result3, result1, result2])
   })
 
   test('skip', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: ['test3'],
-      skip: 2
+    await insertJson({
+      _label: 'test',
+      name: 'a'
     })
-    expect(result.map(n => n.name)).toEqual([undefined])
+    const result2 = await insertJson({
+      _label: 'test',
+      name: 'b'
+    })
+    const result3 = await insertJson({
+      _label: 'test',
+      name: 'c'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: ['test'],
+      skip: 1
+    })
+    expect(findResult).toStrictEqual([result2, result3])
   })
 
   test('limit', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: ['test', 'test3'],
+    const result1 = await insertJson({
+      _label: 'test',
+      name: 'a'
+    })
+    const result2 = await insertJson({
+      _label: 'test',
+      name: 'b'
+    })
+    await insertJson({
+      _label: 'test',
+      name: 'c'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: ['test'],
       limit: 2
     })
-    expect(result.map(n => n.name)).toEqual(['def', undefined])
+    expect(findResult).toStrictEqual([result1, result2])
   })
 
   test('paginate', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: ['test3', 'test'],
-      limit: 2,
-      skip: 1,
-      order: 'name'
+    await insertJson({
+      _label: 'test',
+      name: 'a'
     })
-    expect(result.map(n => n.name)).toEqual(['def', 'ghi'])
+    const result2 = await insertJson({
+      _label: 'test',
+      name: 'b'
+    })
+    const result3 = await insertJson({
+      _label: 'test',
+      name: 'c'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: ['test'],
+      limit: 2,
+      skip: 1
+    })
+    expect(findResult).toStrictEqual([result2, result3])
   })
 
   test('where equals', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number = 15'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 10'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where different', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number <> 15'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    expect(result).toEqual([jsonDb.rel1, json.rel2[0].sub_rel])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number <> 9'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
-  test('where boolean', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.bool_property = false'
+  test('where number equals sum expression', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    expect(result).toEqual([jsonDb.rel2[1].sub_rel[0]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 5 + 5'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where number equals minus expression', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 15 - 5'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where number equals multiplication expression', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 2 * 5'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where number equals division expression', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 20 / 2'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where number equals exponentiation expression', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 4
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 2 ^ 2'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where number equals exponentiation expression using negative', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 4
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = -2 ^ 2'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where number equals modulo division', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 4
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number % 2 = 0'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where boolean equals false', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      bool_prop: false
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.bool_prop = false'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where boolean equals true', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      bool_prop: true
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.bool_prop = true'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where property is null', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      null_prop: null
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.null_prop IS NULL'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where property is not null', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      prop: true
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.prop IS NOT NULL'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where number greater than', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number > 14'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number > 9'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where number greater equal than', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number >= 15'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    expect(result).toEqual([jsonDb.rel2[1].sub_rel[1]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number >= 10'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where number lesser than', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number < 6'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    delete jsonDb.rel2[0].sub_rel.deeper_rel
-    expect(result).toEqual([jsonDb.rel2[0].sub_rel])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number < 11'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where number lesser equal than', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number <= 5'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    delete jsonDb.rel2[0].sub_rel.deeper_rel
-    expect(result).toEqual([jsonDb.rel2[0].sub_rel])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number <= 10'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where or', async () => {
-    const result = await konekto.findByQueryObject({
-      where: '{this}.number = 15 OR {this}.number = 10'
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
     })
-    expect(result).toEqual([jsonDb.rel1, jsonDb.rel2[1].sub_rel[1]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number > 9 OR {this}.number < 5'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where and', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 10,
+      bool_prop: true
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '{this}.number = 10 AND {this}.bool_prop = true'
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where not', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      number: 10
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: 'NOT {this}.number < 10'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where string starts with', async () => {
-    const result = await konekto.findByQueryObject({
-      where: "{this}.name STARTS WITH 'a'"
+    const result = await insertJson({
+      _label: 'test',
+      str: 'abc'
     })
-    delete jsonDb.rel2[0].sub_rel
-    expect(result).toEqual([jsonDb.rel2[0]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: "{this}.str STARTS WITH 'a'"
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where string ends with', async () => {
-    const result = await konekto.findByQueryObject({
-      where: "{this}.name ENDS WITH 'c'"
+    const result = await insertJson({
+      _label: 'test',
+      str: 'abc'
     })
-    delete jsonDb.rel2[0].sub_rel
-    expect(result).toEqual([jsonDb.rel2[0]])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: "{this}.str ENDS WITH 'c'"
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where string contains', async () => {
-    const result = await konekto.findByQueryObject({
-      where: "{this}.value CONTAINS 'd'"
+    const result = await insertJson({
+      _label: 'test',
+      str: 'abc'
     })
-    expect(result).toEqual([jsonDb.rel2[0].sub_rel.deeper_rel])
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: "{this}.str CONTAINS 'b'"
+    })
+    expect([result]).toStrictEqual(findResult)
+  })
+
+  test('where in', async () => {
+    const result = await insertJson({
+      _label: 'test',
+      list: ['a', 1, true]
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      where: '1 IN {this}.list'
+    })
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('mandatory relationship', async () => {
-    const result = await konekto.findByQueryObject({
+    const result = await insertJson({
+      _label: 'test',
+      sub_rel: {
+        _label: 'test2'
+      }
+    })
+    await insertJson({
+      _label: 'test'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
       sub_rel: {
         mandatory: true
       }
     })
-    expect(result.length).toBe(2)
-    for (const item of result) {
-      expect(item).toHaveProperty('sub_rel')
-    }
+    expect(findResult).toStrictEqual([result])
   })
 
   test('optional relationship', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: 'test3',
+    const result = await insertJson({
+      _label: 'test',
+      sub_rel: {
+        _label: 'test2'
+      }
+    })
+    const result2 = await insertJson({
+      _label: 'test'
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
       sub_rel: {}
     })
-    delete jsonDb.rel2[0].sub_rel.deeper_rel
-    expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
+    expect(findResult).toStrictEqual([result, result2])
   })
 
   test('order relationship', async () => {
-    const result = await konekto.findByQueryObject({
-      _label: 'test3',
-      sub_rel: {
-        order: 'number'
+    const result = await insertJson({
+      _label: 'test',
+      rel: [
+        {
+          _label: 'test',
+          prop: 'c'
+        },
+        {
+          _label: 'test2',
+          prop: 'a'
+        }
+      ]
+    })
+    const findResult = await konekto.findOneByQueryObject({
+      _label: 'test',
+      rel: {
+        order: 'prop'
       }
     })
-    delete jsonDb.rel2[0].sub_rel.deeper_rel
-    jsonDb.rel2[1].sub_rel = jsonDb.rel2[1].sub_rel.sort((a, b) => (a.number && b.number ? a.number > b.number : 1))
-    jsonDb.rel2.pop()
-    expect(result).toEqual(jsonDb.rel2)
+    result.rel = result.rel.reverse()
+    expect(result).toStrictEqual(findResult)
   })
 
   test('where relationship', async () => {
-    const result = await konekto.findByQueryObject({
-      sub_rel: {
-        where: '{this}.number = 5'
+    const result = await insertJson({
+      _label: 'test',
+      rel: [
+        {
+          _label: 'test',
+          prop: 'c'
+        },
+        {
+          _label: 'test2',
+          prop: 'a'
+        }
+      ]
+    })
+    const findResult = await konekto.findOneByQueryObject({
+      _label: 'test',
+      rel: {
+        where: "{this}.prop = 'c'"
       }
     })
-    jsonDb.rel2.pop()
-    jsonDb.rel2.pop()
-    delete jsonDb.rel2[0].sub_rel.deeper_rel
-    expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
+    result.rel.pop()
+    expect(result).toStrictEqual(findResult)
   })
 
   test('paginate relationship', async () => {
-    const result = await konekto.findByQueryObject({
-      sub_rel: {
-        order: 'number',
+    const result = await insertJson({
+      _label: 'test',
+      rel: [
+        {
+          _label: 'test',
+          prop: 'a'
+        },
+        {
+          _label: 'test2',
+          prop: 'b'
+        },
+        {
+          _label: 'test2',
+          prop: 'c'
+        }
+      ]
+    })
+    const findResult = await konekto.findOneByQueryObject({
+      _label: 'test',
+      rel: {
         skip: 1,
         limit: 1
       }
     })
-    jsonDb.rel2.shift()
-    jsonDb.rel2.pop()
-    jsonDb.rel2[0].sub_rel.shift()
-    expect(result).toEqual(expect.arrayContaining(jsonDb.rel2))
+    result.rel.shift()
+    result.rel.pop()
+    expect(result).toStrictEqual(findResult)
   })
 
   test('relationship of relationship', async () => {
-    const result = await konekto.findByQueryObject({
-      rel2: {
+    const result = await insertJson({
+      _label: 'test',
+      rel: {
+        _label: 'test2',
+        sub_rel: {
+          _label: 'test'
+        }
+      }
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      rel: {
         mandatory: true,
         sub_rel: {
           mandatory: true
         }
       }
     })
-    delete jsonDb.rel1
-    delete jsonDb.rel2[0].sub_rel.deeper_rel
-    jsonDb.rel2.pop()
-    for (const item of result) {
-      expect(item).toHaveProperty('rel2')
-      for (const subItem of item.rel2) {
-        expect(subItem).toHaveProperty('sub_rel')
-      }
-    }
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('relationship of relationship of relationship', async () => {
-    const result = await konekto.findByQueryObject({
-      rel2: {
+    const result = await insertJson({
+      _label: 'test',
+      rel: {
+        _label: 'test2',
+        sub_rel: {
+          _label: 'test',
+          other_rel: {
+            _label: 'test3'
+          }
+        }
+      }
+    })
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test',
+      rel: {
         mandatory: true,
         sub_rel: {
           mandatory: true,
-          deeper_rel: {
+          other_rel: {
             mandatory: true
           }
         }
       }
     })
-    delete jsonDb.rel1
-    jsonDb.rel2.pop()
-    jsonDb.rel2.pop()
-    expect(result).toEqual([jsonDb])
+    expect([result]).toStrictEqual(findResult)
   })
 })
