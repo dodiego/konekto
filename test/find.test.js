@@ -19,7 +19,9 @@ describe('find', () => {
 
   async function insertJson (json) {
     await konekto.createSchema(json)
-    return konekto.save(json)
+    const result = await konekto.save(json)
+    json._id = result._id
+    return json
   }
 
   test('find by id', async () => {
@@ -298,6 +300,7 @@ describe('find', () => {
       _label: 'test',
       where: '{this}.null_prop IS NULL'
     })
+    delete result.null_prop
     expect([result]).toStrictEqual(findResult)
   })
 
@@ -462,6 +465,7 @@ describe('find', () => {
         mandatory: true
       }
     })
+    delete findResult[0].sub_rel._id
     expect(findResult).toStrictEqual([result])
   })
 
@@ -479,6 +483,7 @@ describe('find', () => {
       _label: 'test',
       sub_rel: {}
     })
+    delete findResult[0].sub_rel._id
     expect(findResult).toStrictEqual([result, result2])
   })
 
@@ -496,14 +501,16 @@ describe('find', () => {
         }
       ]
     })
-    const findResult = await konekto.findOneByQueryObject({
+    const findResult = await konekto.findByQueryObject({
       _label: 'test',
       rel: {
         order: 'prop'
       }
     })
+    delete findResult[0].rel[0]._id
+    delete findResult[0].rel[1]._id
     result.rel = result.rel.reverse()
-    expect(result).toStrictEqual(findResult)
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('where relationship', async () => {
@@ -520,14 +527,15 @@ describe('find', () => {
         }
       ]
     })
-    const findResult = await konekto.findOneByQueryObject({
+    const findResult = await konekto.findByQueryObject({
       _label: 'test',
       rel: {
         where: "{this}.prop = 'c'"
       }
     })
+    delete findResult[0].rel[0]._id
     result.rel.pop()
-    expect(result).toStrictEqual(findResult)
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('paginate relationship', async () => {
@@ -548,16 +556,17 @@ describe('find', () => {
         }
       ]
     })
-    const findResult = await konekto.findOneByQueryObject({
+    const findResult = await konekto.findByQueryObject({
       _label: 'test',
       rel: {
         skip: 1,
         limit: 1
       }
     })
+    delete findResult[0].rel[0]._id
     result.rel.shift()
     result.rel.pop()
-    expect(result).toStrictEqual(findResult)
+    expect([result]).toStrictEqual(findResult)
   })
 
   test('relationship of relationship', async () => {
@@ -579,6 +588,8 @@ describe('find', () => {
         }
       }
     })
+    delete findResult[0].rel._id
+    delete findResult[0].rel.sub_rel._id
     expect([result]).toStrictEqual(findResult)
   })
 
@@ -607,6 +618,9 @@ describe('find', () => {
         }
       }
     })
+    delete findResult[0].rel._id
+    delete findResult[0].rel.sub_rel._id
+    delete findResult[0].rel.sub_rel.other_rel._id
     expect([result]).toStrictEqual(findResult)
   })
 })
