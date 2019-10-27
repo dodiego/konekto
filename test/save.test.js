@@ -24,8 +24,8 @@ describe('save', () => {
     }
     json.sel_rel = json
     await konekto.createSchema(json)
-    const saveResult = await konekto.save(json)
-    const findResult = await konekto.findById(saveResult._id)
+    const id = await konekto.save(json)
+    const findResult = await konekto.findById(id)
     delete findResult._id
     expect(json).toEqual(findResult)
   })
@@ -43,8 +43,8 @@ describe('save', () => {
     otherJson.parent_rel = json
     otherJson.self_rel = otherJson
     await konekto.createSchema(json)
-    const saveResult = await konekto.save(json)
-    const findResult = await konekto.findById(saveResult._id)
+    const id = await konekto.save(json)
+    const findResult = await konekto.findById(id)
     delete findResult._id
     delete findResult.sub_rel._id
     expect(json).toEqual(findResult)

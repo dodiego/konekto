@@ -19,15 +19,16 @@ describe('find', () => {
 
   async function insertJson (json) {
     await konekto.createSchema(json)
-    const result = await konekto.save(json)
-    json._id = result._id
+    const id = await konekto.save(json)
+    json._id = id
     return json
   }
 
   test('find by id', async () => {
-    const result = await insertJson({
+    const json = {
       _label: 'test'
-    })
+    }
+    const result = await insertJson(json)
     const findResult = await konekto.findById(result._id)
     expect(result).toEqual(findResult)
   })
