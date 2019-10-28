@@ -5,6 +5,9 @@ describe('find', () => {
     await konekto.connect()
     await konekto.createGraph('find_test')
     await konekto.setGraph('find_test')
+    await konekto.raw({
+      query: 'CREATE TABLE IF NOT EXISTS public.dates (konekto_id uuid, _date date)'
+    })
   })
 
   afterEach(() => {
@@ -13,7 +16,8 @@ describe('find', () => {
     })
   })
 
-  afterAll(() => {
+  afterAll(async () => {
+    await konekto.raw({ query: 'DROP TABLE IF EXISTS public.dates' })
     return konekto.disconnect()
   })
 
@@ -623,5 +627,39 @@ describe('find', () => {
     delete findResult[0].rel.sub_rel._id
     delete findResult[0].rel.sub_rel.other_rel._id
     expect([result]).toStrictEqual(findResult)
+  })
+
+  test('sql', async () => {
+    const json = {
+      _label: 'test',
+      _date: '2013-07-09'
+    }
+    const id = await konekto.save(json, {
+      hooks: {
+        async beforeCreate (node, object) {
+          if (object._date) {
+            await konekto.raw({
+              query: 'INSERT INTO public.dates VALUES ($1, $2)',
+              params: [node.konekto_id, object._date]
+            })
+            return true
+          }
+        }
+      }
+    })
+    const findResult = await konekto.findOneByQueryObject({
+      _label: 'test',
+      _sql: {
+        parts: [
+          {
+            table: 'dates',
+            columns: ['_date']
+          }
+        ]
+      },
+      where: `id({this}) = ${id}`
+    })
+    delete findResult._id
+    expect(json).toStrictEqual(findResult)
   })
 })
