@@ -289,12 +289,35 @@ describe('find sql', () => {
       {
         projections: {
           dates: {
-            test_date: "date_part('year', test_date)"
+            test_date: "date_part('year', {this})"
           }
         }
       }
     )
     json.test_date = 2013
+    delete findResult._id
+    expect(json).toStrictEqual(findResult)
+  })
+
+  test('sql insert projection', async () => {
+    const json = {
+      _label: 'test',
+      test_date: '2013-07-09'
+    }
+    const id = await konekto.save(json, {
+      projections: {
+        test: {
+          test_date: "{this}::date + interval '1 day'"
+        }
+      }
+    })
+    const findResult = await konekto.findOneByQueryObject({
+      _label: 'test',
+      where: `id({this}) = '${id}'`,
+      sql_where: "date_part('year', test_date) = 2013",
+      sql_table: 'dates'
+    })
+    json.test_date = '2013-07-10'
     delete findResult._id
     expect(json).toStrictEqual(findResult)
   })
