@@ -7,12 +7,9 @@ describe('find sql', () => {
     await konekto.setSqlMappings({
       test: {
         table: 'dates',
-        mappings: [
-          {
-            key: 'test_date',
-            column: 'test_date'
-          }
-        ]
+        mappings: {
+          test_date: 'test_date'
+        }
       }
     })
     await konekto.createGraph('find_sql_test')
@@ -262,7 +259,7 @@ describe('find sql', () => {
       {
         projections: {
           dates: {
-            year: "date_part('year', test_date)"
+            year: "date_part('year', {test_date})"
           }
         }
       }
@@ -289,7 +286,7 @@ describe('find sql', () => {
       {
         projections: {
           dates: {
-            test_date: "date_part('year', {this})"
+            test_date: "date_part('year', {test_date})"
           }
         }
       }
