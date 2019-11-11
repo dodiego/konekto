@@ -1,4 +1,5 @@
 const Konekto = require('../lib')
+const { where, sqlWhere } = require('../lib/parser')
 const konekto = new Konekto()
 
 describe('find sql', () => {
@@ -34,9 +35,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date = '2013-07-09'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: 'test_date = :date', table: 'dates', params: { date: '2013-07-09' } }
     })
     delete findResult._id
     expect(json).toStrictEqual(findResult)
@@ -50,9 +50,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date != '2013-07-10'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date != '2013-07-10'", table: 'dates' }
     })
     delete findResult._id
     expect(json).toStrictEqual(findResult)
@@ -66,9 +65,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date > '2013-07-08'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date > '2013-07-08'", table: 'dates' }
     })
     delete findResult._id
     expect(json).toStrictEqual(findResult)
@@ -82,9 +80,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date >= '2013-07-09'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date >= '2013-07-09'", table: 'dates' }
     })
     delete findResult._id
 
@@ -99,9 +96,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date < '2013-07-10'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date < '2013-07-10'", table: 'dates' }
     })
     delete findResult._id
     expect(json).toStrictEqual(findResult)
@@ -115,9 +111,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date <= '2013-07-09'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date <= '2013-07-09'", table: 'dates' }
     })
     delete findResult._id
 
@@ -132,9 +127,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "NOT dates.test_date = '2013-07-08'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "NOT dates.test_date = '2013-07-08'", table: 'dates' }
     })
     delete findResult._id
 
@@ -149,9 +143,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "dates.test_date > '2013-07-08' AND test_date < '2019-07-10'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "dates.test_date > '2013-07-08' AND test_date < '2019-07-10'", table: 'dates' }
     })
     delete findResult._id
 
@@ -166,9 +159,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "dates.test_date > '2013-07-08' OR dates.test_date < '2019-07-09'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "dates.test_date > '2013-07-08' OR dates.test_date < '2019-07-09'", table: 'dates' }
     })
     delete findResult._id
 
@@ -183,9 +175,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "(test_date = '2013-07-09') and true",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "(test_date = '2013-07-09') and true", table: 'dates' }
     })
     delete findResult._id
 
@@ -200,9 +191,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date BETWEEN '2013-07-08' AND '2019-07-09'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date BETWEEN '2013-07-08' AND '2019-07-09'", table: 'dates' }
     })
     delete findResult._id
 
@@ -217,9 +207,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "test_date::text = '2013-07-09'",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "test_date::text = '2013-07-09'", table: 'dates' }
     })
     delete findResult._id
 
@@ -234,9 +223,8 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findOneByQueryObject({
       _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "date_part('year', test_date) = 2013",
-      sql_table: 'dates'
+      [where]: { filter: 'id({this}) = :id', params: { id } },
+      [sqlWhere]: { filter: "date_part('year', test_date) = 2013", table: 'dates' }
     })
     delete findResult._id
 
@@ -252,9 +240,8 @@ describe('find sql', () => {
     const findResult = await konekto.findOneByQueryObject(
       {
         _label: 'test',
-        where: `id({this}) = '${id}'`,
-        sql_where: "date_part('year', test_date) = 2013",
-        sql_table: 'dates'
+        [where]: { filter: 'id({this}) = :id', params: { id } },
+        [sqlWhere]: { filter: "date_part('year', test_date) = 2013", table: 'dates' }
       },
       {
         projections: {
@@ -279,9 +266,8 @@ describe('find sql', () => {
     const findResult = await konekto.findOneByQueryObject(
       {
         _label: 'test',
-        where: `id({this}) = '${id}'`,
-        sql_where: "date_part('year', test_date) = 2013",
-        sql_table: 'dates'
+        [where]: { filter: 'id({this}) = :id', params: { id } },
+        [sqlWhere]: { filter: "date_part('year', test_date) = 2013", table: 'dates' }
       },
       {
         projections: {
@@ -292,29 +278,6 @@ describe('find sql', () => {
       }
     )
     json.test_date = 2013
-    delete findResult._id
-    expect(json).toStrictEqual(findResult)
-  })
-
-  test('sql insert projection', async () => {
-    const json = {
-      _label: 'test',
-      test_date: '2013-07-09'
-    }
-    const id = await konekto.save(json, {
-      projections: {
-        test: {
-          test_date: "{this}::date + interval '1 day'"
-        }
-      }
-    })
-    const findResult = await konekto.findOneByQueryObject({
-      _label: 'test',
-      where: `id({this}) = '${id}'`,
-      sql_where: "date_part('year', test_date) = 2013",
-      sql_table: 'dates'
-    })
-    json.test_date = '2013-07-10'
     delete findResult._id
     expect(json).toStrictEqual(findResult)
   })
