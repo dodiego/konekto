@@ -5,6 +5,9 @@ const konekto = new Konekto()
 describe('find sql', () => {
   beforeAll(async () => {
     await konekto.connect()
+    await konekto.raw({
+      query: 'create table if not exists dates (konekto_id text primary key, test_date date)'
+    })
     await konekto.setSqlMappings({
       test: {
         table: 'dates',
