@@ -480,10 +480,10 @@ describe('find', () => {
       }
     })
     const result2 = await insertJson({
-      _label: 'test'
+      _label: 'test3'
     })
     const findResult = await konekto.findByQueryObject({
-      _label: 'test',
+      _label: ['test', 'test3'],
       sub_rel: {}
     })
     delete findResult[0].sub_rel._id
