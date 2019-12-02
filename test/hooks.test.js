@@ -18,7 +18,7 @@ describe('hooks', () => {
       expect(
         konekto.save(json, {
           hooks: {
-            beforeCreate () {
+            beforeSave () {
               return false
             }
           }
@@ -38,7 +38,7 @@ describe('hooks', () => {
       expect(
         konekto.save(json, {
           hooks: {
-            beforeCreate (node) {
+            beforeSave (node) {
               return false
             }
           }
