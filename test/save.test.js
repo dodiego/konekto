@@ -24,10 +24,14 @@ describe('save', () => {
     }
     json.sel_rel = json
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    delete findResult._id
-    expect(json).toEqual(findResult)
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test1',
+      sel_rel: {}
+    })
+    delete findResult[0].sel_rel._id
+    expect([json]).toEqual(findResult)
+    expect(findResult.length).toBe(1)
   })
 
   test('cyclic in middle object', async () => {
@@ -43,11 +47,18 @@ describe('save', () => {
     otherJson.parent_rel = json
     otherJson.self_rel = otherJson
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    delete findResult._id
-    delete findResult.sub_rel._id
-    expect(json).toEqual(findResult)
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test1',
+      sub_rel: {
+        parent_rel: {},
+        self_rel: {}
+      }
+    })
+    delete findResult[0]._id
+    delete findResult[0].sub_rel._id
+    expect([json]).toEqual(findResult)
+    expect(findResult.length).toBe(1)
   })
 
   test('update property of root object', async () => {
@@ -56,13 +67,19 @@ describe('save', () => {
       omegalul: 'xd'
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    await konekto.save({ ...findResult, omegalul: 'lul' })
-    const updatedFindResult = await konekto.findById(id)
-    delete findResult._id
-    expect(findResult).toHaveProperty('omegalul', 'xd')
-    expect(updatedFindResult).toHaveProperty('omegalul', 'lul')
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test1'
+    })
+    await konekto.save({ ...findResult[0], omegalul: 'lul' })
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1'
+    })
+    delete findResult[0]._id
+    expect(findResult[0]).toHaveProperty('omegalul', 'xd')
+    expect(updatedFindResult[0]).toHaveProperty('omegalul', 'lul')
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('add property of root object', async () => {
@@ -71,13 +88,19 @@ describe('save', () => {
       omegalul: 'xd'
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    await konekto.save({ ...findResult, xd: 'lul' })
-    const updatedFindResult = await konekto.findById(id)
-    delete findResult._id
-    expect(findResult).not.toHaveProperty('xd', 'lul')
-    expect(updatedFindResult).toHaveProperty('xd', 'lul')
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test1'
+    })
+    await konekto.save({ ...findResult[0], xd: 'lul' })
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1'
+    })
+    delete findResult[0]._id
+    expect(findResult[0]).not.toHaveProperty('xd', 'lul')
+    expect(updatedFindResult[0]).toHaveProperty('xd', 'lul')
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('delete property of root object', async () => {
@@ -86,64 +109,91 @@ describe('save', () => {
       omegalul: 'xd'
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    await konekto.save({ ...findResult, omegalul: null })
-    const updatedFindResult = await konekto.findById(id)
-    delete findResult._id
-    expect(findResult).toHaveProperty('omegalul')
-    expect(updatedFindResult).not.toHaveProperty('omegalul')
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test1'
+    })
+    await konekto.save({ ...findResult[0], omegalul: null })
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1'
+    })
+    delete findResult[0]._id
+    expect(findResult[0]).toHaveProperty('omegalul', 'xd')
+    expect(updatedFindResult[0]).not.toHaveProperty('omegalul')
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('update property of related object', async () => {
     const json = {
       _label: 'test1',
       rel: {
-        _label: 'test1',
+        _label: 'test2',
         omegalul: 'xd'
       }
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    await konekto.save({ ...findResult.rel, omegalul: 'lul' })
-    const updatedFindResult = await konekto.findById(findResult.rel._id)
-    expect(findResult.rel).toHaveProperty('omegalul', 'xd')
-    expect(updatedFindResult).toHaveProperty('omegalul', 'lul')
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test2'
+    })
+    await konekto.save({ ...findResult[0], omegalul: 'lul' })
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1',
+      rel: {}
+    })
+    expect(findResult[0]).toHaveProperty('omegalul', 'xd')
+    expect(updatedFindResult[0].rel).toHaveProperty('omegalul', 'lul')
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('add property of related object', async () => {
     const json = {
       _label: 'test1',
       rel: {
-        _label: 'test1',
+        _label: 'test2',
         omegalul: 'xd'
       }
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    await konekto.save({ ...findResult.rel, xd: 'yes' })
-    const updatedFindResult = await konekto.findById(findResult.rel._id)
-    expect(findResult.rel).not.toHaveProperty('xd', 'yes')
-    expect(updatedFindResult).toHaveProperty('xd', 'yes')
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test2'
+    })
+    await konekto.save({ ...findResult[0], xd: 'yes' })
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1',
+      rel: {}
+    })
+    expect(findResult[0]).not.toHaveProperty('xd', 'yes')
+    expect(updatedFindResult[0].rel).toHaveProperty('xd', 'yes')
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('remove property of related object', async () => {
     const json = {
       _label: 'test1',
       rel: {
-        _label: 'test1',
+        _label: 'test2',
         omegalul: 'xd'
       }
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
-    await konekto.save({ ...findResult.rel, omegalul: null })
-    const updatedFindResult = await konekto.findById(findResult.rel._id)
-    expect(findResult.rel).toHaveProperty('omegalul')
-    expect(updatedFindResult).not.toHaveProperty('omegalul')
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({
+      _label: 'test2'
+    })
+    await konekto.save({ ...findResult[0], omegalul: null })
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1',
+      rel: {}
+    })
+    expect(findResult[0]).toHaveProperty('omegalul')
+    expect(updatedFindResult[0].rel).not.toHaveProperty('omegalul')
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('create and relate objects', async () => {
@@ -151,20 +201,25 @@ describe('save', () => {
       _label: 'test1'
     }
     const rel = {
-      _label: 'test1',
+      _label: 'test2',
       omegalul: 'xd'
     }
     await konekto.createSchema(json)
-    const id = await konekto.save(json)
-    const findResult = await konekto.findById(id)
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({ _label: 'test1' })
     await konekto.save({
-      ...findResult,
+      ...findResult[0],
       rel
     })
-    const updatedFindResult = await konekto.findById(id)
+    const updatedFindResult = await konekto.findByQueryObject({
+      _label: 'test1',
+      rel: {}
+    })
     expect(findResult).not.toHaveProperty('rel')
-    delete updatedFindResult.rel._id
-    expect(updatedFindResult).toHaveProperty('rel', rel)
+    delete updatedFindResult[0].rel._id
+    expect(updatedFindResult[0]).toHaveProperty('rel', rel)
+    expect(findResult.length).toBe(1)
+    expect(updatedFindResult.length).toBe(1)
   })
 
   test('relate existing objects', async () => {
@@ -174,13 +229,15 @@ describe('save', () => {
     const json2 = {
       _label: 'test2'
     }
-    const id1 = await konekto.save(json1)
-    const id2 = await konekto.save(json2)
-    const findResult1 = await konekto.findById(id1)
-    const findResult2 = await konekto.findById(id2)
-    await konekto.save({ ...findResult1, rel: { ...findResult2 } })
-    const finalFindResult = await konekto.findById(id1)
-    expect(findResult1).not.toHaveProperty('rel')
-    expect(finalFindResult).toHaveProperty('rel', findResult2)
+    await konekto.save(json1)
+    await konekto.save(json2)
+    const findResult1 = await konekto.findByQueryObject({ _label: 'test1' })
+    const findResult2 = await konekto.findByQueryObject({ _label: 'test2' })
+    await konekto.save({ ...findResult1[0], rel: { ...findResult2[0] } })
+    const finalFindResult = await konekto.findByQueryObject({ _label: 'test1', rel: {} })
+    expect(findResult1[0]).not.toHaveProperty('rel')
+    expect(finalFindResult[0]).toHaveProperty('rel', findResult2[0])
+    expect(findResult1.length).toBe(1)
+    expect(finalFindResult.length).toBe(1)
   })
 })
