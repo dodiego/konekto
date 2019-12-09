@@ -1,5 +1,4 @@
 const Konekto = require('../lib')
-const { skip, limit, where } = require('../lib/parser')
 const konekto = new Konekto()
 
 describe('find', () => {
@@ -76,7 +75,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: ['test'],
-      order: 'name'
+      _order: 'name'
     })
     expect(findResult).toStrictEqual([result2, result1, result3])
   })
@@ -96,7 +95,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: ['test'],
-      order: '!name'
+      _order: '!name'
     })
     expect(findResult).toStrictEqual([result3, result1, result2])
   })
@@ -116,7 +115,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: ['test'],
-      [skip]: 1
+      _skip: 1
     })
     expect(findResult).toStrictEqual([result2, result3])
   })
@@ -136,7 +135,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: ['test'],
-      [limit]: 2
+      _limit: 2
     })
     expect(findResult).toStrictEqual([result1, result2])
   })
@@ -156,8 +155,8 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: ['test'],
-      [limit]: 2,
-      [skip]: 1
+      _limit: 2,
+      _skip: 1
     })
     expect(findResult).toStrictEqual([result2, result3])
   })
@@ -169,7 +168,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 10' }
+      _where: { filter: '{this}.number = 10' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -181,7 +180,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number <> 9' }
+      _where: { filter: '{this}.number <> 9' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -193,7 +192,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 5 + 5' }
+      _where: { filter: '{this}.number = 5 + 5' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -205,7 +204,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 15 - 5' }
+      _where: { filter: '{this}.number = 15 - 5' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -217,7 +216,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 2 * 5' }
+      _where: { filter: '{this}.number = 2 * 5' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -229,7 +228,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 20 / 2' }
+      _where: { filter: '{this}.number = 20 / 2' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -241,7 +240,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 2 ^ 2' }
+      _where: { filter: '{this}.number = 2 ^ 2' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -253,7 +252,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = -2 ^ 2' }
+      _where: { filter: '{this}.number = -2 ^ 2' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -265,7 +264,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number % 2 = 0' }
+      _where: { filter: '{this}.number % 2 = 0' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -277,7 +276,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.bool_prop = false' }
+      _where: { filter: '{this}.bool_prop = false' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -289,7 +288,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.bool_prop = true' }
+      _where: { filter: '{this}.bool_prop = true' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -301,7 +300,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.null_prop IS NULL' }
+      _where: { filter: '{this}.null_prop IS NULL' }
     })
     delete result.null_prop
     expect([result]).toStrictEqual(findResult)
@@ -314,7 +313,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.prop IS NOT NULL' }
+      _where: { filter: '{this}.prop IS NOT NULL' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -326,7 +325,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number > 9' }
+      _where: { filter: '{this}.number > 9' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -338,7 +337,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number >= 10' }
+      _where: { filter: '{this}.number >= 10' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -350,7 +349,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number < 11' }
+      _where: { filter: '{this}.number < 11' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -362,7 +361,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number <= 10' }
+      _where: { filter: '{this}.number <= 10' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -374,7 +373,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number > 9 OR {this}.number < 5' }
+      _where: { filter: '{this}.number > 9 OR {this}.number < 5' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -387,7 +386,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '{this}.number = 10 AND {this}.bool_prop = true' }
+      _where: { filter: '{this}.number = 10 AND {this}.bool_prop = true' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -399,7 +398,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: 'NOT {this}.number < 10' }
+      _where: { filter: 'NOT {this}.number < 10' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -411,7 +410,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: "{this}.str STARTS WITH 'a'" }
+      _where: { filter: "{this}.str STARTS WITH 'a'" }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -423,7 +422,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: "{this}.str ENDS WITH 'c'" }
+      _where: { filter: "{this}.str ENDS WITH 'c'" }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -435,7 +434,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: "{this}.str CONTAINS 'b'" }
+      _where: { filter: "{this}.str CONTAINS 'b'" }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -447,7 +446,7 @@ describe('find', () => {
     })
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
-      [where]: { filter: '1 IN {this}.list' }
+      _where: { filter: '1 IN {this}.list' }
     })
     expect([result]).toStrictEqual(findResult)
   })
@@ -507,7 +506,7 @@ describe('find', () => {
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
       rel: {
-        order: 'prop'
+        _order: 'prop'
       }
     })
     delete findResult[0].rel[0]._id
@@ -533,7 +532,7 @@ describe('find', () => {
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
       rel: {
-        [where]: { filter: "{this}.prop = 'c'" }
+        _where: { filter: "{this}.prop = 'c'" }
       }
     })
     delete findResult[0].rel[0]._id
@@ -562,8 +561,8 @@ describe('find', () => {
     const findResult = await konekto.findByQueryObject({
       _label: 'test',
       rel: {
-        [skip]: 1,
-        [limit]: 1
+        _skip: 1,
+        _limit: 1
       }
     })
     delete findResult[0].rel[0]._id
