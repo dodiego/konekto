@@ -240,4 +240,79 @@ describe('save', () => {
     expect(findResult1.length).toBe(1)
     expect(finalFindResult.length).toBe(1)
   })
+
+  test('insert node with array of numbers', async () => {
+    const json = {
+      _label: 'test1',
+      prop: [1, 2, 3]
+    }
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({})
+    expect(findResult[0]).toHaveProperty('prop', [1, 2, 3])
+  })
+
+  test('insert node with array of mixed types', async () => {
+    const json = {
+      _label: 'test1',
+      prop: [1, { _label: 'someDoc' }, null, 'xd']
+    }
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({})
+    expect(findResult[0]).toHaveProperty('prop', [1, { _label: 'someDoc' }, null, 'xd'])
+  })
+
+  test('insert node with relationship array of one element', async () => {
+    const json = {
+      _label: 'test1',
+      rel: [
+        {
+          _label: 'test1'
+        }
+      ]
+    }
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({ rel: { mandatory: true } })
+    delete findResult[0]._id
+    delete findResult[0].rel[0]._id
+    expect(findResult).toEqual([json])
+  })
+
+  test('insert node with relationship array of two elements', async () => {
+    const json = {
+      _label: 'test1',
+      rel: [
+        {
+          _label: 'test1'
+        },
+        {
+          _label: 'test1'
+        }
+      ]
+    }
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({ rel: { mandatory: true } })
+    delete findResult[0]._id
+    delete findResult[0].rel[0]._id
+    delete findResult[0].rel[1]._id
+    expect(findResult).toEqual([json])
+  })
+
+  test('add one more relationship to node', async () => {
+    const json = {
+      _label: 'test1',
+      rel: {
+        _label: 'test1'
+      }
+    }
+    const rootId = await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({ rel: { mandatory: true } })
+    json._id = rootId
+    delete findResult[0].rel._id
+    await konekto.save(json)
+    const findResult2 = await konekto.findByQueryObject({ rel: { mandatory: true } })
+    delete findResult2[0].rel[0]._id
+    delete findResult2[0].rel[1]._id
+    json.rel = [json.rel, json.rel]
+    expect(findResult2).toEqual([json])
+  })
 })
