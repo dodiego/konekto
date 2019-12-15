@@ -315,4 +315,42 @@ describe('save', () => {
     json.rel = [json.rel, json.rel]
     expect(findResult2).toEqual([json])
   })
+
+  test('insert root node without label should throw error', async () => {
+    await expect(
+      konekto.save({
+        a: 1
+      })
+    ).rejects.toThrow()
+  })
+
+  test('insert related node without label should throw error', async () => {
+    await expect(
+      konekto.save({
+        _label: 'test',
+        a: 1,
+        b: {
+          c: true
+        }
+      })
+    ).rejects.toThrow()
+  })
+
+  test('insert deep related node without label should throw error', async () => {
+    await expect(
+      konekto.save({
+        _label: 'test',
+        a: 1,
+        b: {
+          _label: 'test',
+          rel: [
+            {
+              _label: 'test'
+            },
+            {}
+          ]
+        }
+      })
+    ).rejects.toThrow()
+  })
 })
