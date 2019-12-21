@@ -179,13 +179,13 @@ When calling save, konekto will iterate recursively on every object present on t
 #### insert one node
 
 ```javascript
-let rootId = await konekto.save({ _label: "mylabel" });
+let rootId = await konekto.save({ _label: 'mylabel' })
 ```
 
 #### insert node with custom id
 
 ```javascript
-let rootId = await konekto.save({ _label: "mylabel", _id: "myCustomId" }); // rootId = "myCustomId"
+let rootId = await konekto.save({ _label: 'mylabel', _id: 'myCustomId' }) // rootId = "myCustomId"
 ```
 
 #### update node
@@ -197,7 +197,10 @@ let rootId = await konekto.save({_label:"mylabel", some_prop: "xd", some_num: 10
 #### insert and relate two new nodes
 
 ```javascript
-await konekto.save({ _label: "mylabel", some_rel: { _label: "other_label" } });
+await konekto.save({
+  _label: 'mylabel',
+  some_rel: { _label: 'other_label' }
+})
 ```
 
 #### add relationship to existing node

@@ -196,7 +196,7 @@ describe('save', () => {
     expect(updatedFindResult.length).toBe(1)
   })
 
-  test('create and relate objects', async () => {
+  test('create new object and relate to existing one', async () => {
     const json = {
       _label: 'test1'
     }
@@ -205,10 +205,11 @@ describe('save', () => {
       omegalul: 'xd'
     }
     await konekto.createSchema(json)
-    await konekto.save(json)
+    const rootId = await konekto.save(json)
     const findResult = await konekto.findByQueryObject({ _label: 'test1' })
     await konekto.save({
-      ...findResult[0],
+      _label: 'test1',
+      _id: rootId,
       rel
     })
     const updatedFindResult = await konekto.findByQueryObject({
