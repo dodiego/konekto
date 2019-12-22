@@ -10,39 +10,39 @@ When persisting data, people usually choose one over two solutions:
 
 - Relational databases ([Postgres](https://www.postgresql.org/), [MySQL](https://www.mysql.com/), etc)
 
-  - Document ([Mongodb](https://www.mongodb.com/))
+- Document ([Mongodb](https://www.mongodb.com/))
 
 There are some pros and cons with each one:
 
 - Relational databases
 
-  - Pros:
+- Pros:
 
-    - Data in different sources is connected through foreign keys
+- Data in different sources is connected through foreign keys
 
-    - Very robust and mature (around since middle 70's) and heavily used until present day
+- Very robust and mature (around since middle 70's) and heavily used until present day
 
-    - Great ecossistem and many production-ready solutions out of the box
+- Great ecossistem and many production-ready solutions out of the box
 
-    - Great data consistency trough schema definitions
-
-  - Cons:
-
-    - Schema changes require migrations and these become harder and harder as the database grows in complexity
-
-    - Low flexibility and way harder to build systems that rely on dynamic data
-
-- Document databases
-
-  - Pros:
-
-    - Highly flexible data, you can basically store any json and it just works
-
-    - Since data is dynamic, migrations are not needed and it is very easy to scale applications from simple to complex ones.
+- Great data consistency trough schema definitions
 
 - Cons:
 
-  - No relation between data, you must store all related data in a single document
+- Schema changes require migrations and these become harder and harder as the database grows in complexity
+
+- Low flexibility and way harder to build systems that rely on dynamic data
+
+- Document databases
+
+- Pros:
+
+- Highly flexible data, you can basically store any json and it just works
+
+- Since data is dynamic, migrations are not needed and it is very easy to scale applications from simple to complex ones.
+
+- Cons:
+
+- No relation between data, you must store all related data in a single document
 
 So, you either go to strongly typed and related data or highly dynamic and unrelated data. There are forms that you can work around the cons of each solution, but you require some extra knowledge, do some work of your own and the chances of things getting messy are quite high. What can we do, then?
 
@@ -69,7 +69,8 @@ Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your op
 ### Getting Started
 
 ```javascript
-const Konekto = require('konekto')const user = 'agens'const password = 'agens'const host = 'localhost'const port = 5432const database = 'agens'const konekto = new Konekto(`postgresql://${user}:${password}@${host}:${port}/${database}`)async function run () {  // connecting to the database  await konekto.connect()  const json = {    _label: "xd",    some_prop: "lul",    some_relationship: {      _label: "omegalul",      other_prop: 1    }  }  // creating some basic schema  await konekto.createSchema(json)  // inserting data  const id = await konekto.save(json)  json._id = id  json.more_prop = true, // adding more properties  json.some_prop = undefined // removing properties  // updating data in the database  await konekto.save(json)  // querying  const jsonDb = await konekto.findById(id)  // updating related data  jsonDb.some_relationship.other_prop = 1.5  await konekto.save(jsonDb.some_relationship)  // delete data  await konekto.deleteById(id)  // when deleting by id, you delete individual jsons, not the whole graph  const relatedJsonDb = await konekto.findById(jsonDb.some_relationship._id)  relatedJsonDb !== undefined && relatedJsonDb.other_prop === jsonDb.some_relationship // true}
+
+const Konekto =  require('konekto')const user =  'agens'const password =  'agens'const host =  'localhost'const port = 5432const database =  'agens'const konekto =  new  Konekto(`postgresql://${user}:${password}@${host}:${port}/${database}`)async  function  run () { // connecting to the database await konekto.connect() const json = { _label: "xd", some_prop: "lul", some_relationship: { _label: "omegalul", other_prop: 1 } } // creating some basic schema await konekto.createSchema(json) // inserting data const id = await konekto.save(json) json._id = id json.more_prop = true, // adding more properties json.some_prop = undefined // removing properties // updating data in the database await konekto.save(json) // querying const jsonDb = await konekto.findById(id) // updating related data jsonDb.some_relationship.other_prop = 1.5 await konekto.save(jsonDb.some_relationship) // delete data await konekto.deleteById(id) // when deleting by id, you delete individual jsons, not the whole graph const relatedJsonDb = await konekto.findById(jsonDb.some_relationship._id) relatedJsonDb !== undefined && relatedJsonDb.other_prop === jsonDb.some_relationship // true}
 ```
 
 ## Core concepts
@@ -113,19 +114,22 @@ Any json which all keys map to primitive values or arrays that contains primitiv
 - empty node
 
 ```javascript
-{  "_label": "some_label"}
+
+{ "_label": "some_label"}
 ```
 
 - node with some simple values
 
 ```javascript
-{  "_label": "other_label",  "str_prop": "xd",  "number_prop": 1,  "boolean_prop": true,}
+
+{ "_label": "other_label", "str_prop": "xd", "number_prop": 1, "boolean_prop": true,}
 ```
 
 - node with array
 
 ```javascript
-{  "_label": "some_label",  "array_prop": [1, null, "aaa", { "xd": "lul"}]}
+
+{ "_label": "some_label", "array_prop": [1, null, "aaa", { "xd": "lul"}]}
 ```
 
 ### Relationship
@@ -143,19 +147,22 @@ a json property where the value is a json or an array of jsons. The relationship
 - relating two nodes
 
 ```javascript
-{  "_label": "label1",  "some_rel": {    "_label": "label2"  }}
+
+{ "_label": "label1", "some_rel": { "_label": "label2" }}
 ```
 
 - relating two nodes and saving it as a relationship array
 
 ```javascript
-{  "_label": "label1",   "some_rel": [{     "_label": "label2"  }]}
+
+{ "_label": "label1", "some_rel": [{ "_label": "label2" }]}
 ```
 
 - relating various nodes in a relationship array
 
 ```javascript
-{  "_label": "a",  "rel": [    {"_label": "b"},    {"_label": "a"},    {"_label": "c"}  ]}
+
+{ "_label": "a", "rel": [ {"_label": "b"}, {"_label": "a"}, {"_label": "c"} ]}
 ```
 
 ## Saving Data
@@ -191,16 +198,18 @@ let rootId = await konekto.save({ _label: 'mylabel', _id: 'myCustomId' }) // roo
 #### update node
 
 ```javascript
-let rootId = await konekto.save({_label:"mylabel", some_prop: "xd", some_num: 10})await konekto.save({_label: "mylabel", _id: rootId,other_prop: true, // adding new propertysome_num: null, // deleting old propertysome_prop: 5.2 // updating old property})
+
+let rootId =  await  konekto.save({  _label:"mylabel",   some_prop: "xd",   some_num: 10})await  konekto.save({  _label: "mylabel",   _id: rootId,  other_prop: true, // adding new property   some_num: null, // deleting old property  some_prop: 5.2 // updating old property})
 ```
 
 #### insert and relate two new nodes
 
 ```javascript
-await konekto.save({
-  _label: 'mylabel',
-  some_rel: { _label: 'other_label' }
-})
+await konekto.save({ _label: 'mylabel', some_rel: { _label: 'other_label' } })
 ```
 
 #### add relationship to existing node
+
+```javascript
+    const json = {      _label: 'test1'    }    const rel = {      _label: 'test2',      omegalul: 'xd'    }    const id = await konekto.save(json)    await konekto.save({      _label: 'test1' // use _label + _id to reference an existent node      _id: id,      rel    })
+```
