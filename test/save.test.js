@@ -354,4 +354,18 @@ describe('save', () => {
       })
     ).rejects.toThrow()
   })
+
+  test('object with property _json=true should be saved as node value', async () => {
+    const json = {
+      _label: 'test1',
+      prop: {
+        _json: true,
+        a: true
+      }
+    }
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({ _label: 'test1' })
+    delete findResult[0]._id
+    expect([json]).toStrictEqual(findResult)
+  })
 })
