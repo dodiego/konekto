@@ -2,7 +2,7 @@
 
 ### What
 
-Konekto is an object-graph mapper for node.js and intended to use with [agensgraph](https://bitnine.net/agensgraph/)
+Konekto is an object-graph mapper for [agensgraph](https://bitnine.net/agensgraph/)
 
 ### Why
 
@@ -241,3 +241,25 @@ await konekto.save({
       rel
     })
 ```
+
+#### saving value as object instead of node + relationship
+
+```javascript
+await konekto.save({
+  _label: 'test1',
+  prop: {
+    _json: true,
+    a: true
+  }
+})
+```
+
+## Querying data
+
+There are two methods to query data:
+
+- findById
+
+- findByQueryObject
+
+### FindById
