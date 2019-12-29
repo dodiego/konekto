@@ -1,0 +1,500 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Chapter 1 - Konekto Docs</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div id="sidebar-scrollbox" class="sidebar-scrollbox">
+                <ol class="chapter"><li class="expanded "><a href="chapter_1.html" class="active"><strong aria-hidden="true">1.</strong> Chapter 1</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Konekto Docs</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2><a class="header" href="#overview" id="overview">Overview</a></h2>
+<h3><a class="header" href="#what" id="what">What</a></h3>
+<p>Konekto is an object-graph mapper for <a href="https://bitnine.net/agensgraph/">agensgraph</a></p>
+<h3><a class="header" href="#why" id="why">Why</a></h3>
+<p>When persisting data, people usually choose one over two solutions:</p>
+<ul>
+<li>
+<p>Relational databases (<a href="https://www.postgresql.org/">Postgres</a>, <a href="https://www.mysql.com/">MySQL</a>, etc)</p>
+</li>
+<li>
+<p>Document (<a href="https://www.mongodb.com/">Mongodb</a>)</p>
+</li>
+</ul>
+<p>There are some pros and cons with each one:</p>
+<ul>
+<li>
+<p>Relational databases</p>
+<ul>
+<li>
+<p>Pros:</p>
+<ul>
+<li>Data in different sources is connected through foreign keys</li>
+<li>Very robust and mature (around since middle 70's) and heavily used until present day</li>
+<li>Great ecossistem and many production-ready solutions out of the box</li>
+<li>Great data consistency trough schema definitions</li>
+</ul>
+</li>
+<li>
+<p>Cons:</p>
+<ul>
+<li>Schema changes require migrations and these become harder and harder as the database grows in complexity</li>
+<li>Low flexibility and way harder to build systems that rely on dynamic data</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Document databases</p>
+<ul>
+<li>
+<p>Pros:</p>
+<ul>
+<li>Highly flexible data, you can basically store any json and it just works</li>
+<li>Since data is dynamic, migrations are not needed and it is very easy to scale applications from simple to complex ones.</li>
+</ul>
+</li>
+<li>
+<p>Cons:</p>
+<ul>
+<li>No relation between data, you must store all related data in a single document</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>So, you either go to strongly typed and related data or highly dynamic and unrelated data. There are forms that you can work around the cons of each solution, but you require some extra knowledge, do some work of your own and the chances of things getting messy are quite high. What can we do, then?</p>
+<h4><a class="header" href="#graphs-ftw" id="graphs-ftw">Graphs FTW</a></h4>
+<p>Graph databases are great because the data is dynamic and related to each other, you get the flexibility of documents and the relations of relational databases, futhermore, graph database handle connected data far better than relational ones due its nature (you can check more about this <a href="https://neo4j.com/blog/demining-the-join-bomb-with-graph-queries/">right here</a>)</p>
+<h3><a class="header" href="#requirements" id="requirements">Requirements</a></h3>
+<p>You need a <a href="https://bitnine.net/agensgraph/">Agensgraph</a> database running</p>
+<h4><a class="header" href="#agensgraph---manual-installation" id="agensgraph---manual-installation">AgensGraph - Manual installation</a></h4>
+<p>Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your operational system</p>
+<h4><a class="header" href="#agensgraph---using-docker" id="agensgraph---using-docker">AgensGraph - Using Docker</a></h4>
+<p><code>docker run -p 5432:5432 -it bitnine/agensgraph:v2.1.1 agens</code></p>
+<h3><a class="header" href="#installation" id="installation">Installation</a></h3>
+<p><code>npm install konekto</code></p>
+<h3><a class="header" href="#getting-started" id="getting-started">Getting Started</a></h3>
+<pre><code class="language-javascript">const Konekto = require(&quot;konekto&quot;);
+const user = &quot;agens&quot;;
+const password = &quot;agens&quot;;
+const host = &quot;localhost&quot;;
+const port = 5432;
+const database = &quot;agens&quot;;
+const konekto = new Konekto(
+  `postgresql://${user}:${password}@${host}:${port}/${database}`
+);
+async function run() {
+  // connecting to the database
+  await konekto.connect();
+  const json = {
+    _label: &quot;xd&quot;,
+    some_prop: &quot;lul&quot;,
+    some_relationship: { _label: &quot;omegalul&quot;, other_prop: 1 }
+  };
+  // creating some basic schema
+  await konekto.createSchema(json);
+  // inserting data
+  const id = await konekto.save(json);
+  json._id = id;
+  json.more_prop = true; // adding more properties
+  json.some_prop = undefined; // removing properties
+  // updating data in the database
+  await konekto.save(json);
+  // querying
+  const jsonDb = await konekto.findById(id);
+  jsonDb.some_relationship.other_prop = 1.5; // updating related data
+  await konekto.save(jsonDb.some_relationship);
+  // delete data
+  await konekto.deleteById(id);
+  // when deleting by id, you delete individual jsons, not the whole graph
+  const relatedJsonDb = await konekto.findById(jsonDb.some_relationship._id);
+  relatedJsonDb !== undefined &amp;&amp;
+    relatedJsonDb.other_prop === jsonDb.some_relationship; // true
+}
+run();
+</code></pre>
+<h2><a class="header" href="#core-concepts" id="core-concepts">Core concepts</a></h2>
+<h3><a class="header" href="#label" id="label">Label</a></h3>
+<p>a name that indicates where a node or a relationship should be stored (think of it as table or collection name)</p>
+<h4><a class="header" href="#rules" id="rules">Rules:</a></h4>
+<ul>
+<li>
+<p>must be a string</p>
+</li>
+<li>
+<p>must be lowercase</p>
+</li>
+<li>
+<p>only alhanumeric characters and <code>_</code> is allowed</p>
+</li>
+<li>
+<p>must stard with <code>_</code> or a letter</p>
+</li>
+</ul>
+<h4><a class="header" href="#examples" id="examples">Examples:</a></h4>
+<ul>
+<li>
+<p><code>&quot;label&quot;</code></p>
+</li>
+<li>
+<p><code>&quot;other_label&quot;</code></p>
+</li>
+<li>
+<p><code>&quot;other_label2&quot;</code></p>
+</li>
+<li>
+<p><code>&quot;_another_label&quot;</code></p>
+</li>
+</ul>
+<h3><a class="header" href="#node" id="node">Node</a></h3>
+<p>Any json which all keys map to primitive values or arrays that contains primitive values</p>
+<h4><a class="header" href="#rules-1" id="rules-1">Rules:</a></h4>
+<ul>
+<li>
+<p>all property names must follow the same rules as <a href="#label-rules">labels</a></p>
+</li>
+<li>
+<p>all nodes must have a property <code>_label</code> which the value follow the same rules as <a href="#label-rules">labels</a> and it defines where the node will be stored</p>
+</li>
+</ul>
+<h4><a class="header" href="#examples-1" id="examples-1">Examples:</a></h4>
+<ul>
+<li>empty node</li>
+</ul>
+<pre><code class="language-javascript">
+{ &quot;_label&quot;: &quot;some_label&quot;}
+</code></pre>
+<ul>
+<li>node with some simple values</li>
+</ul>
+<pre><code class="language-javascript">
+{ &quot;_label&quot;: &quot;other_label&quot;, &quot;str_prop&quot;: &quot;xd&quot;, &quot;number_prop&quot;: 1, &quot;boolean_prop&quot;: true,}
+</code></pre>
+<ul>
+<li>node with array</li>
+</ul>
+<pre><code class="language-javascript">
+{ &quot;_label&quot;: &quot;some_label&quot;, &quot;array_prop&quot;: [1, null, &quot;aaa&quot;, { &quot;xd&quot;: &quot;lul&quot;}]}
+</code></pre>
+<h3><a class="header" href="#relationship" id="relationship">Relationship</a></h3>
+<p>a json property where the value is a json or an array of jsons. The relationship name is the property key itself.</p>
+<h4><a class="header" href="#rules-2" id="rules-2">Rules:</a></h4>
+<ul>
+<li>
+<p>the property key name follow the same rules as <a href="label-rules">labels</a></p>
+</li>
+<li>
+<p>when referencing an array, the array must contain ONLY jsons, otherwise it will be saved as a simple property in the node</p>
+</li>
+</ul>
+<h4><a class="header" href="#examples-2" id="examples-2">Examples:</a></h4>
+<ul>
+<li>relating two nodes</li>
+</ul>
+<pre><code class="language-javascript">
+{ &quot;_label&quot;: &quot;label1&quot;, &quot;some_rel&quot;: { &quot;_label&quot;: &quot;label2&quot; }}
+</code></pre>
+<ul>
+<li>relating two nodes and saving it as a relationship array</li>
+</ul>
+<pre><code class="language-javascript">
+{ &quot;_label&quot;: &quot;label1&quot;, &quot;some_rel&quot;: [{ &quot;_label&quot;: &quot;label2&quot; }]}
+</code></pre>
+<ul>
+<li>relating various nodes in a relationship array</li>
+</ul>
+<pre><code class="language-javascript">
+{ &quot;_label&quot;: &quot;a&quot;, &quot;rel&quot;: [ {&quot;_label&quot;: &quot;b&quot;}, {&quot;_label&quot;: &quot;a&quot;}, {&quot;_label&quot;: &quot;c&quot;} ]}
+</code></pre>
+<h2><a class="header" href="#saving-data" id="saving-data">Saving Data</a></h2>
+<p>Konekto uses only one method for inserting and updating data to the database: <code>save</code>.</p>
+<h3><a class="header" href="#how-it-works" id="how-it-works">How it works</a></h3>
+<p>When calling save, konekto will iterate recursively on every object present on the json passed and will create/update all the nodes and relationships that it encouters following some rules:</p>
+<ul>
+<li>
+<p>if the object doesn't have a property <code>_label</code>, an error will be thrown</p>
+</li>
+<li>
+<p>if the object have a property <code>_id</code> and the id exists in the database, a update on that node will be performed, adding, modifying or deleting properties</p>
+</li>
+<li>
+<p>if the object have a property <code>_id</code> and the id doesn't exist in the database, a insert will be made with the passed <code>_id</code></p>
+</li>
+<li>
+<p>if the object doesn't have a property <code>_id</code>, konekto will generate a <code>_id</code> and will insert the node</p>
+</li>
+</ul>
+<h3><a class="header" href="#examples-3" id="examples-3">Examples:</a></h3>
+<h4><a class="header" href="#insert-one-node" id="insert-one-node">insert one node</a></h4>
+<pre><code class="language-javascript">let rootId = await konekto.save({ _label: &quot;mylabel&quot; });
+</code></pre>
+<h4><a class="header" href="#insert-node-with-custom-id" id="insert-node-with-custom-id">insert node with custom id</a></h4>
+<pre><code class="language-javascript">let rootId = await konekto.save({
+  _label: &quot;mylabel&quot;,
+  _id: &quot;myCustomId&quot;
+}); // rootId = &quot;myCustomId&quot;
+</code></pre>
+<h4><a class="header" href="#update-node" id="update-node">update node</a></h4>
+<pre><code class="language-javascript">let rootId = await konekto.save({
+  _label: &quot;mylabel&quot;,
+  some_prop: &quot;xd&quot;,
+  some_num: 10
+});
+await konekto.save({
+  _label: &quot;mylabel&quot;,
+  _id: rootId,
+  other_prop: true, // adding new property
+  some_num: null, // deleting old property
+  some_prop: 5.2 // updating old property
+});
+</code></pre>
+<h4><a class="header" href="#insert-and-relate-two-new-nodes" id="insert-and-relate-two-new-nodes">insert and relate two new nodes</a></h4>
+<pre><code class="language-javascript">await konekto.save({
+  _label: &quot;mylabel&quot;,
+  some_rel: { _label: &quot;other_label&quot; }
+});
+</code></pre>
+<h4><a class="header" href="#add-relationship-to-existing-node" id="add-relationship-to-existing-node">add relationship to existing node</a></h4>
+<pre><code class="language-javascript">    const json = {
+      _label: 'test1'
+    }
+    const rel = {
+      _label: 'test2',
+      omegalul: 'xd'
+    }
+    const id = await konekto.save(json)
+    await konekto.save({
+      _label: 'test1' // use _label + _id to reference an existent node
+      _id: id,
+      rel
+    })
+</code></pre>
+<h4><a class="header" href="#saving-value-as-object-instead-of-node--relationship" id="saving-value-as-object-instead-of-node--relationship">saving value as object instead of node + relationship</a></h4>
+<pre><code class="language-javascript">await konekto.save({
+  _label: &quot;test1&quot;,
+  prop: {
+    _json: true,
+    a: true
+  }
+});
+</code></pre>
+<h2><a class="header" href="#querying-data" id="querying-data">Querying data</a></h2>
+<p>There are two methods to query data:</p>
+<ul>
+<li>
+<p>findById</p>
+</li>
+<li>
+<p>findByQueryObject</p>
+</li>
+</ul>
+<h3><a class="header" href="#findbyid" id="findbyid">FindById</a></h3>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3001");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload(true); // force reload from server (not from cache)
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+        
+
+        
+
+        
+        
+        
+        <script type="text/javascript">
+            window.playpen_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
