@@ -1,294 +1,298 @@
-## Overview
+## Concepts
 
-### What
+### Labels
 
-Konekto is an object-graph mapper for [agensgraph](https://bitnine.net/agensgraph/)
+A label is a name that indicates where a [node](#nodes) should be stored (you can think of it as table or collection name)
 
-### Why
-
-When persisting data, people usually choose one over two solutions:
-
-- Relational databases ([Postgres](https://www.postgresql.org/), [MySQL](https://www.mysql.com/), etc)
-
-- Document ([Mongodb](https://www.mongodb.com/))
-
-There are some pros and cons with each one:
-
-- Relational databases
-
-  - Pros:
-
-    - Data in different sources is connected through foreign keys
-    - Very robust and mature (around since middle 70's) and heavily used until present day
-    - Great ecossistem and many production-ready solutions out of the box
-    - Great data consistency trough schema definitions
-
-  - Cons:
-    - Schema changes require migrations and these become harder and harder as the database grows in complexity
-    - Low flexibility and way harder to build systems that rely on dynamic data
-
-- Document databases
-
-  - Pros:
-
-    - Highly flexible data, you can basically store any json and it just works
-    - Since data is dynamic, migrations are not needed and it is very easy to scale applications from simple to complex ones.
-
-  - Cons:
-    - No relation between data, you must store all related data in a single document
-
-So, you either go to strongly typed and related data or highly dynamic and unrelated data. There are forms that you can work around the cons of each solution, but you require some extra knowledge, do some work of your own and the chances of things getting messy are quite high. What can we do, then?
-
-#### Graphs FTW
-
-Graph databases are great because the data is dynamic and related to each other, you get the flexibility of documents and the relations of relational databases, futhermore, graph database handle connected data far better than relational ones due its nature (you can check more about this [right here](https://neo4j.com/blog/demining-the-join-bomb-with-graph-queries/))
-
-### Requirements
-
-You need a [Agensgraph](https://bitnine.net/agensgraph/) database running
-
-#### AgensGraph - Manual installation
-
-Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your operational system
-
-#### AgensGraph - Using Docker
-
-`docker run -p 5432:5432 -it bitnine/agensgraph:v2.1.1 agens`
-
-### Installation
-
-`npm install konekto`
-
-### Getting Started
-
-```javascript
-const Konekto = require("konekto");
-const user = "agens";
-const password = "agens";
-const host = "localhost";
-const port = 5432;
-const database = "agens";
-const konekto = new Konekto(
-  `postgresql://${user}:${password}@${host}:${port}/${database}`
-);
-async function run() {
-  // connecting to the database
-  await konekto.connect();
-  const json = {
-    _label: "xd",
-    some_prop: "lul",
-    some_relationship: { _label: "omegalul", other_prop: 1 }
-  };
-  // creating some basic schema
-  await konekto.createSchema(json);
-  // inserting data
-  const id = await konekto.save(json);
-  json._id = id;
-  json.more_prop = true; // adding more properties
-  json.some_prop = undefined; // removing properties
-  // updating data in the database
-  await konekto.save(json);
-  // querying
-  const jsonDb = await konekto.findById(id);
-  jsonDb.some_relationship.other_prop = 1.5; // updating related data
-  await konekto.save(jsonDb.some_relationship);
-  // delete data
-  await konekto.deleteById(id);
-  // when deleting by id, you delete individual jsons, not the whole graph
-  const relatedJsonDb = await konekto.findById(jsonDb.some_relationship._id);
-  relatedJsonDb !== undefined &&
-    relatedJsonDb.other_prop === jsonDb.some_relationship; // true
-}
-run();
-```
-
-## Core concepts
-
-### Label
-
-a name that indicates where a node or a relationship should be stored (think of it as table or collection name)
-
-#### Rules:
+#### Rules
 
 - must be a string
-
 - must be lowercase
-
 - only alhanumeric characters and `_` is allowed
-
 - must stard with `_` or a letter
 
-#### Examples:
+#### Examples
 
-- `"label"`
+-   `"label"`
+-   `"other_label"`    
+-   `"other_label2"` 
+-   `"_another_label"`
 
-- `"other_label"`
+### Nodes
 
-- `"other_label2"`
+A node is a JSON where every property value is a primitive value.
 
-- `"_another_label"`
+#### Primitive values
+- Number
+- String
+- Date
+- Boolean
+- JSON with a property `_document: true`
+- Array where some item is a primitive type
 
-### Node
+#### Rules
+- Every node must have a property `_label: '<some_string>'` to specify the label of that node
+- Every property key must follow the same rules as [labels](#labels)
 
-Any json which all keys map to primitive values or arrays that contains primitive values
+#### Examples
 
-#### Rules:
-
-- all property names must follow the same rules as [labels](#label-rules)
-
-- all nodes must have a property `_label` which the value follow the same rules as [labels](#label-rules) and it defines where the node will be stored
-
-#### Examples:
-
-- empty node
-
+-   empty node
 ```javascript
-
 { "_label": "some_label"}
 ```
 
-- node with some simple values
-
+-   node with some simple values
 ```javascript
-
-{ "_label": "other_label", "str_prop": "xd", "number_prop": 1, "boolean_prop": true,}
+{ 
+  "_label": "other_label", 
+  "str_prop": "xd", 
+  "number_prop": 1, 
+  "boolean_prop": true
+}
 ```
 
-- node with array
-
+-   node with array
 ```javascript
+{ 
+  "_label": "some_label", 
+  "array_prop": [1, null, "aaa", { "xd": "lul"}]
+}
+```
 
-{ "_label": "some_label", "array_prop": [1, null, "aaa", { "xd": "lul"}]}
+- node with json property
+```javascript
+{
+  "_label": "label",
+  "complex_prop": {
+    "_document": true,
+    "properties here": "have no naming rules",
+    "nestedObject": {
+      "description": "only the root object must have the _document annotiation, everything inside is treated as a regular json"
+    }
+  }
+}
 ```
 
 ### Relationship
 
-a json property where the value is a json or an array of jsons. The relationship name is the property key itself.
+A relationship is a connection between two or more nodes and it is represented as a property whose value is a json or an array of jsons, where the json must be a valid [node](#node)
 
-#### Rules:
+#### Rules
+- the property key name must follow the same rules as [labels](#labels)
+- when referencing an array, the array must contain ONLY jsons that are valid [nodes](#nodes), otherwise it will be saved as a simple property in the node
 
-- the property key name follow the same rules as [labels](label-rules)
+#### Examples 
 
-- when referencing an array, the array must contain ONLY jsons, otherwise it will be saved as a simple property in the node
-
-#### Examples:
-
-- relating two nodes
+For the next examples, lets consider the following nodes:
 
 ```javascript
-
-{ "_label": "label1", "some_rel": { "_label": "label2" }}
+const nodeA = { "_label": "parent" }
+const nodeB = { "_label": "related" }
+const nodeC = { "_label": "related2" }
 ```
 
-- relating two nodes and saving it as a relationship array
-
+- Creating a relationship named "some_relation" from `nodeA` to `nodeB`
 ```javascript
-
-{ "_label": "label1", "some_rel": [{ "_label": "label2" }]}
+nodeA.some_relation = nodeB
 ```
 
-- relating various nodes in a relationship array
-
+- Creating a relationship named "other_relation" from `nodeA` to `nodeB` and `nodeC`
 ```javascript
-
-{ "_label": "a", "rel": [ {"_label": "b"}, {"_label": "a"}, {"_label": "c"} ]}
+nodeA.other_relation = [nodeB, nodeC]
+```
+- Creating a single element relationship array named "another_relation" from `nodeA` to `nodeC`
+```javascript
+nodeA.another_relation = [nodeC]
 ```
 
-## Saving Data
+## Visualizing a JSON as a graph
 
-Konekto uses only one method for inserting and updating data to the database: `save`.
+Lets use a more realistic example for this and build a family graph, consider the following jsons:
+```javascript
+const father = {_label: "person", _id: "father"}
+const mother = {_label: "person", _id: "mother"}
+const child = {_label: "person", _id: "child"}
+const dog = {_label: "animal", _id: "dog"}
+const aslan = {_label: "mythical", _id: "aslan"}
+const narnia = {_label: "place", _id: "narnia"}
+```
+
+For now, there is no connection between the them, so lets create some:
+```javascript
+father.is_married_with = mother
+mother.is_married_with = father
+child.parents = [father, mother]
+father.owns = dog
+child.owns = dog
+mother.owns = dog
+child.imaginary_friends = [aslan]
+aslan.lives_in = narnia
+```
+
+Now, we can visualize the entire graph as a json array:
+```javascript
+[{
+  _id: "father",
+  _label: "person",
+  is_married_with: {_id: "mother"},
+  owns: {_id: "dog"}
+}, {
+  _id: "mother",
+  _label: "person",
+  is_married_with: {_id: "father"},
+  owns: {_id: "dog"}
+}, {
+  _id: "child",
+  _label: "person",
+  parents: [{_id: "father"}, {_id: "mother"}],
+  owns: {_id: "dog"},
+  imaginary_friends: [{_id: "aslan"}]
+}, {
+  _id: "dog",
+  _label: "animal"
+},{
+  _íd: "aslan",
+  _label: "mythical",
+  lives_in: {_id: "narnia"}
+}, {
+  _id: "narnia",
+  _label: "place"
+}]
+```
+
+The structure itself is pretty self explanatory, reading the graph we can tell that:
+- we reference nodes by using its ids
+- father, mother and child are persons
+- father and mother are married to each other
+- child have mother and father as parents
+- father, mother and child owns a dog, which is an animal
+- child have an imaginary friend, but it can have more in the future (currently it's a single element array)
+- the imaginary friend lives in narnia
+- narnia is a place
+
+Now that you know the basic concepts and how to visualize json as graph, lets start using Konekto!
+
+## Writing data with save
+
+Konekto only have one method for both insert and update, which is `save`.
 
 ### How it works
 
 When calling save, konekto will iterate recursively on every object present on the json passed and will create/update all the nodes and relationships that it encouters following some rules:
 
-- if the object doesn't have a property `_label`, an error will be thrown
+-   if the node doesn't have a property `_label`, an error will be thrown
+-   if the node have a property `_id` and the id exists in the database, a update on that node will be performed, adding, modifying or deleting properties    
+-   if the node have a property `_id` and the id doesn't exist in the database, a insert will be made with the passed `_id`
+-   if the node doesn't have a property `_id`, konekto will generate a `_id` and will insert the node
+- Existing relationships are preserved and new ones are created
 
-- if the object have a property `_id` and the id exists in the database, a update on that node will be performed, adding, modifying or deleting properties
+### Usage
 
-- if the object have a property `_id` and the id doesn't exist in the database, a insert will be made with the passed `_id`
+#### Insert graph
 
-- if the object doesn't have a property `_id`, konekto will generate a `_id` and will insert the node
-
-### Examples:
-
-#### insert one node
-
+Lets create the graph of the [previous section](#visualizing-a-json-as-a-graph)
 ```javascript
-let rootId = await konekto.save({ _label: "mylabel" });
+await konekto.save([{
+  _id: "father",
+  _label: "person",
+  is_married_with: {_id: "mother"},
+  owns: {_id: "dog"}
+}, {
+  _id: "mother",
+  _label: "person",
+  is_married_with: {_id: "father"},
+  owns: {_id: "dog"}
+}, {
+  _id: "child",
+  _label: "person",
+  parents: [{_id: "father"}, {_id: "mother"}],
+  owns: {_id: "dog"},
+  imaginary_friends: [{_id: "aslan"}]
+}, {
+  _id: "dog",
+  _label: "animal"
+},{
+  _íd: "aslan",
+  _label: "mythical",
+  lives_in: {_id: "narnia"}
+}, {
+  _id: "narnia",
+  _label: "place"
+}])
 ```
 
-#### insert node with custom id
+Now that we have some data and we used custom ids for every node, we can perform some update operations:
 
-```javascript
-let rootId = await konekto.save({
-  _label: "mylabel",
-  _id: "myCustomId"
-}); // rootId = "myCustomId"
-```
-
-#### update node
-
-```javascript
-let rootId = await konekto.save({
-  _label: "mylabel",
-  some_prop: "xd",
-  some_num: 10
-});
-await konekto.save({
-  _label: "mylabel",
-  _id: rootId,
-  other_prop: true, // adding new property
-  some_num: null, // deleting old property
-  some_prop: 5.2 // updating old property
-});
-```
-
-#### insert and relate two new nodes
-
-```javascript
-await konekto.save({
-  _label: "mylabel",
-  some_rel: { _label: "other_label" }
-});
-```
-
-#### add relationship to existing node
-
-```javascript
-    const json = {
-      _label: 'test1'
-    }
-    const rel = {
-      _label: 'test2',
-      omegalul: 'xd'
-    }
-    const id = await konekto.save(json)
-    await konekto.save({
-      _label: 'test1' // use _label + _id to reference an existent node
-      _id: id,
-      rel
-    })
-```
-
-#### saving value as object instead of node + relationship
+#### Update a single node
 
 ```javascript
 await konekto.save({
-  _label: "test1",
-  prop: {
-    _json: true,
-    a: true
+  _id: "father",
+  _label: "person", // we need _id + _label to reference a node
+  age: 30 // adding new property
+```
+
+#### Update multiple nodes
+
+```javascript
+await konekto.save([{
+  _id: "fater",
+  _label: "person",
+  age: null // setting a property to null or undefined will delete that property
+}, {
+  _id: "mother",
+  _label: "person",
+  job_title: "programmer"
+}]) // this call will update both father and mother nodes
+
+await konekto.save({
+  _id: "child",
+  _label: "person",
+  age: 4,
+  parents: {
+    _id: "father",
+    _label: "person",
+    job_title: "data scientist"
+  } // the "parents" relationship between child and father already exists,   so its unaltered
+}) // updates child and father with a new property
+```
+
+#### Insert new nodes and relate with existing ones
+
+```javascript
+await konekto.save({
+  _id: "child",
+  _label: "person",
+  age: 4, // update property with new value
+  owns: {
+    _label: "toy",
+    _id: "toy",
+    name: "car toy"
+  } 
+}) // now child owns a dog and a toy, the "owns" relationship of child is now an array
+```
+
+#### relate two existing nodes
+
+```javascript
+await konekto.save({
+  _id: "dog",
+  _label: "animal",
+  destroyed: [{_id: "toy", _label: "toy"}]
+}) // both dog and toy exists, but the "destroyed" relationship didn't, so it's created
+```
+
+#### saving jsons as documents
+
+```javascript
+await konekto.save({
+  _id: "toy",
+  _label: "toy",
+  current_specs: {
+    wheels: 3,
+    color: "rusty",
+    doors: false,
+    _document: true
   }
-});
+})
 ```
-
-## Querying data
-
-There are two methods to query data:
-
-- findById
-
-- findByQueryObject
-
-### FindById
