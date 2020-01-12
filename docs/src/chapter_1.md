@@ -1,3 +1,62 @@
+## Installation
+
+`npm install konekto`
+
+## Overview
+
+Konekto is an object-graph mapper for [agensgraph](https://bitnine.net/agensgraph/)
+
+## Motivation
+
+When persisting data, people usually choose one over two solutions:
+
+-   Relational databases ([Postgres](https://www.postgresql.org/), [MySQL](https://www.mysql.com/), etc)
+    
+-   Document ([Mongodb](https://www.mongodb.com/))
+    
+
+There are some pros and cons with each one:
+
+-   Relational databases
+    
+    -   Pros:
+        
+        -   Data in different sources is connected through foreign keys
+        -   Very robust and mature (around since middle 70's) and heavily used until present day
+        -   Great ecossistem and many production-ready solutions out of the box
+        -   Great data consistency trough schema definitions
+    -   Cons:
+        
+        -   Schema changes require migrations and these become harder and harder as the database grows in complexity
+        -   Low flexibility and way harder to build systems that rely on dynamic data
+-   Document databases
+    
+    -   Pros:
+        
+        -   Highly flexible data, you can basically store any json and it just works
+        -   Since data is dynamic, migrations are not needed and it is very easy to scale applications from simple to complex ones.
+    -   Cons:
+        
+        -   No relation between data, you must store all related data in a single document
+
+So, you either go to strongly typed and related data or highly dynamic and unrelated data. There are forms that you can work around the cons of each solution, but you require some extra knowledge, do some work of your own and the chances of things getting messy are quite high. What can we do, then?
+
+#### Graphs FTW
+
+Graph databases are great because the data is dynamic and related to each other, you get the flexibility of documents and the relations of relational databases, futhermore, graph database handle connected data far better than relational ones due its nature (you can check more about this [right here](https://neo4j.com/blog/demining-the-join-bomb-with-graph-queries/))
+
+## Requirements
+
+You need a [Agensgraph](https://bitnine.net/agensgraph/) database running
+
+### AgensGraph - Manual installation
+
+Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your operational system
+
+### AgensGraph - Using Docker
+
+`docker run -p 5432:5432 -it bitnine/agensgraph:v2.1.1 agens`
+
 ## Concepts
 
 ### Labels
