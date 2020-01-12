@@ -168,10 +168,10 @@ nodeA.another_relation = [nodeC]
 
 Lets use a more realistic example for this and build a family graph, consider the following jsons:
 ```javascript
-const father = {_label: "person", _id: "father"}
-const mother = {_label: "person", _id: "mother"}
-const child = {_label: "person", _id: "child"}
-const dog = {_label: "animal", _id: "dog"}
+const father = {_label: "person", _id: "father", name: "Kratos", god: true, height: 210}
+const mother = {_label: "person", _id: "mother", name: "Laufey", god: false, height: 180}
+const child = {_label: "person", _id: "child", name: "Atreus", height: 160}
+const dog = {_label: "animal", _id: "dog", name: "Fenrir"}
 const aslan = {_label: "mythical", _id: "aslan"}
 const narnia = {_label: "place", _id: "narnia"}
 ```
@@ -193,22 +193,31 @@ Now, we can visualize the entire graph as a json array:
 [{
   _id: "father",
   _label: "person",
+  name: "Kratos",
+  god: true,
+  height: 210,
   is_married_with: {_id: "mother"},
   owns: {_id: "dog"}
 }, {
   _id: "mother",
   _label: "person",
+  name: "Laufey",
+  god: false,
+  height: 180,
   is_married_with: {_id: "father"},
   owns: {_id: "dog"}
 }, {
   _id: "child",
   _label: "person",
+  name: "Atreus",
+  height: 160,
   parents: [{_id: "father"}, {_id: "mother"}],
   owns: {_id: "dog"},
   imaginary_friends: [{_id: "aslan"}]
 }, {
   _id: "dog",
-  _label: "animal"
+  _label: "animal",
+  name: "Fenrir"
 },{
   _íd: "aslan",
   _label: "mythical",
@@ -254,22 +263,31 @@ Lets create the graph of the [previous section](#visualizing-a-json-as-a-graph)
 await konekto.save([{
   _id: "father",
   _label: "person",
+  name: "Kratos",
+  god: true,
+  height: 210,
   is_married_with: {_id: "mother"},
   owns: {_id: "dog"}
 }, {
   _id: "mother",
   _label: "person",
+  name: "Laufey",
+  god: false,
+  height: 180,
   is_married_with: {_id: "father"},
   owns: {_id: "dog"}
 }, {
   _id: "child",
   _label: "person",
+  name: "Atreus",
+  height: 160,
   parents: [{_id: "father"}, {_id: "mother"}],
   owns: {_id: "dog"},
   imaginary_friends: [{_id: "aslan"}]
 }, {
   _id: "dog",
-  _label: "animal"
+  _label: "animal",
+  name: "Fenrir"
 },{
   _íd: "aslan",
   _label: "mythical",
@@ -355,3 +373,64 @@ await konekto.save({
   }
 })
 ```
+
+## Querying data with the query object
+
+Lets consider that we want to query some data from [this graph](#visualizing-a-json-as-a-graph)
+
+### Query all data
+
+Just pass an empty object to `findByQueryObject` and you get an array of every node in the database
+
+```javascript
+const nodes = await konekto.findByQueryObject({})
+console.log(nodes)
+```
+
+You will notice that  `nodes` is a flat array, with every node in the database, but no relationship between them, lets leave it like that for now, we will show later how to query nodes and their relationships .
+
+### Filtering with _where
+
+Well, querying every single node seems a bit of a overkill, we need to filter some of that result to get something more useful, here we gonna introduce the first operator of the query object: `_where`.
+
+`_where` is a property of the query object and its value is a json with two fields: `filter` (which is mandatory) and `params` (which is optional). `filter` is a string that contains a [cypher where](https://neo4j.com/docs/cypher-manual/current/clauses/where/) and it is very much like a regular SQL where with some caveats:
+- to reference the current node, you must use the notation `{this}`, this will be more clear on the following examples
+- strings must be single quoted
+
+`params` is a object map where the keys are referenced in `filter` and values are injected using a parameterized query
+
+That said, lets see some examples:
+
+#### Filter by string
+
+```javascript
+const atreus = await konekto.findOneByQueryObject({
+  _where: {filter: '{this}.name = "Atreus"'}
+}) // findOneByQueryObject is the same as findByQueryObject, but it returns the first item of the resulting array
+```
+
+#### Filter by number
+
+```javascript
+const result = await konekto.findByQueryObject({
+  _where: {filter: '{this}.height >= 180'}
+}) // returns Kratos and Laufey, not in this particular order
+```
+
+#### Filter by boolean
+
+```javascript
+const kratos = await konekto.findOneByQueryObject({
+  _where: {filter: '{this}.god = true'}
+})
+```
+
+#### Using parameters
+
+```javascript
+const Laufey = await konekto.findOneByQueryObject({
+  _where: {filter: '{this}.god = :is_god', params: {is_god: false}}
+})
+```
+
+### Ordering with _order
