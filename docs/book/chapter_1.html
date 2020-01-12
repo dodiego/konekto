@@ -227,7 +227,7 @@
 <ul>
 <li><code>&quot;label&quot;</code></li>
 <li><code>&quot;other_label&quot;</code></li>
-<li><code>&quot;other_label2&quot;</code> </li>
+<li><code>&quot;other_label2&quot;</code></li>
 <li><code>&quot;_another_label&quot;</code></li>
 </ul>
 <h3><a class="header" href="#nodes" id="nodes">Nodes</a></h3>
@@ -255,18 +255,18 @@
 <ul>
 <li>node with some simple values</li>
 </ul>
-<pre><code class="language-javascript">{ 
-  &quot;_label&quot;: &quot;other_label&quot;, 
-  &quot;str_prop&quot;: &quot;xd&quot;, 
-  &quot;number_prop&quot;: 1, 
+<pre><code class="language-javascript">{
+  &quot;_label&quot;: &quot;other_label&quot;,
+  &quot;str_prop&quot;: &quot;xd&quot;,
+  &quot;number_prop&quot;: 1,
   &quot;boolean_prop&quot;: true
 }
 </code></pre>
 <ul>
 <li>node with array</li>
 </ul>
-<pre><code class="language-javascript">{ 
-  &quot;_label&quot;: &quot;some_label&quot;, 
+<pre><code class="language-javascript">{
+  &quot;_label&quot;: &quot;some_label&quot;,
   &quot;array_prop&quot;: [1, null, &quot;aaa&quot;, { &quot;xd&quot;: &quot;lul&quot;}]
 }
 </code></pre>
@@ -293,9 +293,9 @@
 </ul>
 <h4><a class="header" href="#examples-2" id="examples-2">Examples</a></h4>
 <p>For the next examples, lets consider the following nodes:</p>
-<pre><code class="language-javascript">const nodeA = { &quot;_label&quot;: &quot;parent&quot; }
-const nodeB = { &quot;_label&quot;: &quot;related&quot; }
-const nodeC = { &quot;_label&quot;: &quot;related2&quot; }
+<pre><code class="language-javascript">const nodeA = { _label: 'parent' }
+const nodeB = { _label: 'related' }
+const nodeC = { _label: 'related2' }
 </code></pre>
 <ul>
 <li>Creating a relationship named &quot;some_relation&quot; from <code>nodeA</code> to <code>nodeB</code></li>
@@ -314,12 +314,12 @@ const nodeC = { &quot;_label&quot;: &quot;related2&quot; }
 </code></pre>
 <h2><a class="header" href="#visualizing-a-json-as-a-graph" id="visualizing-a-json-as-a-graph">Visualizing a JSON as a graph</a></h2>
 <p>Lets use a more realistic example for this and build a family graph, consider the following jsons:</p>
-<pre><code class="language-javascript">const father = {_label: &quot;person&quot;, _id: &quot;father&quot;, name: &quot;Kratos&quot;, god: true, height: 210}
-const mother = {_label: &quot;person&quot;, _id: &quot;mother&quot;, name: &quot;Faye&quot;, god: false, height: 180}
-const child = {_label: &quot;person&quot;, _id: &quot;child&quot;, name: &quot;Atreus&quot;, height: 160, god: true}
-const dog = {_label: &quot;animal&quot;, _id: &quot;dog&quot;, name: &quot;Fenrir&quot;}
-const aslan = {_label: &quot;mythical&quot;, _id: &quot;aslan&quot;}
-const narnia = {_label: &quot;place&quot;, _id: &quot;narnia&quot;}
+<pre><code class="language-javascript">const father = { _label: 'person', _id: 'father', name: 'Kratos', god: true, height: 210 }
+const mother = { _label: 'person', _id: 'mother', name: 'Faye', god: false, height: 180 }
+const child = { _label: 'person', _id: 'child', name: 'Atreus', height: 160, god: true }
+const dog = { _label: 'animal', _id: 'dog', name: 'Fenrir' }
+const aslan = { _label: 'mythical', _id: 'aslan' }
+const narnia = { _label: 'place', _id: 'narnia' }
 </code></pre>
 <p>For now, there is no connection between the them, so lets create some:</p>
 <pre><code class="language-javascript">father.is_married_with = mother
@@ -332,43 +332,50 @@ child.imaginary_friends = [aslan]
 aslan.lives_in = narnia
 </code></pre>
 <p>Now, we can visualize the entire graph as a json array:</p>
-<pre><code class="language-javascript">[{
-  _id: &quot;father&quot;,
-  _label: &quot;person&quot;,
-  name: &quot;Kratos&quot;,
-  god: true,
-  height: 210,
-  is_married_with: {_id: &quot;mother&quot;},
-  owns: {_id: &quot;dog&quot;}
-}, {
-  _id: &quot;mother&quot;,
-  _label: &quot;person&quot;,
-  name: &quot;Faye&quot;,
-  god: false,
-  height: 180,
-  is_married_with: {_id: &quot;father&quot;},
-  owns: {_id: &quot;dog&quot;}
-}, {
-  _id: &quot;child&quot;,
-  _label: &quot;person&quot;,
-  name: &quot;Atreus&quot;,
-  height: 160,
-  god: true,
-  parents: [{_id: &quot;father&quot;}, {_id: &quot;mother&quot;}],
-  owns: {_id: &quot;dog&quot;},
-  imaginary_friends: [{_id: &quot;aslan&quot;}]
-}, {
-  _id: &quot;dog&quot;,
-  _label: &quot;animal&quot;,
-  name: &quot;Fenrir&quot;
-},{
-  _íd: &quot;aslan&quot;,
-  _label: &quot;mythical&quot;,
-  lives_in: {_id: &quot;narnia&quot;}
-}, {
-  _id: &quot;narnia&quot;,
-  _label: &quot;place&quot;
-}]
+<pre><code class="language-javascript">;[
+  {
+    _id: 'father',
+    _label: 'person',
+    name: 'Kratos',
+    god: true,
+    height: 210,
+    is_married_with: { _id: 'mother' },
+    owns: { _id: 'dog' }
+  },
+  {
+    _id: 'mother',
+    _label: 'person',
+    name: 'Faye',
+    god: false,
+    height: 180,
+    is_married_with: { _id: 'father' },
+    owns: { _id: 'dog' }
+  },
+  {
+    _id: 'child',
+    _label: 'person',
+    name: 'Atreus',
+    height: 160,
+    god: true,
+    parents: [{ _id: 'father' }, { _id: 'mother' }],
+    owns: { _id: 'dog' },
+    imaginary_friends: [{ _id: 'aslan' }]
+  },
+  {
+    _id: 'dog',
+    _label: 'animal',
+    name: 'Fenrir'
+  },
+  {
+    _íd: 'aslan',
+    _label: 'mythical',
+    lives_in: { _id: 'narnia' }
+  },
+  {
+    _id: 'narnia',
+    _label: 'place'
+  }
+]
 </code></pre>
 <p>The structure itself is pretty self explanatory, reading the graph we can tell that:</p>
 <ul>
@@ -382,6 +389,39 @@ aslan.lives_in = narnia
 <li>narnia is a place</li>
 </ul>
 <p>Now that you know the basic concepts and how to visualize json as graph, lets start using Konekto!</p>
+<h2><a class="header" href="#creating-the-basic-structure-with-schema" id="creating-the-basic-structure-with-schema">Creating the basic structure with schema</a></h2>
+<p>To persist data using konekto, you need to tell the database the possible labels and allowed relationship names, that's it, no need to specify every property name and type of every label.</p>
+<h3><a class="header" href="#creating-labels" id="creating-labels">Creating labels</a></h3>
+<p>To create a label, use the <code>createLabel</code> method, passing a string with the label name (must follow the <a href="#labels">label</a> rules)</p>
+<pre><code class="language-javascript">await konekto.createLabel('person')
+</code></pre>
+<p>You can pass an array of labels and create multiple labels at once:</p>
+<pre><code class="language-javascript">await konekto.createLabel(['animal', 'toy'])
+</code></pre>
+<h3><a class="header" href="#creating-relationship-names" id="creating-relationship-names">Creating relationship names</a></h3>
+<p>Creating a relationship name is as simple as creating a label and it follow the same <a href="#labels">label</a> rules, just use the <code>createRelationship</code> method instead.</p>
+<pre><code class="language-javascript">await konekto.createRelationship('parents')
+</code></pre>
+<pre><code class="language-javascript">await konekto.createRelationship(['owns', 'is_married_with'])
+</code></pre>
+<h3><a class="header" href="#creating-labels-and-relationship-names-with-a-graph" id="creating-labels-and-relationship-names-with-a-graph">Creating labels and relationship names with a graph</a></h3>
+<p>It is possible to create both labels and relationship names with a single method call, using <code>createSchema</code> and passing a json that represents the graph, for example, lets create the graph of the <a href="#visualizing-a-json-as-a-graph">previous section</a></p>
+<pre><code class="language-javascript">await konekto.createSchema({
+  _label: 'person',
+  owns: {
+    _label: 'animal'
+  },
+  parents: {}
+  is_married_with: {},
+  imaginary_friends: {
+    _label: 'mythical',
+    lives_in: {
+      _label: 'place'
+    }
+  }
+})
+</code></pre>
+<p>There are many other ways that you could create the previous graph, konekto will recursively iterate in every object searching for labels and relationship names, take advantage of that and use it the way it fits best for you.</p>
 <h2><a class="header" href="#writing-data-with-save" id="writing-data-with-save">Writing data with save</a></h2>
 <p>Konekto only have one method for both insert and update, which is <code>save</code>.</p>
 <h3><a class="header" href="#how-it-works" id="how-it-works">How it works</a></h3>
@@ -395,43 +435,50 @@ aslan.lives_in = narnia
 </ul>
 <h3><a class="header" href="#usage" id="usage">Usage</a></h3>
 <h4><a class="header" href="#insert-graph" id="insert-graph">Insert graph</a></h4>
-<p>Lets create the graph of the <a href="#visualizing-a-json-as-a-graph">previous section</a></p>
-<pre><code class="language-javascript">await konekto.save([{
-  _id: &quot;father&quot;,
-  _label: &quot;person&quot;,
-  name: &quot;Kratos&quot;,
-  god: true,
-  height: 210,
-  is_married_with: {_id: &quot;mother&quot;},
-  owns: {_id: &quot;dog&quot;}
-}, {
-  _id: &quot;mother&quot;,
-  _label: &quot;person&quot;,
-  name: &quot;Faye&quot;,
-  god: false,
-  height: 180,
-  is_married_with: {_id: &quot;father&quot;},
-  owns: {_id: &quot;dog&quot;}
-}, {
-  _id: &quot;child&quot;,
-  _label: &quot;person&quot;,
-  name: &quot;Atreus&quot;,
-  height: 160,
-  parents: [{_id: &quot;father&quot;}, {_id: &quot;mother&quot;}],
-  owns: {_id: &quot;dog&quot;},
-  imaginary_friends: [{_id: &quot;aslan&quot;}]
-}, {
-  _id: &quot;dog&quot;,
-  _label: &quot;animal&quot;,
-  name: &quot;Fenrir&quot;
-},{
-  _íd: &quot;aslan&quot;,
-  _label: &quot;mythical&quot;,
-  lives_in: {_id: &quot;narnia&quot;}
-}, {
-  _id: &quot;narnia&quot;,
-  _label: &quot;place&quot;
-}])
+<p>Lets create <a href="#visualizing-a-json-as-a-graph">this graph</a></p>
+<pre><code class="language-javascript">await konekto.save([
+  {
+    _id: 'father',
+    _label: 'person',
+    name: 'Kratos',
+    god: true,
+    height: 210,
+    is_married_with: { _id: 'mother' },
+    owns: { _id: 'dog' }
+  },
+  {
+    _id: 'mother',
+    _label: 'person',
+    name: 'Faye',
+    god: false,
+    height: 180,
+    is_married_with: { _id: 'father' },
+    owns: { _id: 'dog' }
+  },
+  {
+    _id: 'child',
+    _label: 'person',
+    name: 'Atreus',
+    height: 160,
+    parents: [{ _id: 'father' }, { _id: 'mother' }],
+    owns: { _id: 'dog' },
+    imaginary_friends: [{ _id: 'aslan' }]
+  },
+  {
+    _id: 'dog',
+    _label: 'animal',
+    name: 'Fenrir'
+  },
+  {
+    _íd: 'aslan',
+    _label: 'mythical',
+    lives_in: { _id: 'narnia' }
+  },
+  {
+    _id: 'narnia',
+    _label: 'place'
+  }
+])
 </code></pre>
 <p>Now that we have some data and we used custom ids for every node, we can perform some update operations:</p>
 <h4><a class="header" href="#update-a-single-node" id="update-a-single-node">Update a single node</a></h4>
@@ -441,53 +488,56 @@ aslan.lives_in = narnia
   age: 30 // adding new property
 </code></pre>
 <h4><a class="header" href="#update-multiple-nodes" id="update-multiple-nodes">Update multiple nodes</a></h4>
-<pre><code class="language-javascript">await konekto.save([{
-  _id: &quot;fater&quot;,
-  _label: &quot;person&quot;,
-  age: null // setting a property to null or undefined will delete that property
-}, {
-  _id: &quot;mother&quot;,
-  _label: &quot;person&quot;,
-  job_title: &quot;programmer&quot;
-}]) // this call will update both father and mother nodes
+<pre><code class="language-javascript">await konekto.save([
+  {
+    _id: 'fater',
+    _label: 'person',
+    age: null // setting a property to null or undefined will delete that property
+  },
+  {
+    _id: 'mother',
+    _label: 'person',
+    job_title: 'programmer'
+  }
+]) // this call will update both father and mother nodes
 
 await konekto.save({
-  _id: &quot;child&quot;,
-  _label: &quot;person&quot;,
+  _id: 'child',
+  _label: 'person',
   age: 4,
   parents: {
-    _id: &quot;father&quot;,
-    _label: &quot;person&quot;,
-    job_title: &quot;data scientist&quot;
+    _id: 'father',
+    _label: 'person',
+    job_title: 'data scientist'
   } // the &quot;parents&quot; relationship between child and father already exists,   so its unaltered
 }) // updates child and father with a new property
 </code></pre>
 <h4><a class="header" href="#insert-new-nodes-and-relate-with-existing-ones" id="insert-new-nodes-and-relate-with-existing-ones">Insert new nodes and relate with existing ones</a></h4>
 <pre><code class="language-javascript">await konekto.save({
-  _id: &quot;child&quot;,
-  _label: &quot;person&quot;,
+  _id: 'child',
+  _label: 'person',
   age: 4, // update property with new value
   owns: {
-    _label: &quot;toy&quot;,
-    _id: &quot;toy&quot;,
-    name: &quot;car toy&quot;
-  } 
+    _label: 'toy',
+    _id: 'toy',
+    name: 'car toy'
+  }
 }) // now child owns a dog and a toy, the &quot;owns&quot; relationship of child is now an array
 </code></pre>
 <h4><a class="header" href="#relate-two-existing-nodes" id="relate-two-existing-nodes">relate two existing nodes</a></h4>
 <pre><code class="language-javascript">await konekto.save({
-  _id: &quot;dog&quot;,
-  _label: &quot;animal&quot;,
-  destroyed: [{_id: &quot;toy&quot;, _label: &quot;toy&quot;}]
+  _id: 'dog',
+  _label: 'animal',
+  destroyed: [{ _id: 'toy', _label: 'toy' }]
 }) // both dog and toy exists, but the &quot;destroyed&quot; relationship didn't, so it's created
 </code></pre>
 <h4><a class="header" href="#saving-jsons-as-documents" id="saving-jsons-as-documents">saving jsons as documents</a></h4>
 <pre><code class="language-javascript">await konekto.save({
-  _id: &quot;toy&quot;,
-  _label: &quot;toy&quot;,
+  _id: 'toy',
+  _label: 'toy',
   current_specs: {
     wheels: 3,
-    color: &quot;rusty&quot;,
+    color: 'rusty',
     doors: false,
     _document: true
   }
@@ -500,9 +550,19 @@ await konekto.save({
 <pre><code class="language-javascript">const nodes = await konekto.findByQueryObject({})
 console.log(nodes)
 </code></pre>
-<p>You will notice that  <code>nodes</code> is a flat array, with every node in the database, but no relationship between them, lets leave it like that for now, we will show later how to query nodes and their relationships .</p>
+<p>You will notice that <code>nodes</code> is a flat array, with every node in the database, but no relationship between them, lets leave it like that for now, we will show later how to query nodes and their relationships .</p>
+<h3><a class="header" href="#filtering-with-_label" id="filtering-with-_label">Filtering with _label</a></h3>
+<p>Well, querying every single node seems a bit of a overkill, we need to filter some of that result to get something more useful, here we gonna introduce the first operator of the query object: <code>_label</code>.</p>
+<p>With <code>_label</code>, you can pass a string or an array of strings to filter only the nodes with the provided labels, lets check some examples:</p>
+<pre><code class="language-javascript">const [dog] = await konekto.findByQueryObject({
+  _label: 'animal'
+})
+</code></pre>
+<pre><code class="language-javascript">const result = await konekto.findByQueryObject({
+  _label: ['animal', 'person']
+}) // result contains dogs, mother, father and child
+</code></pre>
 <h3><a class="header" href="#filtering-with-_where" id="filtering-with-_where">Filtering with _where</a></h3>
-<p>Well, querying every single node seems a bit of a overkill, we need to filter some of that result to get something more useful, here we gonna introduce the first operator of the query object: <code>_where</code>.</p>
 <p><code>_where</code> is a property of the query object and its value is a json with two fields: <code>filter</code> (which is mandatory) and <code>params</code> (which is optional). <code>filter</code> is a string that contains a <a href="https://neo4j.com/docs/cypher-manual/current/clauses/where/">cypher where</a> and it is very much like a regular SQL where with some caveats:</p>
 <ul>
 <li>to reference the current node, you must use the notation <code>{this}</code>, this will be more clear on the following examples</li>
@@ -512,22 +572,22 @@ console.log(nodes)
 <p>That said, lets see some examples:</p>
 <h4><a class="header" href="#filter-by-string" id="filter-by-string">Filter by string</a></h4>
 <pre><code class="language-javascript">const child = await konekto.findOneByQueryObject({
-  _where: {filter: '{this}.name = &quot;Atreus&quot;'}
+  _where: { filter: &quot;{this}.name = 'Atreus'&quot; }
 }) // findOneByQueryObject is the same as findByQueryObject, but it returns the first item of the resulting array
 </code></pre>
 <h4><a class="header" href="#filter-by-number" id="filter-by-number">Filter by number</a></h4>
 <pre><code class="language-javascript">const result = await konekto.findByQueryObject({
-  _where: {filter: '{this}.height &gt;= 180'}
+  _where: { filter: '{this}.height &gt;= 180' }
 }) // returns Kratos and Faye, not in this particular order
 </code></pre>
 <h4><a class="header" href="#filter-by-boolean" id="filter-by-boolean">Filter by boolean</a></h4>
 <pre><code class="language-javascript">const father = await konekto.findOneByQueryObject({
-  _where: {filter: '{this}.god = true'}
+  _where: { filter: '{this}.god = true' }
 })
 </code></pre>
 <h4><a class="header" href="#using-parameters" id="using-parameters">Using parameters</a></h4>
 <pre><code class="language-javascript">const Faye = await konekto.findOneByQueryObject({
-  _where: {filter: '{this}.god = :is_god', params: {is_god: false}}
+  _where: { filter: '{this}.god = :is_god', params: { is_god: false } }
 })
 </code></pre>
 <h3><a class="header" href="#ordering-with-_order" id="ordering-with-_order">Ordering with _order</a></h3>
@@ -550,8 +610,39 @@ console.log(nodes)
 <h4><a class="header" href="#order-by-multiple-fields-and-mixing-ascending-and-descending" id="order-by-multiple-fields-and-mixing-ascending-and-descending">Order by multiple fields and mixing ascending and descending</a></h4>
 <pre><code class="language-javascript">const [mother, father, child] = await konekto.findByQueryObject({
   _order: ['god', '!name']
-}) 
+})
 </code></pre>
+<h3><a class="header" href="#paginating-results-with-_skip-and-_limit" id="paginating-results-with-_skip-and-_limit">Paginating results with _skip and _limit</a></h3>
+<p>Here we will start to combine some operators, lets begin using <code>_order</code> and <code>_limit</code> at the same time. To limit the number of nodes returned by a query, just pass the a number to <code>_limit</code> in the query object.</p>
+<pre><code class="language-javascript">const [father, mother] = await konekto.findByQueryObject({
+  _order: '!height',
+  _limit: 2
+})
+</code></pre>
+<p>You can also skip some nodes by using the <code>_skip</code> operator, just the number of nodes that you want to skip, like this:</p>
+<pre><code class="language-javascript">const [mother] = await konekto.findByQueryObject({
+  _order: '!height',
+  _limit: 2,
+  _skip: 1
+})
+</code></pre>
+<h3><a class="header" href="#including-relationships" id="including-relationships">Including relationships</a></h3>
+<p>Here is where the magic begins. So far, you queried just single nodes from the database, here we start to bring the nodes along with some of its relationships. To include a relationship, just pass its name as a key on the query object, like this:</p>
+<pre><code class="language-javascript">const childWithParents = await konekto.findByQueryObject({
+  _where: { filter: &quot;{this}.name = 'Atreus'&quot; },
+  parents: {}
+}) // child.parents === [mother, father]
+</code></pre>
+<p>You noticed that the value of <code>parents</code> in the query object is an empty object, but it's not just a regular objects, it is a <strong>query object</strong>, like so, you can filter, paginate and order relationships, check the following example:</p>
+<pre><code class="language-javascript">const childWithMother = await konekto.findByQueryObject({
+  _where: { filter: &quot;{this}.name = 'Atreus'&quot; },
+  parents: {
+    _where: { filter: &quot;{this}.name = 'Faye'&quot; }
+  }
+}) // childWithMother.parents === [faye]
+</code></pre>
+<p>NOW THAT IS REAL POWER, SON. By including and filtering relationships using query objects you can specify exactly how you want to retrieve your data, you can even include relationships of relationships and filter those as well, there is no depth limit.
+There are many more examples in the <a href="https://github.com/dodiego/konekto/blob/master/test/find.test.js">test file</a>, check those to see some of the possibilities.</p>
 
                     </main>
 
