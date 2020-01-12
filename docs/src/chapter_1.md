@@ -169,8 +169,8 @@ nodeA.another_relation = [nodeC]
 Lets use a more realistic example for this and build a family graph, consider the following jsons:
 ```javascript
 const father = {_label: "person", _id: "father", name: "Kratos", god: true, height: 210}
-const mother = {_label: "person", _id: "mother", name: "Laufey", god: false, height: 180}
-const child = {_label: "person", _id: "child", name: "Atreus", height: 160}
+const mother = {_label: "person", _id: "mother", name: "Faye", god: false, height: 180}
+const child = {_label: "person", _id: "child", name: "Atreus", height: 160, god: true}
 const dog = {_label: "animal", _id: "dog", name: "Fenrir"}
 const aslan = {_label: "mythical", _id: "aslan"}
 const narnia = {_label: "place", _id: "narnia"}
@@ -201,7 +201,7 @@ Now, we can visualize the entire graph as a json array:
 }, {
   _id: "mother",
   _label: "person",
-  name: "Laufey",
+  name: "Faye",
   god: false,
   height: 180,
   is_married_with: {_id: "father"},
@@ -211,6 +211,7 @@ Now, we can visualize the entire graph as a json array:
   _label: "person",
   name: "Atreus",
   height: 160,
+  god: true,
   parents: [{_id: "father"}, {_id: "mother"}],
   owns: {_id: "dog"},
   imaginary_friends: [{_id: "aslan"}]
@@ -271,7 +272,7 @@ await konekto.save([{
 }, {
   _id: "mother",
   _label: "person",
-  name: "Laufey",
+  name: "Faye",
   god: false,
   height: 180,
   is_married_with: {_id: "father"},
@@ -404,7 +405,7 @@ That said, lets see some examples:
 #### Filter by string
 
 ```javascript
-const atreus = await konekto.findOneByQueryObject({
+const child = await konekto.findOneByQueryObject({
   _where: {filter: '{this}.name = "Atreus"'}
 }) // findOneByQueryObject is the same as findByQueryObject, but it returns the first item of the resulting array
 ```
@@ -414,13 +415,13 @@ const atreus = await konekto.findOneByQueryObject({
 ```javascript
 const result = await konekto.findByQueryObject({
   _where: {filter: '{this}.height >= 180'}
-}) // returns Kratos and Laufey, not in this particular order
+}) // returns Kratos and Faye, not in this particular order
 ```
 
 #### Filter by boolean
 
 ```javascript
-const kratos = await konekto.findOneByQueryObject({
+const father = await konekto.findOneByQueryObject({
   _where: {filter: '{this}.god = true'}
 })
 ```
@@ -428,9 +429,43 @@ const kratos = await konekto.findOneByQueryObject({
 #### Using parameters
 
 ```javascript
-const Laufey = await konekto.findOneByQueryObject({
+const Faye = await konekto.findOneByQueryObject({
   _where: {filter: '{this}.god = :is_god', params: {is_god: false}}
 })
 ```
 
 ### Ordering with _order
+
+It's possible to order the results by one or more fields using the `_order` operator. You can pass either a string container the property by which you want to order or an array of strings specifiying multiple properties to order your data. Also, you can tell if you want ascending order (default) or descending, to use desceding order, just prefix the field with a `!`, this is valid both when order by one or multiple fields.
+
+#### Order by one field
+
+```javascript
+const [child, father, mother] = await konekto.findByQueryObject({
+  _order: 'name'
+})
+```
+
+#### Order by one field descending
+
+```javascript
+const [father, mother, child] = await konekto.findByQueryObject({
+  _order: '!height'
+})
+```
+
+#### Order by multiple fields
+
+```javascript
+const [mother, child, father] = await konekto.findByQueryObject({
+  _order: ['god', 'name']
+})
+```
+
+#### Order by multiple fields and mixing ascending and descending
+
+```javascript
+const [mother, father, child] = await konekto.findByQueryObject({
+  _order: ['god', '!name']
+}) 
+```

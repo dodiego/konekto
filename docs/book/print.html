@@ -150,10 +150,11 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2><a class="header" href="#overview" id="overview">Overview</a></h2>
-<h3><a class="header" href="#what" id="what">What</a></h3>
+                        <h2><a class="header" href="#installation" id="installation">Installation</a></h2>
+<p><code>npm install konekto</code></p>
+<h2><a class="header" href="#overview" id="overview">Overview</a></h2>
 <p>Konekto is an object-graph mapper for <a href="https://bitnine.net/agensgraph/">agensgraph</a></p>
-<h3><a class="header" href="#why" id="why">Why</a></h3>
+<h2><a class="header" href="#motivation" id="motivation">Motivation</a></h2>
 <p>When persisting data, people usually choose one over two solutions:</p>
 <ul>
 <li>
@@ -208,230 +209,351 @@
 <p>So, you either go to strongly typed and related data or highly dynamic and unrelated data. There are forms that you can work around the cons of each solution, but you require some extra knowledge, do some work of your own and the chances of things getting messy are quite high. What can we do, then?</p>
 <h4><a class="header" href="#graphs-ftw" id="graphs-ftw">Graphs FTW</a></h4>
 <p>Graph databases are great because the data is dynamic and related to each other, you get the flexibility of documents and the relations of relational databases, futhermore, graph database handle connected data far better than relational ones due its nature (you can check more about this <a href="https://neo4j.com/blog/demining-the-join-bomb-with-graph-queries/">right here</a>)</p>
-<h3><a class="header" href="#requirements" id="requirements">Requirements</a></h3>
+<h2><a class="header" href="#requirements" id="requirements">Requirements</a></h2>
 <p>You need a <a href="https://bitnine.net/agensgraph/">Agensgraph</a> database running</p>
-<h4><a class="header" href="#agensgraph---manual-installation" id="agensgraph---manual-installation">AgensGraph - Manual installation</a></h4>
+<h3><a class="header" href="#agensgraph---manual-installation" id="agensgraph---manual-installation">AgensGraph - Manual installation</a></h3>
 <p>Follow the instructions at https://bitnine.net/agensgraph-downloads/ for your operational system</p>
-<h4><a class="header" href="#agensgraph---using-docker" id="agensgraph---using-docker">AgensGraph - Using Docker</a></h4>
+<h3><a class="header" href="#agensgraph---using-docker" id="agensgraph---using-docker">AgensGraph - Using Docker</a></h3>
 <p><code>docker run -p 5432:5432 -it bitnine/agensgraph:v2.1.1 agens</code></p>
-<h3><a class="header" href="#installation" id="installation">Installation</a></h3>
-<p><code>npm install konekto</code></p>
-<h3><a class="header" href="#getting-started" id="getting-started">Getting Started</a></h3>
-<pre><code class="language-javascript">const Konekto = require(&quot;konekto&quot;);
-const user = &quot;agens&quot;;
-const password = &quot;agens&quot;;
-const host = &quot;localhost&quot;;
-const port = 5432;
-const database = &quot;agens&quot;;
-const konekto = new Konekto(
-  `postgresql://${user}:${password}@${host}:${port}/${database}`
-);
-async function run() {
-  // connecting to the database
-  await konekto.connect();
-  const json = {
-    _label: &quot;xd&quot;,
-    some_prop: &quot;lul&quot;,
-    some_relationship: { _label: &quot;omegalul&quot;, other_prop: 1 }
-  };
-  // creating some basic schema
-  await konekto.createSchema(json);
-  // inserting data
-  const id = await konekto.save(json);
-  json._id = id;
-  json.more_prop = true; // adding more properties
-  json.some_prop = undefined; // removing properties
-  // updating data in the database
-  await konekto.save(json);
-  // querying
-  const jsonDb = await konekto.findById(id);
-  jsonDb.some_relationship.other_prop = 1.5; // updating related data
-  await konekto.save(jsonDb.some_relationship);
-  // delete data
-  await konekto.deleteById(id);
-  // when deleting by id, you delete individual jsons, not the whole graph
-  const relatedJsonDb = await konekto.findById(jsonDb.some_relationship._id);
-  relatedJsonDb !== undefined &amp;&amp;
-    relatedJsonDb.other_prop === jsonDb.some_relationship; // true
-}
-run();
-</code></pre>
-<h2><a class="header" href="#core-concepts" id="core-concepts">Core concepts</a></h2>
-<h3><a class="header" href="#label" id="label">Label</a></h3>
-<p>a name that indicates where a node or a relationship should be stored (think of it as table or collection name)</p>
-<h4><a class="header" href="#rules" id="rules">Rules:</a></h4>
+<h2><a class="header" href="#concepts" id="concepts">Concepts</a></h2>
+<h3><a class="header" href="#labels" id="labels">Labels</a></h3>
+<p>A label is a name that indicates where a <a href="chapter_1.html#nodes">node</a> should be stored (you can think of it as table or collection name)</p>
+<h4><a class="header" href="#rules" id="rules">Rules</a></h4>
 <ul>
-<li>
-<p>must be a string</p>
-</li>
-<li>
-<p>must be lowercase</p>
-</li>
-<li>
-<p>only alhanumeric characters and <code>_</code> is allowed</p>
-</li>
-<li>
-<p>must stard with <code>_</code> or a letter</p>
-</li>
+<li>must be a string</li>
+<li>must be lowercase</li>
+<li>only alhanumeric characters and <code>_</code> is allowed</li>
+<li>must stard with <code>_</code> or a letter</li>
 </ul>
-<h4><a class="header" href="#examples" id="examples">Examples:</a></h4>
+<h4><a class="header" href="#examples" id="examples">Examples</a></h4>
 <ul>
-<li>
-<p><code>&quot;label&quot;</code></p>
-</li>
-<li>
-<p><code>&quot;other_label&quot;</code></p>
-</li>
-<li>
-<p><code>&quot;other_label2&quot;</code></p>
-</li>
-<li>
-<p><code>&quot;_another_label&quot;</code></p>
-</li>
+<li><code>&quot;label&quot;</code></li>
+<li><code>&quot;other_label&quot;</code></li>
+<li><code>&quot;other_label2&quot;</code> </li>
+<li><code>&quot;_another_label&quot;</code></li>
 </ul>
-<h3><a class="header" href="#node" id="node">Node</a></h3>
-<p>Any json which all keys map to primitive values or arrays that contains primitive values</p>
-<h4><a class="header" href="#rules-1" id="rules-1">Rules:</a></h4>
+<h3><a class="header" href="#nodes" id="nodes">Nodes</a></h3>
+<p>A node is a JSON where every property value is a primitive value.</p>
+<h4><a class="header" href="#primitive-values" id="primitive-values">Primitive values</a></h4>
 <ul>
-<li>
-<p>all property names must follow the same rules as <a href="chapter_1.html#label-rules">labels</a></p>
-</li>
-<li>
-<p>all nodes must have a property <code>_label</code> which the value follow the same rules as <a href="chapter_1.html#label-rules">labels</a> and it defines where the node will be stored</p>
-</li>
+<li>Number</li>
+<li>String</li>
+<li>Date</li>
+<li>Boolean</li>
+<li>JSON with a property <code>_document: true</code></li>
+<li>Array where some item is a primitive type</li>
 </ul>
-<h4><a class="header" href="#examples-1" id="examples-1">Examples:</a></h4>
+<h4><a class="header" href="#rules-1" id="rules-1">Rules</a></h4>
+<ul>
+<li>Every node must have a property <code>_label: '&lt;some_string&gt;'</code> to specify the label of that node</li>
+<li>Every property key must follow the same rules as <a href="chapter_1.html#labels">labels</a></li>
+</ul>
+<h4><a class="header" href="#examples-1" id="examples-1">Examples</a></h4>
 <ul>
 <li>empty node</li>
 </ul>
-<pre><code class="language-javascript">
-{ &quot;_label&quot;: &quot;some_label&quot;}
+<pre><code class="language-javascript">{ &quot;_label&quot;: &quot;some_label&quot;}
 </code></pre>
 <ul>
 <li>node with some simple values</li>
 </ul>
-<pre><code class="language-javascript">
-{ &quot;_label&quot;: &quot;other_label&quot;, &quot;str_prop&quot;: &quot;xd&quot;, &quot;number_prop&quot;: 1, &quot;boolean_prop&quot;: true,}
+<pre><code class="language-javascript">{ 
+  &quot;_label&quot;: &quot;other_label&quot;, 
+  &quot;str_prop&quot;: &quot;xd&quot;, 
+  &quot;number_prop&quot;: 1, 
+  &quot;boolean_prop&quot;: true
+}
 </code></pre>
 <ul>
 <li>node with array</li>
 </ul>
-<pre><code class="language-javascript">
-{ &quot;_label&quot;: &quot;some_label&quot;, &quot;array_prop&quot;: [1, null, &quot;aaa&quot;, { &quot;xd&quot;: &quot;lul&quot;}]}
+<pre><code class="language-javascript">{ 
+  &quot;_label&quot;: &quot;some_label&quot;, 
+  &quot;array_prop&quot;: [1, null, &quot;aaa&quot;, { &quot;xd&quot;: &quot;lul&quot;}]
+}
+</code></pre>
+<ul>
+<li>node with json property</li>
+</ul>
+<pre><code class="language-javascript">{
+  &quot;_label&quot;: &quot;label&quot;,
+  &quot;complex_prop&quot;: {
+    &quot;_document&quot;: true,
+    &quot;properties here&quot;: &quot;have no naming rules&quot;,
+    &quot;nestedObject&quot;: {
+      &quot;description&quot;: &quot;only the root object must have the _document annotiation, everything inside is treated as a regular json&quot;
+    }
+  }
+}
 </code></pre>
 <h3><a class="header" href="#relationship" id="relationship">Relationship</a></h3>
-<p>a json property where the value is a json or an array of jsons. The relationship name is the property key itself.</p>
-<h4><a class="header" href="#rules-2" id="rules-2">Rules:</a></h4>
+<p>A relationship is a connection between two or more nodes and it is represented as a property whose value is a json or an array of jsons, where the json must be a valid <a href="chapter_1.html#node">node</a></p>
+<h4><a class="header" href="#rules-2" id="rules-2">Rules</a></h4>
 <ul>
-<li>
-<p>the property key name follow the same rules as <a href="label-rules">labels</a></p>
-</li>
-<li>
-<p>when referencing an array, the array must contain ONLY jsons, otherwise it will be saved as a simple property in the node</p>
-</li>
+<li>the property key name must follow the same rules as <a href="chapter_1.html#labels">labels</a></li>
+<li>when referencing an array, the array must contain ONLY jsons that are valid <a href="chapter_1.html#nodes">nodes</a>, otherwise it will be saved as a simple property in the node</li>
 </ul>
-<h4><a class="header" href="#examples-2" id="examples-2">Examples:</a></h4>
-<ul>
-<li>relating two nodes</li>
-</ul>
-<pre><code class="language-javascript">
-{ &quot;_label&quot;: &quot;label1&quot;, &quot;some_rel&quot;: { &quot;_label&quot;: &quot;label2&quot; }}
+<h4><a class="header" href="#examples-2" id="examples-2">Examples</a></h4>
+<p>For the next examples, lets consider the following nodes:</p>
+<pre><code class="language-javascript">const nodeA = { &quot;_label&quot;: &quot;parent&quot; }
+const nodeB = { &quot;_label&quot;: &quot;related&quot; }
+const nodeC = { &quot;_label&quot;: &quot;related2&quot; }
 </code></pre>
 <ul>
-<li>relating two nodes and saving it as a relationship array</li>
+<li>Creating a relationship named &quot;some_relation&quot; from <code>nodeA</code> to <code>nodeB</code></li>
 </ul>
-<pre><code class="language-javascript">
-{ &quot;_label&quot;: &quot;label1&quot;, &quot;some_rel&quot;: [{ &quot;_label&quot;: &quot;label2&quot; }]}
+<pre><code class="language-javascript">nodeA.some_relation = nodeB
 </code></pre>
 <ul>
-<li>relating various nodes in a relationship array</li>
+<li>Creating a relationship named &quot;other_relation&quot; from <code>nodeA</code> to <code>nodeB</code> and <code>nodeC</code></li>
 </ul>
-<pre><code class="language-javascript">
-{ &quot;_label&quot;: &quot;a&quot;, &quot;rel&quot;: [ {&quot;_label&quot;: &quot;b&quot;}, {&quot;_label&quot;: &quot;a&quot;}, {&quot;_label&quot;: &quot;c&quot;} ]}
+<pre><code class="language-javascript">nodeA.other_relation = [nodeB, nodeC]
 </code></pre>
-<h2><a class="header" href="#saving-data" id="saving-data">Saving Data</a></h2>
-<p>Konekto uses only one method for inserting and updating data to the database: <code>save</code>.</p>
+<ul>
+<li>Creating a single element relationship array named &quot;another_relation&quot; from <code>nodeA</code> to <code>nodeC</code></li>
+</ul>
+<pre><code class="language-javascript">nodeA.another_relation = [nodeC]
+</code></pre>
+<h2><a class="header" href="#visualizing-a-json-as-a-graph" id="visualizing-a-json-as-a-graph">Visualizing a JSON as a graph</a></h2>
+<p>Lets use a more realistic example for this and build a family graph, consider the following jsons:</p>
+<pre><code class="language-javascript">const father = {_label: &quot;person&quot;, _id: &quot;father&quot;, name: &quot;Kratos&quot;, god: true, height: 210}
+const mother = {_label: &quot;person&quot;, _id: &quot;mother&quot;, name: &quot;Faye&quot;, god: false, height: 180}
+const child = {_label: &quot;person&quot;, _id: &quot;child&quot;, name: &quot;Atreus&quot;, height: 160, god: true}
+const dog = {_label: &quot;animal&quot;, _id: &quot;dog&quot;, name: &quot;Fenrir&quot;}
+const aslan = {_label: &quot;mythical&quot;, _id: &quot;aslan&quot;}
+const narnia = {_label: &quot;place&quot;, _id: &quot;narnia&quot;}
+</code></pre>
+<p>For now, there is no connection between the them, so lets create some:</p>
+<pre><code class="language-javascript">father.is_married_with = mother
+mother.is_married_with = father
+child.parents = [father, mother]
+father.owns = dog
+child.owns = dog
+mother.owns = dog
+child.imaginary_friends = [aslan]
+aslan.lives_in = narnia
+</code></pre>
+<p>Now, we can visualize the entire graph as a json array:</p>
+<pre><code class="language-javascript">[{
+  _id: &quot;father&quot;,
+  _label: &quot;person&quot;,
+  name: &quot;Kratos&quot;,
+  god: true,
+  height: 210,
+  is_married_with: {_id: &quot;mother&quot;},
+  owns: {_id: &quot;dog&quot;}
+}, {
+  _id: &quot;mother&quot;,
+  _label: &quot;person&quot;,
+  name: &quot;Faye&quot;,
+  god: false,
+  height: 180,
+  is_married_with: {_id: &quot;father&quot;},
+  owns: {_id: &quot;dog&quot;}
+}, {
+  _id: &quot;child&quot;,
+  _label: &quot;person&quot;,
+  name: &quot;Atreus&quot;,
+  height: 160,
+  god: true,
+  parents: [{_id: &quot;father&quot;}, {_id: &quot;mother&quot;}],
+  owns: {_id: &quot;dog&quot;},
+  imaginary_friends: [{_id: &quot;aslan&quot;}]
+}, {
+  _id: &quot;dog&quot;,
+  _label: &quot;animal&quot;,
+  name: &quot;Fenrir&quot;
+},{
+  _íd: &quot;aslan&quot;,
+  _label: &quot;mythical&quot;,
+  lives_in: {_id: &quot;narnia&quot;}
+}, {
+  _id: &quot;narnia&quot;,
+  _label: &quot;place&quot;
+}]
+</code></pre>
+<p>The structure itself is pretty self explanatory, reading the graph we can tell that:</p>
+<ul>
+<li>we reference nodes by using its ids</li>
+<li>father, mother and child are persons</li>
+<li>father and mother are married to each other</li>
+<li>child have mother and father as parents</li>
+<li>father, mother and child owns a dog, which is an animal</li>
+<li>child have an imaginary friend, but it can have more in the future (currently it's a single element array)</li>
+<li>the imaginary friend lives in narnia</li>
+<li>narnia is a place</li>
+</ul>
+<p>Now that you know the basic concepts and how to visualize json as graph, lets start using Konekto!</p>
+<h2><a class="header" href="#writing-data-with-save" id="writing-data-with-save">Writing data with save</a></h2>
+<p>Konekto only have one method for both insert and update, which is <code>save</code>.</p>
 <h3><a class="header" href="#how-it-works" id="how-it-works">How it works</a></h3>
 <p>When calling save, konekto will iterate recursively on every object present on the json passed and will create/update all the nodes and relationships that it encouters following some rules:</p>
 <ul>
-<li>
-<p>if the object doesn't have a property <code>_label</code>, an error will be thrown</p>
-</li>
-<li>
-<p>if the object have a property <code>_id</code> and the id exists in the database, a update on that node will be performed, adding, modifying or deleting properties</p>
-</li>
-<li>
-<p>if the object have a property <code>_id</code> and the id doesn't exist in the database, a insert will be made with the passed <code>_id</code></p>
-</li>
-<li>
-<p>if the object doesn't have a property <code>_id</code>, konekto will generate a <code>_id</code> and will insert the node</p>
-</li>
+<li>if the node doesn't have a property <code>_label</code>, an error will be thrown</li>
+<li>if the node have a property <code>_id</code> and the id exists in the database, a update on that node will be performed, adding, modifying or deleting properties</li>
+<li>if the node have a property <code>_id</code> and the id doesn't exist in the database, a insert will be made with the passed <code>_id</code></li>
+<li>if the node doesn't have a property <code>_id</code>, konekto will generate a <code>_id</code> and will insert the node</li>
+<li>Existing relationships are preserved and new ones are created</li>
 </ul>
-<h3><a class="header" href="#examples-3" id="examples-3">Examples:</a></h3>
-<h4><a class="header" href="#insert-one-node" id="insert-one-node">insert one node</a></h4>
-<pre><code class="language-javascript">let rootId = await konekto.save({ _label: &quot;mylabel&quot; });
+<h3><a class="header" href="#usage" id="usage">Usage</a></h3>
+<h4><a class="header" href="#insert-graph" id="insert-graph">Insert graph</a></h4>
+<p>Lets create the graph of the <a href="chapter_1.html#visualizing-a-json-as-a-graph">previous section</a></p>
+<pre><code class="language-javascript">await konekto.save([{
+  _id: &quot;father&quot;,
+  _label: &quot;person&quot;,
+  name: &quot;Kratos&quot;,
+  god: true,
+  height: 210,
+  is_married_with: {_id: &quot;mother&quot;},
+  owns: {_id: &quot;dog&quot;}
+}, {
+  _id: &quot;mother&quot;,
+  _label: &quot;person&quot;,
+  name: &quot;Faye&quot;,
+  god: false,
+  height: 180,
+  is_married_with: {_id: &quot;father&quot;},
+  owns: {_id: &quot;dog&quot;}
+}, {
+  _id: &quot;child&quot;,
+  _label: &quot;person&quot;,
+  name: &quot;Atreus&quot;,
+  height: 160,
+  parents: [{_id: &quot;father&quot;}, {_id: &quot;mother&quot;}],
+  owns: {_id: &quot;dog&quot;},
+  imaginary_friends: [{_id: &quot;aslan&quot;}]
+}, {
+  _id: &quot;dog&quot;,
+  _label: &quot;animal&quot;,
+  name: &quot;Fenrir&quot;
+},{
+  _íd: &quot;aslan&quot;,
+  _label: &quot;mythical&quot;,
+  lives_in: {_id: &quot;narnia&quot;}
+}, {
+  _id: &quot;narnia&quot;,
+  _label: &quot;place&quot;
+}])
 </code></pre>
-<h4><a class="header" href="#insert-node-with-custom-id" id="insert-node-with-custom-id">insert node with custom id</a></h4>
-<pre><code class="language-javascript">let rootId = await konekto.save({
-  _label: &quot;mylabel&quot;,
-  _id: &quot;myCustomId&quot;
-}); // rootId = &quot;myCustomId&quot;
+<p>Now that we have some data and we used custom ids for every node, we can perform some update operations:</p>
+<h4><a class="header" href="#update-a-single-node" id="update-a-single-node">Update a single node</a></h4>
+<pre><code class="language-javascript">await konekto.save({
+  _id: &quot;father&quot;,
+  _label: &quot;person&quot;, // we need _id + _label to reference a node
+  age: 30 // adding new property
 </code></pre>
-<h4><a class="header" href="#update-node" id="update-node">update node</a></h4>
-<pre><code class="language-javascript">let rootId = await konekto.save({
-  _label: &quot;mylabel&quot;,
-  some_prop: &quot;xd&quot;,
-  some_num: 10
-});
+<h4><a class="header" href="#update-multiple-nodes" id="update-multiple-nodes">Update multiple nodes</a></h4>
+<pre><code class="language-javascript">await konekto.save([{
+  _id: &quot;fater&quot;,
+  _label: &quot;person&quot;,
+  age: null // setting a property to null or undefined will delete that property
+}, {
+  _id: &quot;mother&quot;,
+  _label: &quot;person&quot;,
+  job_title: &quot;programmer&quot;
+}]) // this call will update both father and mother nodes
+
 await konekto.save({
-  _label: &quot;mylabel&quot;,
-  _id: rootId,
-  other_prop: true, // adding new property
-  some_num: null, // deleting old property
-  some_prop: 5.2 // updating old property
-});
+  _id: &quot;child&quot;,
+  _label: &quot;person&quot;,
+  age: 4,
+  parents: {
+    _id: &quot;father&quot;,
+    _label: &quot;person&quot;,
+    job_title: &quot;data scientist&quot;
+  } // the &quot;parents&quot; relationship between child and father already exists,   so its unaltered
+}) // updates child and father with a new property
 </code></pre>
-<h4><a class="header" href="#insert-and-relate-two-new-nodes" id="insert-and-relate-two-new-nodes">insert and relate two new nodes</a></h4>
+<h4><a class="header" href="#insert-new-nodes-and-relate-with-existing-ones" id="insert-new-nodes-and-relate-with-existing-ones">Insert new nodes and relate with existing ones</a></h4>
 <pre><code class="language-javascript">await konekto.save({
-  _label: &quot;mylabel&quot;,
-  some_rel: { _label: &quot;other_label&quot; }
-});
+  _id: &quot;child&quot;,
+  _label: &quot;person&quot;,
+  age: 4, // update property with new value
+  owns: {
+    _label: &quot;toy&quot;,
+    _id: &quot;toy&quot;,
+    name: &quot;car toy&quot;
+  } 
+}) // now child owns a dog and a toy, the &quot;owns&quot; relationship of child is now an array
 </code></pre>
-<h4><a class="header" href="#add-relationship-to-existing-node" id="add-relationship-to-existing-node">add relationship to existing node</a></h4>
-<pre><code class="language-javascript">    const json = {
-      _label: 'test1'
-    }
-    const rel = {
-      _label: 'test2',
-      omegalul: 'xd'
-    }
-    const id = await konekto.save(json)
-    await konekto.save({
-      _label: 'test1' // use _label + _id to reference an existent node
-      _id: id,
-      rel
-    })
-</code></pre>
-<h4><a class="header" href="#saving-value-as-object-instead-of-node--relationship" id="saving-value-as-object-instead-of-node--relationship">saving value as object instead of node + relationship</a></h4>
+<h4><a class="header" href="#relate-two-existing-nodes" id="relate-two-existing-nodes">relate two existing nodes</a></h4>
 <pre><code class="language-javascript">await konekto.save({
-  _label: &quot;test1&quot;,
-  prop: {
-    _json: true,
-    a: true
+  _id: &quot;dog&quot;,
+  _label: &quot;animal&quot;,
+  destroyed: [{_id: &quot;toy&quot;, _label: &quot;toy&quot;}]
+}) // both dog and toy exists, but the &quot;destroyed&quot; relationship didn't, so it's created
+</code></pre>
+<h4><a class="header" href="#saving-jsons-as-documents" id="saving-jsons-as-documents">saving jsons as documents</a></h4>
+<pre><code class="language-javascript">await konekto.save({
+  _id: &quot;toy&quot;,
+  _label: &quot;toy&quot;,
+  current_specs: {
+    wheels: 3,
+    color: &quot;rusty&quot;,
+    doors: false,
+    _document: true
   }
-});
+})
 </code></pre>
-<h2><a class="header" href="#querying-data" id="querying-data">Querying data</a></h2>
-<p>There are two methods to query data:</p>
+<h2><a class="header" href="#querying-data-with-the-query-object" id="querying-data-with-the-query-object">Querying data with the query object</a></h2>
+<p>Lets consider that we want to query some data from <a href="chapter_1.html#visualizing-a-json-as-a-graph">this graph</a></p>
+<h3><a class="header" href="#query-all-data" id="query-all-data">Query all data</a></h3>
+<p>Just pass an empty object to <code>findByQueryObject</code> and you get an array of every node in the database</p>
+<pre><code class="language-javascript">const nodes = await konekto.findByQueryObject({})
+console.log(nodes)
+</code></pre>
+<p>You will notice that  <code>nodes</code> is a flat array, with every node in the database, but no relationship between them, lets leave it like that for now, we will show later how to query nodes and their relationships .</p>
+<h3><a class="header" href="#filtering-with-_where" id="filtering-with-_where">Filtering with _where</a></h3>
+<p>Well, querying every single node seems a bit of a overkill, we need to filter some of that result to get something more useful, here we gonna introduce the first operator of the query object: <code>_where</code>.</p>
+<p><code>_where</code> is a property of the query object and its value is a json with two fields: <code>filter</code> (which is mandatory) and <code>params</code> (which is optional). <code>filter</code> is a string that contains a <a href="https://neo4j.com/docs/cypher-manual/current/clauses/where/">cypher where</a> and it is very much like a regular SQL where with some caveats:</p>
 <ul>
-<li>
-<p>findById</p>
-</li>
-<li>
-<p>findByQueryObject</p>
-</li>
+<li>to reference the current node, you must use the notation <code>{this}</code>, this will be more clear on the following examples</li>
+<li>strings must be single quoted</li>
 </ul>
-<h3><a class="header" href="#findbyid" id="findbyid">FindById</a></h3>
+<p><code>params</code> is a object map where the keys are referenced in <code>filter</code> and values are injected using a parameterized query</p>
+<p>That said, lets see some examples:</p>
+<h4><a class="header" href="#filter-by-string" id="filter-by-string">Filter by string</a></h4>
+<pre><code class="language-javascript">const child = await konekto.findOneByQueryObject({
+  _where: {filter: '{this}.name = &quot;Atreus&quot;'}
+}) // findOneByQueryObject is the same as findByQueryObject, but it returns the first item of the resulting array
+</code></pre>
+<h4><a class="header" href="#filter-by-number" id="filter-by-number">Filter by number</a></h4>
+<pre><code class="language-javascript">const result = await konekto.findByQueryObject({
+  _where: {filter: '{this}.height &gt;= 180'}
+}) // returns Kratos and Faye, not in this particular order
+</code></pre>
+<h4><a class="header" href="#filter-by-boolean" id="filter-by-boolean">Filter by boolean</a></h4>
+<pre><code class="language-javascript">const father = await konekto.findOneByQueryObject({
+  _where: {filter: '{this}.god = true'}
+})
+</code></pre>
+<h4><a class="header" href="#using-parameters" id="using-parameters">Using parameters</a></h4>
+<pre><code class="language-javascript">const Faye = await konekto.findOneByQueryObject({
+  _where: {filter: '{this}.god = :is_god', params: {is_god: false}}
+})
+</code></pre>
+<h3><a class="header" href="#ordering-with-_order" id="ordering-with-_order">Ordering with _order</a></h3>
+<p>It's possible to order the results by one or more fields using the <code>_order</code> operator. You can pass either a string container the property by which you want to order or an array of strings specifiying multiple properties to order your data. Also, you can tell if you want ascending order (default) or descending, to use desceding order, just prefix the field with a <code>!</code>, this is valid both when order by one or multiple fields.</p>
+<h4><a class="header" href="#order-by-one-field" id="order-by-one-field">Order by one field</a></h4>
+<pre><code class="language-javascript">const [child, father, mother] = await konekto.findByQueryObject({
+  _order: 'name'
+})
+</code></pre>
+<h4><a class="header" href="#order-by-one-field-descending" id="order-by-one-field-descending">Order by one field descending</a></h4>
+<pre><code class="language-javascript">const [father, mother, child] = await konekto.findByQueryObject({
+  _order: '!height'
+})
+</code></pre>
+<h4><a class="header" href="#order-by-multiple-fields" id="order-by-multiple-fields">Order by multiple fields</a></h4>
+<pre><code class="language-javascript">const [mother, child, father] = await konekto.findByQueryObject({
+  _order: ['god', 'name']
+})
+</code></pre>
+<h4><a class="header" href="#order-by-multiple-fields-and-mixing-ascending-and-descending" id="order-by-multiple-fields-and-mixing-ascending-and-descending">Order by multiple fields and mixing ascending and descending</a></h4>
+<pre><code class="language-javascript">const [mother, father, child] = await konekto.findByQueryObject({
+  _order: ['god', '!name']
+}) 
+</code></pre>
 
                     </main>
 
