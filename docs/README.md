@@ -620,3 +620,57 @@ const childWithMother = await konekto.findByQueryObject({
 
 NOW THAT IS REAL POWER, SON. By including and filtering relationships using query objects you can specify exactly how you want to retrieve your data, you can even include relationships of relationships and filter those as well, there is no depth limit.
 There are many more examples in the [test file](https://github.com/dodiego/konekto/blob/master/test/find.test.js), check those to see some of the possibilities.
+
+## Deleting data
+
+We're on the final road to learn using konekto, we know how to insert and query data, now it's time to do some cleaning and delete some stuff (and again, lets use [this graph](#visualizing-a-json-as-a-graph) for the following examples.
+
+### Delete with query object
+
+This is pretty straightforward, pass a query object to `deleteByQueryObject` and every node returned is deleted, check some examples:
+
+delete every node that have the label `person`:
+
+```javascript
+await konekto.deleteByQueryObject({
+  _label: 'person'
+})
+```
+
+delete every node that have the label `person` and all related nodes through the `owns` relationship
+
+```javascript
+await konekto.deleteByQueryObject({
+  _label: 'person',
+  owns: {}
+})
+```
+
+The query possibilities are the same as in `findByQueryObject`, but, with great powers come great responsibilities, if you dot not take care, you can delete your entire database in a single call:
+
+```javascript
+await konekto.deleteByQueryObject({})
+```
+
+### Delete by id
+
+You can also delete individual nodes by its ids with the `deleteById`, just pass the id of the node that you want to delete:
+
+```javascript
+await konekto.deleteById('aslan')
+```
+
+### Delete relationships
+
+There are times that you just want to remove the connection between some nodes and preserve the nodes themselves, for example:
+
+#### By query object
+
+Pass a query object with some relationships to unrelate the nodes:
+
+```javascript
+await konekto.deleteRelationshipsByQueryObject({
+  _where: "{this}.name = 'Atreus'",
+  imaginary_friends: {}
+}) // now the imaginary_friends relationship between child and aslan doesn't exist anymore
+```
