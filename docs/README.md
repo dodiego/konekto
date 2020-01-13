@@ -265,6 +265,53 @@ The structure itself is pretty self explanatory, reading the graph we can tell t
 
 Now that you know the basic concepts and how to visualize json as graph, lets start using Konekto!
 
+## Instantiating client
+
+### With no parameters
+
+```javascript
+const Konekto = require('konekto')
+const konekto = new Konekto() // this needs a agensgraph running at postgresql://agens:agens@localhost:5432/agens
+```
+
+### Custom connection parameters
+
+#### Using object
+
+```javascript
+const Konekto = require('konekto')
+const konekto = new Konekto({
+  host: 'localhost',
+  port: 5432,
+  user: 'agens',
+  pass: 'agens',
+  database: 'agens'
+})
+```
+
+#### Using connection string
+
+```javascript
+const Konekto = require('konekto')
+const user = 'agens'
+const password = 'agens'
+const host = 'localhost'
+const port = 5432
+const database = 'agens'
+const konekto = new Konekto(`postgresql://${user}:${password}@${host}:${port}/${database}`)
+```
+
+## Creating and setting a graph
+
+Before anything, you need to create and set a graph that you want to interact with, you can think of it as the graph database name.
+
+```javascript
+await konekto.createGraph('graph_name')
+await konekto.setGraph('graph_name')
+```
+
+The graph name follow the same rules specified in [labels](#labels)
+
 ## Creating the basic structure with schema
 
 To persist data using konekto, you need to tell the database the possible labels and allowed relationship names, that's it, no need to specify every property name and type of every label.
