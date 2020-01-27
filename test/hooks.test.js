@@ -8,7 +8,7 @@ describe('hooks', () => {
     await konekto.setGraph('hooks_test')
   })
 
-  describe('beforeCreate', () => {
+  describe('beforeSave', () => {
     test('should throw error when hook returns false on root node', async () => {
       const json = {
         _label: 'test',
