@@ -7,7 +7,7 @@ describe('find sql', () => {
     await konekto.raw({
       query: 'create table if not exists dates (_id text primary key, test_date date)'
     })
-    await konekto.setSqlMappings({
+    konekto.setSqlMappings({
       test: {
         table: 'dates',
         mappings: {
@@ -275,12 +275,12 @@ describe('find sql', () => {
       {
         projections: {
           dates: {
-            test_date: "date_part('year', {test_date})"
+            test_date: "date_part('year', {test_date})::text"
           }
         }
       }
     )
-    json.test_date = 2013
+    json.test_date = '2013'
     delete findResult._id
     expect(json).toStrictEqual(findResult)
   })
