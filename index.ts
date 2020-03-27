@@ -1,3 +1,5 @@
+import Konekto from './lib/index.js'
+
 export interface PropertyMap {
   [label: string]: {
     table: string
@@ -9,3 +11,5 @@ export interface PropertyMap {
     }
   }
 }
+
+export default Konekto
