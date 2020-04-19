@@ -313,6 +313,7 @@ describe('save', () => {
     const findResult2 = await konekto.findByQueryObject({ rel: { mandatory: true } })
     delete findResult2[0].rel[0]._id
     delete findResult2[0].rel[1]._id
+    // @ts-ignore
     json.rel = [json.rel, json.rel]
     expect(findResult2).toEqual([json])
   })

@@ -3,9 +3,11 @@
   "version": "0.13.1",
   "description": "a json to cypher mapper",
   "main": "lib/index.js",
+  "typings": "typings/lib/index.d.ts",
   "scripts": {
     "test": "jest",
-    "postversion": "git push && npm publish"
+    "postversion": "git push && npm publish",
+    "generate:types": "rm -rf typings && tsc"
   },
   "keywords": [
     "agensgraph",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.11",
+    "@types/node": "^13.13.0",
     "eslint": "^6.5.1",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.18.2",

@@ -10,12 +10,12 @@ export interface PropertyMap {
   }
 }
 
-enum OrderOptions {
+declare enum OrderOptions {
   ASCENDING = 'ASC',
   DESCENDING = 'DESC'
 }
 
-enum NullOrderOptions {
+declare enum NullOrderOptions {
   FIRST = 'FIRST',
   LAST = 'LAST'
 }
