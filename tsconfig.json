@@ -5,11 +5,11 @@
     "checkJs": true,
     "sourceMap": true,
     "declaration": true,
-    "outDir": "typings",
     "esModuleInterop": true,
     "emitDeclarationOnly": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "target": "ES2018"
+    "target": "ES2018",
+    "outDir": "typings"
   }
 }
