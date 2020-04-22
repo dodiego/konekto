@@ -5,13 +5,14 @@ describe('find sql', () => {
   beforeAll(async () => {
     await konekto.connect()
     await konekto.raw({
-      query: 'create table if not exists public.dates (_id text primary key, test_date date)'
+      query: 'create table if not exists public.dates (_id text primary key, test_date date, document json)'
     })
     konekto.setSqlMappings({
       test: {
         table: 'dates',
         mappings: {
-          test_date: { columnName: 'test_date' }
+          test_date: { columnName: 'test_date' },
+          document: { columnName: 'document' }
         }
       }
     })
@@ -285,6 +286,22 @@ describe('find sql', () => {
       }
     )
     json.test_date = '2013'
+    delete findResult._id
+    expect(json).toStrictEqual(findResult)
+  })
+
+  test('sql json', async () => {
+    const json = {
+      _label: 'test',
+      document: {
+        some_fields: 'NICE'
+      }
+    }
+    const id = await konekto.save(json)
+    const findResult = await konekto.findOneByQueryObject({
+      _label: 'test',
+      _where: { filter: 'this._id = :id', params: { id } }
+    })
     delete findResult._id
     expect(json).toStrictEqual(findResult)
   })

@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  agensgraph:
+    image: 'dodiego/agensgraph-postgis'
+    ports:
+      - '5432:5432'
+    tty: true
