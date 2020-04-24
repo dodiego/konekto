@@ -6,7 +6,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
-    "postversion": "git push && npm publish",
+    "postversion": "tsc && git push && npm publish",
     "generate:types": "tsc"
   },
   "keywords": [
