@@ -3,7 +3,7 @@
   "version": "0.16.0",
   "description": "a json to cypher mapper",
   "main": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "typings": "lib/index.ts",
   "scripts": {
     "test": "jest",
     "postversion": "tsc && git push && npm publish",
