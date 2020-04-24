@@ -232,10 +232,7 @@ class Konekto {
     }, this.client)
   }
 
-  /**
-   * @param {string} graphName
-   */
-  async createGraph(graphName) {
+  async createGraph(graphName: string) {
     await this.client.query(`CREATE GRAPH IF NOT EXISTS ${graphName}`)
   }
 
