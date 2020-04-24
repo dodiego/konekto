@@ -1,7 +1,7 @@
 import { Parser } from './parser'
-import { Client } from 'pg'
+import { Client, ClientConfig } from 'pg'
 
-function _createSchema (json, client) {
+function _createSchema(json, client) {
   return _handleTransaction(async parser => {
     const { relationshipNames, nodeLabels } = parser.getSchema(json)
     const clientQueries = []
@@ -18,12 +18,12 @@ function _createSchema (json, client) {
   }, client)
 }
 
-async function _runQuery (client: Client, { query, params = undefined }): Promise<import('pg').QueryArrayResult> {
+async function _runQuery(client: Client, { query, params = undefined }): Promise<import('pg').QueryArrayResult> {
   const result = await client.query(query, params)
   return result
 }
 
-async function _handleTransaction (fn: (Parser) => Promise<any>, client: Client) {
+async function _handleTransaction(fn: (Parser) => Promise<any>, client: Client) {
   const parser = new Parser()
   try {
     await client.query('BEGIN')
@@ -36,7 +36,7 @@ async function _handleTransaction (fn: (Parser) => Promise<any>, client: Client)
   }
 }
 
-async function _handleParseRows (parser, client, statement, options) {
+async function _handleParseRows(parser, client, statement, options) {
   const response: any = await _runQuery(client, statement)
   if (!response.rows.length || !response.rows[0].cypher_info) {
     return []
@@ -51,12 +51,8 @@ class Konekto {
   client: any
   plugins: any[]
   sqlMappings: PropertyMap
-  /**
-   *
-   * @param {import('pg').ClientConfig | string} clientConfig
-   */
-  constructor (
-    clientConfig = {
+  constructor(
+    clientConfig: ClientConfig | string = {
       database: 'agens',
       user: 'agens',
       password: 'agens'
@@ -67,26 +63,22 @@ class Konekto {
     this.sqlMappings = {}
   }
 
-  connect () {
+  connect() {
     return this.client.connect()
   }
 
-  /**
-   *
-   * @param {import('konekto').PropertyMap} mappings
-   */
-  setSqlMappings (mappings) {
+  setSqlMappings(mappings: PropertyMap) {
     this.sqlMappings = mappings
   }
 
-  async createSchema (jsonOrArray) {
+  async createSchema(jsonOrArray) {
     if (Array.isArray(jsonOrArray)) {
       return Promise.all(jsonOrArray.map(json => _createSchema(json, this.client)))
     }
     return _createSchema(jsonOrArray, this.client)
   }
 
-  createLabel (label) {
+  createLabel(label) {
     if (typeof label === 'string') {
       return _runQuery(this.client, {
         query: `CREATE ELABEL ${label}`
@@ -100,7 +92,7 @@ class Konekto {
     throw new Error('invalid label type, must be string or array of string')
   }
 
-  createRelationship (name) {
+  createRelationship(name) {
     if (typeof name === 'string') {
       return _runQuery(this.client, {
         query: `CREATE VLABEL ${name}`
@@ -113,12 +105,7 @@ class Konekto {
     throw new Error('invalid label type, must be string or array of string')
   }
 
-  /**
-   * @param {any} label
-   * @param {any} property
-   * @param {import('konekto').CreateIndexOptions} options
-   */
-  async createIndex (label, property, options: any = {}) {
+  async createIndex(label: string, property: string, options: CreateIndexOptions = {}) {
     const queryParts = ['CREATE']
     if (options.unique) {
       queryParts.push('UNIQUE')
@@ -143,7 +130,7 @@ class Konekto {
     return _runQuery(this.client, { query })
   }
 
-  async dropIndex (label, property, options) {
+  async dropIndex(label, property, options) {
     if (options.cascade) {
       await _runQuery(this.client, { query: `DROP PROPERTY INDEX ${label}_${property} CASCADE` })
     } else {
@@ -151,7 +138,7 @@ class Konekto {
     }
   }
 
-  async raw ({ query, params = undefined }, options: any = {}) {
+  async raw({ query, params = undefined }, options: any = {}) {
     const parser = new Parser()
     const rows = await _runQuery(this.client, { query, params })
     if (options.parseResult) {
@@ -160,7 +147,7 @@ class Konekto {
     return rows
   }
 
-  async save (json, options = {}) {
+  async save(json, options = {}) {
     return _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherWrite(json, { sqlProjections: this.sqlMappings, ...options })
       await Promise.all([_runQuery(this.client, statement.cypher), _runQuery(this.client, statement.sql)])
@@ -168,18 +155,18 @@ class Konekto {
     }, this.client)
   }
 
-  async findByQueryObject (queryObject, options = {}) {
+  async findByQueryObject(queryObject, options = {}) {
     return _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherRead(queryObject, { sqlProjections: this.sqlMappings, ...options })
       return _handleParseRows(parser, this.client, statement, options)
     }, this.client)
   }
 
-  async findOneByQueryObject (queryObject, options = {}) {
+  async findOneByQueryObject(queryObject, options = {}) {
     return (await this.findByQueryObject(queryObject, options))[0]
   }
 
-  async findById (id, options = {}) {
+  async findById(id, options = {}) {
     return _handleTransaction(async parser => {
       const statement = {
         query: 'MATCH (v1 {_id: $1}) WITH v1 OPTIONAL MATCH (v1)-[r*0..]->(v2) RETURN v1, r, v2',
@@ -192,7 +179,7 @@ class Konekto {
     }, this.client)
   }
 
-  async deleteByQueryObject (queryObject, options = {}) {
+  async deleteByQueryObject(queryObject, options = {}) {
     return _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherRead(queryObject, options)
       const nodeIds = []
@@ -226,7 +213,7 @@ class Konekto {
     }, this.client)
   }
 
-  async deleteById (id, options) {
+  async deleteById(id, options) {
     const statement = {
       query: 'MATCH (a) WHERE id(a) = $1 WITH a\nOPTIONAL MATCH (a)-[r*0..]->(b)\nDETACH DELETE a, b',
       params: [id],
@@ -238,7 +225,7 @@ class Konekto {
     }, this.client)
   }
 
-  async deleteRelationshipsByQueryObject (queryObject, options) {
+  async deleteRelationshipsByQueryObject(queryObject, options) {
     return _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherRelationshipDelete(queryObject, options)
       return this.client.query(statement.query, statement.params)
@@ -248,18 +235,15 @@ class Konekto {
   /**
    * @param {string} graphName
    */
-  async createGraph (graphName) {
+  async createGraph(graphName) {
     await this.client.query(`CREATE GRAPH IF NOT EXISTS ${graphName}`)
   }
 
-  /**
-   * @param {string} graphName
-   */
-  async setGraph (graphName) {
+  async setGraph(graphName: string) {
     await this.client.query(`SET graph_path = ${graphName}`)
   }
 
-  disconnect () {
+  disconnect() {
     return this.client.end()
   }
 }
