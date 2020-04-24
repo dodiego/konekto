@@ -1,4 +1,4 @@
-const Konekto = require('../lib')
+import Konekto from '../lib'
 const konekto = new Konekto()
 
 describe('hooks', () => {

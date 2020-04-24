@@ -1,4 +1,4 @@
-async function getWhereCypher (params, json, variableName) {
+export async function getWhereCypher (params, json, variableName) {
   const whereQuery = []
   if (json._label) {
     let whereLabels
@@ -30,7 +30,7 @@ async function getWhereCypher (params, json, variableName) {
   return ''
 }
 
-function getOrderCypher (json, variable) {
+export function getOrderCypher (json, variable) {
   if (json._order) {
     let orderBy
     if (typeof json._order === 'string') {
@@ -46,7 +46,7 @@ function getOrderCypher (json, variable) {
   return ''
 }
 
-function getPaginationCypher (json, params) {
+export function getPaginationCypher (json, params) {
   const query = []
   if (json._skip > 0) {
     const paramIndex = params.push(json._skip)
@@ -59,13 +59,7 @@ function getPaginationCypher (json, params) {
   return query.join(' ')
 }
 
-function getWith (variables) {
+export function getWith (variables) {
   return `WITH ${[...variables].join(', ')}`
 }
 
-module.exports = {
-  getWhereCypher,
-  getOrderCypher,
-  getPaginationCypher,
-  getWith
-}

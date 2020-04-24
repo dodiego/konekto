@@ -1,5 +1,5 @@
-const { Parser } = require('./parser')
-const { Client } = require('pg')
+import { Parser } from './parser'
+import { Client } from 'pg'
 
 function _createSchema (json, client) {
   return _handleTransaction(async parser => {
@@ -18,22 +18,12 @@ function _createSchema (json, client) {
   }, client)
 }
 
-/**
- *
- * @param {import('pg').Client} client
- * @returns {Promise<import('pg').QueryArrayResult>}
- */
-async function _runQuery (client, { query, params = undefined }) {
+async function _runQuery (client: Client, { query, params = undefined }): Promise<import('pg').QueryArrayResult> {
   const result = await client.query(query, params)
   return result
 }
 
-/**
- *
- * @param {function(Parser):Promise<any>} fn
- * @param {import('pg').Client} client
- */
-async function _handleTransaction (fn, client) {
+async function _handleTransaction (fn: (Parser) => Promise<any>, client: Client) {
   const parser = new Parser()
   try {
     await client.query('BEGIN')
@@ -47,10 +37,7 @@ async function _handleTransaction (fn, client) {
 }
 
 async function _handleParseRows (parser, client, statement, options) {
-  /**
-   * @type {*}
-   */
-  const response = await _runQuery(client, statement)
+  const response: any = await _runQuery(client, statement)
   if (!response.rows.length || !response.rows[0].cypher_info) {
     return []
   }
@@ -61,6 +48,9 @@ async function _handleParseRows (parser, client, statement, options) {
 }
 
 class Konekto {
+  client: any
+  plugins: any[]
+  sqlMappings: PropertyMap
   /**
    *
    * @param {import('pg').ClientConfig | string} clientConfig
@@ -128,7 +118,7 @@ class Konekto {
    * @param {any} property
    * @param {import('konekto').CreateIndexOptions} options
    */
-  async createIndex (label, property, options = {}) {
+  async createIndex (label, property, options: any = {}) {
     const queryParts = ['CREATE']
     if (options.unique) {
       queryParts.push('UNIQUE')
@@ -161,7 +151,7 @@ class Konekto {
     }
   }
 
-  async raw ({ query, params = undefined }, options = {}) {
+  async raw ({ query, params = undefined }, options: any = {}) {
     const parser = new Parser()
     const rows = await _runQuery(this.client, { query, params })
     if (options.parseResult) {
@@ -224,7 +214,7 @@ class Konekto {
         if (sqlMappings) {
           queries.push(
             this.client.query(
-              Object.entries(konektoIds)
+              Object.entries<any>(konektoIds)
                 .map(([table, ids]) => `DELETE FROM ${table} WHERE ${ids.join(' OR ')}`)
                 .join('\n')
             )
@@ -273,4 +263,5 @@ class Konekto {
     return this.client.end()
   }
 }
-module.exports = Konekto
+
+export default Konekto

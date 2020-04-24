@@ -1,4 +1,4 @@
-const Konekto = require('../lib')
+import Konekto from '../lib'
 const konekto = new Konekto()
 
 describe('find sql', () => {
@@ -236,7 +236,7 @@ describe('find sql', () => {
   })
 
   test('sql projection', async () => {
-    const json = {
+    const json: any = {
       _label: 'test',
       test_date: '2013-07-09'
     }

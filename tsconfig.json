@@ -1,15 +1,14 @@
 {
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": true,
     "sourceMap": true,
     "declaration": true,
     "esModuleInterop": true,
-    "emitDeclarationOnly": true,
-    "moduleResolution": "node",
+    "moduleResolution": "classic",
+    "module": "CommonJS",
     "resolveJsonModule": true,
-    "target": "ES2018",
-    "outDir": "typings"
+    "declarationDir": "typings",
+    "outDir": "build",
+    "target": "ES2018"
   }
 }

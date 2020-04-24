@@ -1,6 +1,6 @@
-const { id } = require('./query_utils')
+import { id } from './query_utils'
 
-function getWhereSql (params, json, variableName) {
+export function getWhereSql (params, json, variableName) {
   if (json._sqlWhere) {
     return json._sqlWhere.filter
       .replace(/this\./g, `${variableName}.`)
@@ -9,12 +9,7 @@ function getWhereSql (params, json, variableName) {
   return ''
 }
 
-/**
- *
- * @param {any} node
- * @param {import('konekto').PropertyMap} customProjection
- */
-function mapProperties (node, customProjection = {}) {
+function mapProperties (node: any, customProjection: PropertyMap = {}) {
   const params = []
   const columns = []
   const values = []
@@ -40,12 +35,7 @@ function mapProperties (node, customProjection = {}) {
   return { params, columns, values }
 }
 
-/**
- *
- * @param {any} node
- * @param {import('konekto').PropertyMap} customProjection
- */
-function sqlInsert (node, customProjection) {
+function sqlInsert (node: any, customProjection: PropertyMap) {
   const { params, columns, values } = mapProperties(node, customProjection)
 
   if (columns.length) {
@@ -56,12 +46,7 @@ function sqlInsert (node, customProjection) {
   }
 }
 
-/**
- *
- * @param {any} node
- * @param {import('konekto').PropertyMap} customProjection
- */
-function sqlUpdate (node, customProjection) {
+function sqlUpdate (node: any, customProjection: PropertyMap) {
   const { params, columns, values } = mapProperties(node, customProjection)
 
   if (columns.length) {
@@ -72,19 +57,9 @@ function sqlUpdate (node, customProjection) {
   }
 }
 
-/**
- *
- * @param {any} node
- * @param {import('konekto').PropertyMap} customProjection
- */
-function handleSql (node, customProjection, sqlQueryParts) {
+export function handleSql (node: any, customProjection: PropertyMap, sqlQueryParts) {
   const result = node._id ? sqlUpdate(node, customProjection) : sqlInsert(node, customProjection)
   if (result) {
     sqlQueryParts.push(result)
   }
-}
-
-module.exports = {
-  getWhereSql,
-  handleSql
 }

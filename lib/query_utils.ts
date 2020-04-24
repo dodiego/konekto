@@ -1,8 +1,8 @@
 const uuid = require('uuid/v4')
 const yielded = Symbol('yielded')
 const labelRegex = /^[a-z$][a-z_0-9]*$/
-const id = Symbol('id')
-const queryKeys = {
+export const id = Symbol('id')
+export const queryKeys = {
   _skip: true,
   _limit: true,
   _order: true,
@@ -12,7 +12,7 @@ const queryKeys = {
   _label: true
 }
 
-function validateLabel (label) {
+export function validateLabel (label) {
   if (!Array.isArray(label)) {
     label = [label]
   }
@@ -26,7 +26,7 @@ function validateLabel (label) {
   }
 }
 
-function isPrimitive (value) {
+export function isPrimitive (value) {
   return (
     value === null ||
     value === undefined ||
@@ -37,7 +37,7 @@ function isPrimitive (value) {
   )
 }
 
-function * iterateJson (child, options, key, parent, metadata) {
+function * iterateJson (child, options?, key?, parent?, metadata?) {
   if (child && typeof child === 'object' && !Array.isArray(child)) {
     child[id] = child[id] || uuid()
     const result = {
@@ -103,7 +103,7 @@ function * iterateJson (child, options, key, parent, metadata) {
   }
 }
 
-function getNodesAndRelationships (json, options) {
+export function getNodesAndRelationships (json, options?) {
   const nodes = {}
   const objects = {}
   const relationships = []
@@ -130,7 +130,7 @@ function getNodesAndRelationships (json, options) {
   }
 }
 
-function getIndexesPerNode (nodes) {
+export function getIndexesPerNode (nodes) {
   const indexesPerNode = {}
   const nodeIds = Object.keys(nodes)
   for (let index = 0; index < nodeIds.length; index++) {
@@ -140,17 +140,7 @@ function getIndexesPerNode (nodes) {
   return indexesPerNode
 }
 
-function parameterize (params, value) {
+export function parameterize (params, value) {
   const paramIndex = params.push(value)
   return `$${paramIndex}`
-}
-
-module.exports = {
-  getNodesAndRelationships,
-  getIndexesPerNode,
-  queryKeys,
-  id,
-  parameterize,
-  isPrimitive,
-  validateLabel
 }

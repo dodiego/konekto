@@ -1,4 +1,4 @@
-const Konekto = require('../lib')
+import Konekto from '../lib'
 const konekto = new Konekto()
 describe('save', () => {
   beforeAll(async () => {
@@ -18,7 +18,7 @@ describe('save', () => {
   })
 
   test('cyclic object', async () => {
-    const json = {
+    const json: any = {
       _label: 'test1',
       omegalul: 'xd'
     }
@@ -35,11 +35,11 @@ describe('save', () => {
   })
 
   test('cyclic in middle object', async () => {
-    const json = {
+    const json: any = {
       _label: 'test1',
       omegalul: 'xd'
     }
-    const otherJson = {
+    const otherJson: any = {
       _label: 'test2',
       aahaha: 15
     }
@@ -299,7 +299,7 @@ describe('save', () => {
   })
 
   test('add one more relationship to node', async () => {
-    const json = {
+    const json: any = {
       _label: 'test1',
       rel: {
         _label: 'test1'

@@ -1,6 +1,6 @@
-const { getOrderCypher, getWhereCypher, getPaginationCypher, getWith } = require('./graph_utils')
-const { getWhereSql } = require('./sql_utils')
-const { getIndexesPerNode, getNodesAndRelationships, queryKeys, id } = require('./query_utils')
+import { getOrderCypher, getWhereCypher, getPaginationCypher, getWith } from './graph_utils'
+import { getWhereSql } from './sql_utils'
+import { getIndexesPerNode, getNodesAndRelationships, queryKeys, id } from './query_utils'
 async function getMatchSufix (json, variable, queryEnd) {
   const query = []
   const params = []
@@ -38,7 +38,7 @@ async function getMatchSufix (json, variable, queryEnd) {
   }
 }
 
-function getFinalQuery (nodes, cypher, options) {
+export function getFinalQuery (nodes, cypher, options) {
   const selectPart = ['json_agg(cypher.*) as cypher_info']
   const joinPart = []
   const joinFilter = nodes.map(n => `_id = cypher.${n}->>'_id'`).join(' OR ')
@@ -56,8 +56,8 @@ function getFinalQuery (nodes, cypher, options) {
   return `SELECT ${selectPart.join(', ')} FROM (${cypher}) as cypher ${joinPart.join(' ')}`
 }
 
-async function queryObjectToCypher (queryObject, options, eventEmitter, getQueryEnd) {
-  const { nodes, relationships, root } = getNodesAndRelationships(queryObject)
+export async function queryObjectToCypher (queryObject, options, eventEmitter, getQueryEnd) {
+  const { nodes, relationships, root } = getNodesAndRelationships(queryObject, options)
   if (options.hooks && options.hooks.beforeParseNode) {
     await options.hooks.beforeParseNode(root)
   }
@@ -127,7 +127,7 @@ async function queryObjectToCypher (queryObject, options, eventEmitter, getQuery
   return finalStatement
 }
 
-async function handleColumn (column, nodes, nodesPerKonektoId, relationships, options) {
+export async function handleColumn (column, nodes, nodesPerKonektoId, relationships, options) {
   const item = parseColumn(column)
   if (item.isRelationship) {
     relationships[item.value[id]] = item.value
@@ -163,10 +163,4 @@ function parseColumn (column) {
     isNode: true,
     value: node
   }
-}
-
-module.exports = {
-  queryObjectToCypher,
-  handleColumn,
-  getFinalQuery
 }
