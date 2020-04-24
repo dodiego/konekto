@@ -2,12 +2,10 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "sourceMap": true,
-    "declaration": true,
     "esModuleInterop": true,
-    "moduleResolution": "classic",
+    "moduleResolution": "node",
     "module": "CommonJS",
     "resolveJsonModule": true,
-    "declarationDir": "typings",
     "outDir": "build",
     "target": "ES2018"
   }
