@@ -1,6 +1,6 @@
 {
   "name": "konekto",
-  "version": "0.17.3",
+  "version": "0.17.4",
   "description": "a json to cypher mapper",
   "main": "build/lib/index.js",
   "typings": "lib/index.ts",
