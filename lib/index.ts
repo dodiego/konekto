@@ -24,7 +24,7 @@ async function _runQuery(client: Client, { query, params = undefined }): Promise
   return result
 }
 
-async function _handleTransaction(fn: (Parser) => Promise<any>, client: Client) {
+async function _handleTransaction(fn: (parser: Parser) => Promise<any>, client: Client) {
   const parser = new Parser()
   try {
     await client.query('BEGIN')
@@ -174,7 +174,10 @@ class Konekto {
         params: [`"${id}"`],
         rootKey: 'v1'
       }
-      statement.query = parser.getFinalQuery(['v1', 'v2'], statement.query, options)
+      statement.query = parser.getFinalQuery(['v1', 'v2'], statement.query, {
+        sqlProjections: this.sqlMappings,
+        ...options
+      } )
       const result = await _handleParseRows(parser, this.client, statement, options)
       return result[0]
     }, this.client)

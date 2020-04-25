@@ -310,4 +310,16 @@ describe('find sql', () => {
     delete findResult._id
     expect(json).toStrictEqual(findResult)
   })
+  test('find by id with sql', async () => {
+    const json = {
+      _label: 'test',
+      document: {
+        some_fields: 'NICE'
+      }
+    }
+    const id = await konekto.save(json)
+    const findResult = await konekto.findById(id)
+    delete findResult._id
+    expect(json).toStrictEqual(findResult)
+  })
 })
