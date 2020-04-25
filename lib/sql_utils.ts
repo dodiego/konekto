@@ -1,5 +1,3 @@
-import { PropertyMap } from 'konekto'
-
 export function getWhereSql(params, json, variableName) {
   if (json._sqlWhere) {
     return json._sqlWhere.filter

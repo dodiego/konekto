@@ -395,6 +395,7 @@ describe('save', () => {
     const findResult = await konekto.findByQueryObject({ _label: 'test' })
 
     json.document = JSON.stringify(json.document)
+    delete findResult[0]._id
 
     expect([json]).toStrictEqual(findResult)
   })
