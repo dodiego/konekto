@@ -1,6 +1,6 @@
 import { id } from './query_utils'
 
-export function getWhereSql (params, json, variableName) {
+export function getWhereSql(params, json, variableName) {
   if (json._sqlWhere) {
     return json._sqlWhere.filter
       .replace(/this\./g, `${variableName}.`)
@@ -9,7 +9,7 @@ export function getWhereSql (params, json, variableName) {
   return ''
 }
 
-function mapProperties (node: any, customProjection: PropertyMap = {}) {
+function mapProperties(node: any, customProjection: PropertyMap = {}) {
   const params = []
   const columns = []
   const values = []
@@ -21,10 +21,11 @@ function mapProperties (node: any, customProjection: PropertyMap = {}) {
         const paramIndex = params.push(value)
         columns.push(propertyMapping.columnName)
         if (propertyMapping.writeProjection) {
-          values.push(`${propertyMapping.writeProjection.replace(/\bthis\b/g, `${paramIndex.toString()}`)}`)
+          values.push(`${propertyMapping.writeProjection.replace(/\bthis\b/g, `$${paramIndex.toString()}`)}`)
         } else {
           values.push(`$${paramIndex}`)
         }
+        delete node[key]
       }
     }
     if (values.length) {
@@ -35,7 +36,7 @@ function mapProperties (node: any, customProjection: PropertyMap = {}) {
   return { params, columns, values }
 }
 
-function sqlInsert (node: any, customProjection: PropertyMap) {
+function sqlInsert(node: any, customProjection: PropertyMap) {
   const { params, columns, values } = mapProperties(node, customProjection)
 
   if (columns.length) {
@@ -46,7 +47,7 @@ function sqlInsert (node: any, customProjection: PropertyMap) {
   }
 }
 
-function sqlUpdate (node: any, customProjection: PropertyMap) {
+function sqlUpdate(node: any, customProjection: PropertyMap) {
   const { params, columns, values } = mapProperties(node, customProjection)
 
   if (columns.length) {
@@ -57,7 +58,7 @@ function sqlUpdate (node: any, customProjection: PropertyMap) {
   }
 }
 
-export function handleSql (node: any, customProjection: PropertyMap, sqlQueryParts) {
+export function handleSql(node: any, customProjection: PropertyMap, sqlQueryParts) {
   const result = node._id ? sqlUpdate(node, customProjection) : sqlInsert(node, customProjection)
   if (result) {
     sqlQueryParts.push(result)

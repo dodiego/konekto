@@ -12,7 +12,7 @@ export const queryKeys = {
   _label: true
 }
 
-export function validateLabel (label) {
+export function validateLabel(label) {
   if (!Array.isArray(label)) {
     label = [label]
   }
@@ -26,7 +26,7 @@ export function validateLabel (label) {
   }
 }
 
-export function isPrimitive (value) {
+export function isPrimitive(value) {
   return (
     value === null ||
     value === undefined ||
@@ -37,7 +37,7 @@ export function isPrimitive (value) {
   )
 }
 
-function * iterateJson (child, options?, key?, parent?, metadata?) {
+function* iterateJson(child, options?, key?, parent?, metadata?) {
   if (child && typeof child === 'object' && !Array.isArray(child)) {
     child[id] = child[id] || uuid()
     const result = {
@@ -56,6 +56,7 @@ function * iterateJson (child, options?, key?, parent?, metadata?) {
         continue
       }
       validateLabel(key)
+
       if (
         (options &&
           options.sqlProjections &&
@@ -95,7 +96,7 @@ function * iterateJson (child, options?, key?, parent?, metadata?) {
     if (!child[yielded]) {
       child[yielded] = true
       for (const iteration of nextIteration) {
-        yield * iterateJson(iteration.child, options, iteration.key, iteration.parent, iteration.metadata)
+        yield* iterateJson(iteration.child, options, iteration.key, iteration.parent, iteration.metadata)
       }
     }
     delete child[yielded]
@@ -103,7 +104,7 @@ function * iterateJson (child, options?, key?, parent?, metadata?) {
   }
 }
 
-export function getNodesAndRelationships (json, options?) {
+export function getNodesAndRelationships(json, options?) {
   const nodes = {}
   const objects = {}
   const relationships = []
@@ -130,7 +131,7 @@ export function getNodesAndRelationships (json, options?) {
   }
 }
 
-export function getIndexesPerNode (nodes) {
+export function getIndexesPerNode(nodes) {
   const indexesPerNode = {}
   const nodeIds = Object.keys(nodes)
   for (let index = 0; index < nodeIds.length; index++) {
@@ -140,7 +141,7 @@ export function getIndexesPerNode (nodes) {
   return indexesPerNode
 }
 
-export function parameterize (params, value) {
+export function parameterize(params, value) {
   const paramIndex = params.push(value)
   return `$${paramIndex}`
 }

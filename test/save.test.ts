@@ -3,6 +3,18 @@ const konekto = new Konekto()
 describe('save', () => {
   beforeAll(async () => {
     await konekto.connect()
+    await konekto.raw({
+      query: 'create table if not exists public.dates_save_test (_id text primary key, test_date date, document text)'
+    })
+    konekto.setSqlMappings({
+      test: {
+        table: 'public.dates_save_test',
+        mappings: {
+          test_date: { columnName: 'test_date' },
+          document: { columnName: 'document', writeProjection: 'this::text' }
+        }
+      }
+    })
     await konekto.createGraph('save_test')
     await konekto.setGraph('save_test')
   })
@@ -13,7 +25,8 @@ describe('save', () => {
     })
   })
 
-  afterAll(() => {
+  afterAll(async () => {
+    await konekto.raw({ query: 'drop table public.dates' })
     return konekto.disconnect()
   })
 
@@ -313,7 +326,6 @@ describe('save', () => {
     const findResult2 = await konekto.findByQueryObject({ rel: { mandatory: true } })
     delete findResult2[0].rel[0]._id
     delete findResult2[0].rel[1]._id
-    // @ts-ignore
     json.rel = [json.rel, json.rel]
     expect(findResult2).toEqual([json])
   })
@@ -367,6 +379,24 @@ describe('save', () => {
     await konekto.save(json)
     const findResult = await konekto.findByQueryObject({ _label: 'test1' })
     delete findResult[0]._id
+    expect([json]).toStrictEqual(findResult)
+  })
+
+  test('write projection', async () => {
+    const json: any = {
+      _label: 'test',
+      document: {
+        a: true,
+        b: 1
+      }
+    }
+    await konekto.createSchema(json)
+    await konekto.save(json)
+    const findResult = await konekto.findByQueryObject({ _label: 'test' })
+
+    json.document = JSON.stringify(json.document)
+    delete findResult[0]._id
+
     expect([json]).toStrictEqual(findResult)
   })
 })

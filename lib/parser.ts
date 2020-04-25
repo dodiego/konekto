@@ -147,7 +147,7 @@ export class Parser extends EventEmitter {
     if (rows[0].sql_info) {
       for (const row of rows[0].sql_info) {
         for (const [key, value] of Object.entries(row)) {
-          if (key !== '_id') {
+          if (key !== '_id' && value) {
             nodesPerKonektoId[row._id][key] = value
           }
         }

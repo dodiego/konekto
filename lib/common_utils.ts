@@ -1,7 +1,7 @@
 import { getOrderCypher, getWhereCypher, getPaginationCypher, getWith } from './graph_utils'
 import { getWhereSql } from './sql_utils'
 import { getIndexesPerNode, getNodesAndRelationships, queryKeys, id } from './query_utils'
-async function getMatchSufix (json, variable, queryEnd) {
+async function getMatchSufix(json, variable, queryEnd) {
   const query = []
   const params = []
   const where = []
@@ -38,25 +38,43 @@ async function getMatchSufix (json, variable, queryEnd) {
   }
 }
 
-export function getFinalQuery (nodes, cypher, options) {
+export function getFinalQuery(nodes, cypher, options) {
   const selectPart = ['json_agg(cypher.*) as cypher_info']
   const joinPart = []
   const joinFilter = nodes.map(n => `_id = cypher.${n}->>'_id'`).join(' OR ')
-  if (options.customProjections && options.customProjections.sql) {
-    const sqlColumns = []
-    for (const [table, projections] of Object.entries(options.customProjections.sql)) {
-      sqlColumns.push(`'_id', ${table}._id`)
-      for (const [property, projection] of Object.entries(projections)) {
-        sqlColumns.push(`'${property}', ${projection.replace(/\{(\w+)\}/g, `${table}.$1`)}`)
-      }
-      joinPart.push(`INNER JOIN ${table} ON (${joinFilter})`)
-    }
-    selectPart.push(`json_agg(json_build_object(${sqlColumns.join(', ')})) as sql_info`)
+  let sqlProjections = {}
+  if (options.sqlProjections) {
+    Object.values(options.sqlProjections as PropertyMap).forEach(
+      ({ table, mappings }) =>
+        (sqlProjections[table] = Object.entries(mappings).reduce((result, [property, mapping]) => {
+          result[property] = mapping.columnName
+          return result
+        }, {}))
+    )
   }
+
+  if (options.customSqlProjections) {
+    Object.entries(options.customSqlProjections).forEach(([table, mapping]) => {
+      Object.entries(mapping).forEach(([key, value]) => {
+        sqlProjections[table] = sqlProjections[table] || {}
+        sqlProjections[table][key] = value
+      })
+    })
+  }
+
+  const sqlColumns = []
+  for (const [table, projections] of Object.entries(sqlProjections)) {
+    sqlColumns.push(`'_id', ${table}._id`)
+    for (const [property, projection] of Object.entries(projections)) {
+      sqlColumns.push(`'${property}', ${projection.replace(/this\.(\w+)/g, `${table}.$1`)}`)
+    }
+    joinPart.push(`INNER JOIN ${table} ON (${joinFilter})`)
+  }
+  selectPart.push(`json_agg(json_build_object(${sqlColumns.join(', ')})) as sql_info`)
   return `SELECT ${selectPart.join(', ')} FROM (${cypher}) as cypher ${joinPart.join(' ')}`
 }
 
-export async function queryObjectToCypher (queryObject, options, eventEmitter, getQueryEnd) {
+export async function queryObjectToCypher(queryObject, options, eventEmitter, getQueryEnd) {
   const { nodes, relationships, root } = getNodesAndRelationships(queryObject, options)
   if (options.hooks && options.hooks.beforeParseNode) {
     await options.hooks.beforeParseNode(root)
@@ -127,7 +145,7 @@ export async function queryObjectToCypher (queryObject, options, eventEmitter, g
   return finalStatement
 }
 
-export async function handleColumn (column, nodes, nodesPerKonektoId, relationships, options) {
+export async function handleColumn(column, nodes, nodesPerKonektoId, relationships, options) {
   const item = parseColumn(column)
   if (item.isRelationship) {
     relationships[item.value[id]] = item.value
@@ -145,7 +163,7 @@ export async function handleColumn (column, nodes, nodesPerKonektoId, relationsh
   }
 }
 
-function parseColumn (column) {
+function parseColumn(column) {
   if (column.start && column.end) {
     return {
       isRelationship: true,
