@@ -1,4 +1,5 @@
 import { id } from './query_utils'
+import { PropertyMap } from 'konekto'
 
 export function getWhereSql(params, json, variableName) {
   if (json._sqlWhere) {
@@ -52,7 +53,7 @@ function sqlUpdate(node: any, customProjection: PropertyMap) {
 
   if (columns.length) {
     return {
-      query: `UPDATE ${customProjection[node._label].table} SET ${columns.map((c, i) => `${c} = $${values[i]}`)}`,
+      query: `UPDATE ${customProjection[node._label].table} SET ${columns.map((c, i) => `${c} = ${values[i]}`)}`,
       params
     }
   }

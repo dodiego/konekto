@@ -1,5 +1,6 @@
 import { Parser } from './parser'
 import { Client, ClientConfig } from 'pg'
+import { PropertyMap, CreateIndexOptions } from 'konekto'
 
 function _createSchema(json, client) {
   return _handleTransaction(async parser => {

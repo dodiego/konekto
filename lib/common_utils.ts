@@ -1,6 +1,7 @@
 import { getOrderCypher, getWhereCypher, getPaginationCypher, getWith } from './graph_utils'
 import { getWhereSql } from './sql_utils'
 import { getIndexesPerNode, getNodesAndRelationships, queryKeys, id } from './query_utils'
+import { PropertyMap } from 'konekto'
 async function getMatchSufix(json, variable, queryEnd) {
   const query = []
   const params = []
