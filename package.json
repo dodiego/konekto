@@ -5,7 +5,7 @@
   "main": "build/lib/index.js",
   "typings": "lib/index.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --forceExit",
     "postversion": "tsc && git push && npm publish",
     "generate:types": "tsc"
   },

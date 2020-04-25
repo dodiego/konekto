@@ -68,7 +68,7 @@ export function getFinalQuery(nodes, cypher, options) {
     for (const [property, projection] of Object.entries(projections)) {
       sqlColumns.push(`'${property}', ${projection.replace(/this\.(\w+)/g, `${table}.$1`)}`)
     }
-    joinPart.push(`INNER JOIN ${table} ON (${joinFilter})`)
+    joinPart.push(`LEFT JOIN ${table} ON (${joinFilter})`)
   }
   selectPart.push(`json_agg(json_build_object(${sqlColumns.join(', ')})) as sql_info`)
   return `SELECT ${selectPart.join(', ')} FROM (${cypher}) as cypher ${joinPart.join(' ')}`

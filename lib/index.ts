@@ -48,7 +48,7 @@ async function _handleParseRows(parser, client, statement, options) {
 }
 
 class Konekto {
-  client: any
+  client: Client
   plugins: any[]
   sqlMappings: PropertyMap
   constructor(
