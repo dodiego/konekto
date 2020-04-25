@@ -19,8 +19,8 @@ export class Parser extends EventEmitter {
         throw new Error(`beforeSave hook didn't return truthy value for node ${JSON.stringify(graph.root, null, 2)}`)
       }
     }
-    handleSql(graph.root, options.sqlProjections, sqlQueryParts)
     graph.root._id = graph.root._id || graph.root[id]
+    handleSql(graph.root, options.sqlProjections, sqlQueryParts)
     this.emit('save', graph.root, graph.rootObject)
     queries.push(
       `MERGE (v1:${graph.root._label} {_id: '${graph.root._id}' }) ON MATCH SET v1 += $1 ON CREATE SET v1 += $1`
@@ -33,8 +33,8 @@ export class Parser extends EventEmitter {
           const toIndex = indexesPerNode[r.to]
           validateLabel(graph.nodes[r.to]._label)
           params[toIndex - 1] = graph.nodes[r.to]
-          handleSql(graph.nodes[r.to], options.sqlProjections, sqlQueryParts)
           graph.nodes[r.to]._id = graph.nodes[r.to]._id || graph.nodes[r.to][id]
+          handleSql(graph.nodes[r.to], options.sqlProjections, sqlQueryParts)
           if (options.hooks && options.hooks.beforeSave) {
             const ok = await options.hooks.beforeSave(graph.nodes[r.to], graph.objects[r.to])
             if (!ok) {

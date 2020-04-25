@@ -1,4 +1,3 @@
-import { id } from './query_utils'
 import { PropertyMap } from 'konekto'
 
 export function getWhereSql(params, json, variableName) {
@@ -31,7 +30,7 @@ function mapProperties(node: any, customProjection: PropertyMap = {}) {
     }
     if (values.length) {
       columns.push('_id')
-      values.push(`$${params.push(node[id])}`)
+      values.push(`$${params.push(node._id)}`)
     }
   }
   return { params, columns, values }
@@ -46,7 +45,7 @@ export function handleSql(node: any, customProjection: PropertyMap, sqlQueryPart
       VALUES (${values.join(', ')})
       ON CONFLICT ON CONSTRAINT ${customProjection[node._label].table}_pkey DO
       UPDATE SET ${columns.map((c, i) => `${c} = ${values[i]}`)}
-      WHERE ${customProjection[node._label].table}._id = '${node._id || node[id]}'`,
+      WHERE ${customProjection[node._label].table}._id = '${node._id}'`,
       params
     })
   }
