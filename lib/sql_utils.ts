@@ -46,7 +46,7 @@ export function handleSql(node: any, customProjection: PropertyMap, sqlQueryPart
       VALUES (${values.join(', ')})
       ON CONFLICT ON CONSTRAINT ${customProjection[node._label].table}_pkey DO
       UPDATE SET ${columns.map((c, i) => `${c} = ${values[i]}`)}
-      WHERE ${customProjection[node._label].table}._id = '${node[id]}'`,
+      WHERE ${customProjection[node._label].table}._id = '${node._id || node[id]}'`,
       params
     })
   }
