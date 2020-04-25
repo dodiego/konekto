@@ -37,31 +37,17 @@ function mapProperties(node: any, customProjection: PropertyMap = {}) {
   return { params, columns, values }
 }
 
-function sqlInsert(node: any, customProjection: PropertyMap) {
-  const { params, columns, values } = mapProperties(node, customProjection)
-
-  if (columns.length) {
-    return {
-      query: `INSERT INTO ${customProjection[node._label].table} (${columns.join(', ')}) VALUES (${values.join(', ')})`,
-      params
-    }
-  }
-}
-
-function sqlUpdate(node: any, customProjection: PropertyMap) {
-  const { params, columns, values } = mapProperties(node, customProjection)
-
-  if (columns.length) {
-    return {
-      query: `UPDATE ${customProjection[node._label].table} SET ${columns.map((c, i) => `${c} = ${values[i]}`)}`,
-      params
-    }
-  }
-}
-
 export function handleSql(node: any, customProjection: PropertyMap, sqlQueryParts) {
-  const result = node._id ? sqlUpdate(node, customProjection) : sqlInsert(node, customProjection)
-  if (result) {
-    sqlQueryParts.push(result)
+  const { params, columns, values } = mapProperties(node, customProjection)
+
+  if (columns.length) {
+    sqlQueryParts.push({
+      query: `INSERT INTO ${customProjection[node._label].table} (${columns.join(', ')})
+      VALUES (${values.join(', ')})
+      ON CONFLICT ON CONSTRAINT ${customProjection[node._label].table}_pkey DO
+      UPDATE SET ${columns.map((c, i) => `${c} = ${values[i]}`)}
+      WHERE ${customProjection[node._label].table}._id = '${node[id]}'`,
+      params
+    })
   }
 }

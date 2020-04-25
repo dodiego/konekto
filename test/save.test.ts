@@ -8,7 +8,7 @@ describe('save', () => {
     })
     konekto.setSqlMappings({
       test: {
-        table: 'public.dates_save_test',
+        table: 'dates_save_test',
         mappings: {
           test_date: { columnName: 'test_date' },
           document: { columnName: 'document', writeProjection: 'this::text' }

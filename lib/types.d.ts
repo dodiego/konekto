@@ -1,5 +1,5 @@
 declare module 'konekto' {
-  interface PropertyMap {
+  export interface PropertyMap {
     [label: string]: {
       table: string
       mappings: {
@@ -11,17 +11,17 @@ declare module 'konekto' {
     }
   }
 
-  enum OrderOptions {
+  export enum OrderOptions {
     ASCENDING = 'ASC',
     DESCENDING = 'DESC'
   }
 
-  enum NullOrderOptions {
+  export enum NullOrderOptions {
     FIRST = 'FIRST',
     LAST = 'LAST'
   }
 
-  interface CreateIndexOptions {
+  export interface CreateIndexOptions {
     unique?: boolean
     type?: string
     order?: OrderOptions
