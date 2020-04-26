@@ -9,6 +9,9 @@ describe('find sql', () => {
     await konekto.raw({
       query: 'create table if not exists dates_find_sql_test (_id text primary key, test_date date, document json)'
     })
+  })
+
+  beforeEach(() => {
     konekto.setSqlMappings({
       test: {
         table: 'dates_find_sql_test',
@@ -310,6 +313,7 @@ describe('find sql', () => {
     delete findResult._id
     expect(json).toStrictEqual(findResult)
   })
+
   test('find by id with sql', async () => {
     const json = {
       _label: 'test',
@@ -320,6 +324,29 @@ describe('find sql', () => {
     const id = await konekto.save(json)
     const findResult = await konekto.findById(id)
     delete findResult._id
+    expect(json).toStrictEqual(findResult)
+  })
+
+  test('find with default read projection', async () => {
+    konekto.setSqlMappings({
+      test: {
+        table: 'dates_find_sql_test',
+        mappings: {
+          test_date: { columnName: 'test_date' },
+          document: { columnName: 'document', readProjection: 'this::text' }
+        }
+      }
+    })
+    const json: any = {
+      _label: 'test',
+      document: {
+        some_fields: 'NICE'
+      }
+    }
+    const id = await konekto.save(json)
+    const findResult = await konekto.findById(id)
+    delete findResult._id
+    json.document = JSON.stringify(json.document)
     expect(json).toStrictEqual(findResult)
   })
 })

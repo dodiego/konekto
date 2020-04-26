@@ -5,6 +5,7 @@ declare interface PropertyMap {
       [key: string]: {
         columnName: string
         writeProjection?: string
+        readProjection?: string
       }
     }
   }

@@ -47,7 +47,9 @@ export function getFinalQuery(nodes, cypher, options) {
     Object.values(options.sqlProjections as PropertyMap).forEach(
       ({ table, mappings }) =>
         (sqlProjections[table] = Object.entries(mappings).reduce((result, [property, mapping]) => {
-          result[property] = mapping.columnName
+          result[property] = mapping.readProjection
+            ? mapping.readProjection.replace(/\bthis\b/g, mapping.columnName)
+            : mapping.columnName
           return result
         }, {}))
     )
