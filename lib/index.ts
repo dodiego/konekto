@@ -1,5 +1,6 @@
 import { Parser } from './parser'
 import { Client, ClientConfig } from 'pg'
+import { PropertyMap, CreateIndexOptions } from './types'
 
 function _createSchema(json, client) {
   return _handleTransaction(async parser => {
@@ -176,7 +177,7 @@ class Konekto {
       statement.query = parser.getFinalQuery(['v1', 'v2'], statement.query, {
         sqlProjections: this.sqlMappings,
         ...options
-      } )
+      })
       const result = await _handleParseRows(parser, this.client, statement, options)
       return result[0]
     }, this.client)

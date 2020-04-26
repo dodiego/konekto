@@ -1,4 +1,4 @@
-declare interface PropertyMap {
+export interface PropertyMap {
   [label: string]: {
     table: string
     mappings: {
@@ -11,17 +11,17 @@ declare interface PropertyMap {
   }
 }
 
-declare enum OrderOptions {
+export enum OrderOptions {
   ASCENDING = 'ASC',
   DESCENDING = 'DESC'
 }
 
-declare enum NullOrderOptions {
+export enum NullOrderOptions {
   FIRST = 'FIRST',
   LAST = 'LAST'
 }
 
-declare interface CreateIndexOptions {
+export interface CreateIndexOptions {
   unique?: boolean
   type?: string
   order?: OrderOptions

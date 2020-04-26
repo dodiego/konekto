@@ -1,3 +1,5 @@
+import { PropertyMap } from './types'
+
 export function getWhereSql(params, json, variableName) {
   if (json._sqlWhere) {
     return json._sqlWhere.filter
