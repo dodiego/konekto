@@ -2,6 +2,27 @@ import { getOrderCypher, getWhereCypher, getPaginationCypher, getWith } from './
 import { getWhereSql } from './sql_utils'
 import { getIndexesPerNode, getNodesAndRelationships, queryKeys, id } from './query_utils'
 import { PropertyMap } from './types'
+
+function parseColumn(column) {
+  if (column.start && column.end) {
+    return {
+      isRelationship: true,
+      value: {
+        [id]: column.id,
+        from: column.start,
+        to: column.end,
+        metadata: column.properties
+      }
+    }
+  }
+  const node = column.properties
+  node[id] = column.id
+  return {
+    isNode: true,
+    value: node
+  }
+}
+
 async function getMatchSufix(json, variable, queryEnd) {
   const query = []
   const params = []
@@ -43,7 +64,7 @@ export function getFinalQuery(nodes, cypher, options) {
   const selectPart = ['json_agg(cypher.*) as cypher_info']
   const joinPart = []
   const joinFilter = nodes.map(n => `_id = cypher.${n}->>'_id'`).join(' OR ')
-  let sqlProjections = {}
+  const sqlProjections = {}
   if (options.sqlProjections) {
     Object.values(options.sqlProjections as PropertyMap).forEach(
       ({ table, mappings }) =>
@@ -163,25 +184,5 @@ export async function handleColumn(column, nodes, nodesPerKonektoId, relationshi
     nodes[node[id]] = node
     nodesPerKonektoId[node._id] = node
     return node
-  }
-}
-
-function parseColumn(column) {
-  if (column.start && column.end) {
-    return {
-      isRelationship: true,
-      value: {
-        [id]: column.id,
-        from: column.start,
-        to: column.end,
-        metadata: column.properties
-      }
-    }
-  }
-  const node = column.properties
-  node[id] = column.id
-  return {
-    isNode: true,
-    value: node
   }
 }

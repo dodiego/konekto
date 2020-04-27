@@ -1,4 +1,4 @@
-const uuid = require('uuid/v4')
+import uuid from 'uuid/v4'
 const yielded = Symbol('yielded')
 const labelRegex = /^[a-z$][a-z_0-9]*$/
 export const id = Symbol('id')
@@ -57,13 +57,7 @@ function* iterateJson(child, options?, key?, parent?, metadata?) {
       }
       validateLabel(key)
 
-      if (
-        (options &&
-          options.sqlProjections &&
-          options.sqlProjections[child._label] &&
-          options.sqlProjections[child._label].mappings[key]) ||
-        isPrimitive(value)
-      ) {
+      if (options?.sqlProjections?.[child._label]?.mappings[key] || isPrimitive(value)) {
         result[key] = value
         continue
       }

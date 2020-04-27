@@ -2,28 +2,6 @@ import { Parser } from './parser'
 import { Client, ClientConfig } from 'pg'
 import { PropertyMap, CreateIndexOptions } from './types'
 
-function _createSchema(json, client) {
-  return _handleTransaction(async parser => {
-    const { relationshipNames, nodeLabels } = parser.getSchema(json)
-    const clientQueries = []
-    for (const vlabel of nodeLabels) {
-      clientQueries.push(`CREATE VLABEL IF NOT EXISTS ${vlabel}`)
-    }
-    for (const elabel of relationshipNames) {
-      clientQueries.push(`CREATE ELABEL IF NOT EXISTS ${elabel}`)
-    }
-
-    return _runQuery(client, {
-      query: clientQueries.join(';')
-    })
-  }, client)
-}
-
-async function _runQuery(client: Client, { query, params = undefined }): Promise<import('pg').QueryArrayResult> {
-  const result = await client.query(query, params)
-  return result
-}
-
 async function _handleTransaction(fn: (parser: Parser) => Promise<any>, client: Client) {
   const parser = new Parser()
   try {
@@ -35,6 +13,28 @@ async function _handleTransaction(fn: (parser: Parser) => Promise<any>, client: 
     client.query('ROLLBACK')
     throw error
   }
+}
+
+async function _runQuery(client: Client, { query, params = undefined }): Promise<import('pg').QueryArrayResult> {
+  const result = await client.query(query, params)
+  return result
+}
+
+async function _createSchema(json, client) {
+  return await _handleTransaction(async parser => {
+    const { relationshipNames, nodeLabels } = parser.getSchema(json)
+    const clientQueries = []
+    for (const vlabel of nodeLabels) {
+      clientQueries.push(`CREATE VLABEL IF NOT EXISTS ${vlabel}`)
+    }
+    for (const elabel of relationshipNames) {
+      clientQueries.push(`CREATE ELABEL IF NOT EXISTS ${elabel}`)
+    }
+
+    return await _runQuery(client, {
+      query: clientQueries.join(';')
+    })
+  }, client)
 }
 
 async function _handleParseRows(parser, client, statement, options) {
@@ -74,14 +74,14 @@ class Konekto {
 
   async createSchema(jsonOrArray) {
     if (Array.isArray(jsonOrArray)) {
-      return Promise.all(jsonOrArray.map(json => _createSchema(json, this.client)))
+      return await Promise.all(jsonOrArray.map(json => _createSchema(json, this.client)))
     }
     return _createSchema(jsonOrArray, this.client)
   }
 
-  createLabel(label) {
+  async createLabel(label) {
     if (typeof label === 'string') {
-      return _runQuery(this.client, {
+      return await _runQuery(this.client, {
         query: `CREATE ELABEL ${label}`
       })
     }
@@ -93,9 +93,9 @@ class Konekto {
     throw new Error('invalid label type, must be string or array of string')
   }
 
-  createRelationship(name) {
+  async createRelationship(name) {
     if (typeof name === 'string') {
-      return _runQuery(this.client, {
+      return await _runQuery(this.client, {
         query: `CREATE VLABEL ${name}`
       })
     }
@@ -128,7 +128,7 @@ class Konekto {
       queryParts.push(`WHERE ${options.where}`)
     }
     const query = queryParts.join(' ')
-    return _runQuery(this.client, { query })
+    return await _runQuery(this.client, { query })
   }
 
   async dropIndex(label, property, options) {
@@ -143,33 +143,38 @@ class Konekto {
     const parser = new Parser()
     const rows = await _runQuery(this.client, { query, params })
     if (options.parseResult) {
-      return parser.parseRows(rows, options.rootKey, options)
+      return await parser.parseRows(rows, options.rootKey, options)
     }
     return rows
   }
 
   async save(json, options = {}) {
-    return _handleTransaction(async parser => {
+    return await _handleTransaction(async parser => {
       let items = []
       if (Array.isArray(json)) {
         items = json
       } else {
         items.push(json)
       }
-      return Promise.all(
+      const result = await Promise.all(
         items.map(async item => {
           const statement = await parser.jsonToCypherWrite(item, { sqlProjections: this.sqlMappings, ...options })
           await Promise.all([_runQuery(this.client, statement.cypher), _runQuery(this.client, statement.sql)])
           return statement.cypher.graph.root._id
         })
       )
+
+      if (Array.isArray(json)) {
+        return result
+      }
+      return result[0]
     }, this.client)
   }
 
   async findByQueryObject(queryObject, options = {}) {
-    return _handleTransaction(async parser => {
+    return await _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherRead(queryObject, { sqlProjections: this.sqlMappings, ...options })
-      return _handleParseRows(parser, this.client, statement, options)
+      return await _handleParseRows(parser, this.client, statement, options)
     }, this.client)
   }
 
@@ -178,7 +183,7 @@ class Konekto {
   }
 
   async findById(id, options = {}) {
-    return _handleTransaction(async parser => {
+    return await _handleTransaction(async parser => {
       const statement = {
         query: 'MATCH (v1 {_id: $1}) WITH v1 OPTIONAL MATCH (v1)-[r*0..]->(v2) RETURN v1, r, v2',
         params: [`"${id}"`],
@@ -194,7 +199,7 @@ class Konekto {
   }
 
   async deleteByQueryObject(queryObject, options = {}) {
-    return _handleTransaction(async parser => {
+    return await _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherRead(queryObject, options)
       const nodeIds = []
       const konektoIds = {}
@@ -233,16 +238,16 @@ class Konekto {
       params: [id],
       rootKey: 'a'
     }
-    return _handleTransaction(async parser => {
+    return await _handleTransaction(async parser => {
       const result = await _handleParseRows(parser, this.client, statement, options)
       return result[0]
     }, this.client)
   }
 
   async deleteRelationshipsByQueryObject(queryObject, options) {
-    return _handleTransaction(async parser => {
+    return await _handleTransaction(async parser => {
       const statement = await parser.jsonToCypherRelationshipDelete(queryObject, options)
-      return this.client.query(statement.query, statement.params)
+      return await this.client.query(statement.query, statement.params)
     }, this.client)
   }
 

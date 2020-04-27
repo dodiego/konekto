@@ -16,7 +16,7 @@ describe('find', () => {
     return konekto.disconnect()
   })
 
-  async function insertJson (json) {
+  async function insertJson(json) {
     await konekto.createSchema(json)
     const id = await konekto.save(json)
     json._id = id

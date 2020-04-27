@@ -1,5 +1,5 @@
 import Konekto from '../lib'
-let konekto = new Konekto()
+const konekto = new Konekto()
 
 describe('hooks', () => {
   beforeAll(async () => {

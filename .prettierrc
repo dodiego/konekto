@@ -1,5 +1,9 @@
 {
   "printWidth": 120,
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "endOfLine":"auto",
+  "parser": "typescript",
+  "trailingComma": "none",
+  "arrowParens": "avoid"
 }

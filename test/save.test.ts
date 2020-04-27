@@ -20,9 +20,7 @@ describe('save', () => {
   })
 
   afterEach(() => {
-    return konekto.deleteByQueryObject({
-      _label: ['test1', 'test', 'test2', 'test3', 'test4']
-    })
+    return konekto.deleteByQueryObject({})
   })
 
   afterAll(async () => {

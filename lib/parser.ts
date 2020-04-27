@@ -4,7 +4,7 @@ import { handleSql } from './sql_utils'
 import { queryObjectToCypher, getFinalQuery, handleColumn } from './common_utils'
 
 export class Parser extends EventEmitter {
-  async jsonToCypherWrite (json, options: any = {}) {
+  async jsonToCypherWrite(json, options: any = {}) {
     const graph = getNodesAndRelationships(json, options)
     const params = [graph.root]
     const indexesPerNode = getIndexesPerNode(graph.nodes)
@@ -81,29 +81,29 @@ export class Parser extends EventEmitter {
     }
   }
 
-  getFinalQuery (nodes, cypher, options) {
+  getFinalQuery(nodes, cypher, options) {
     return getFinalQuery(nodes, cypher, options)
   }
 
-  async jsonToCypherRead (json, options) {
-    return queryObjectToCypher(json, options, this, () => 'RETURN *')
+  async jsonToCypherRead(json, options) {
+    return await queryObjectToCypher(json, options, this, () => 'RETURN *')
   }
 
-  async jsonToCypherDelete (json, options) {
-    return queryObjectToCypher(json, options, this, variables => {
+  async jsonToCypherDelete(json, options) {
+    return await queryObjectToCypher(json, options, this, variables => {
       const nodes = [...variables].filter(v => v.startsWith('v'))
       return `DETACH DELETE ${nodes.join(',')} WITH ${nodes.join(',')} RETURN *`
     })
   }
 
-  async jsonToCypherRelationshipDelete (json, options) {
-    return queryObjectToCypher(json, options, this, variables => {
+  async jsonToCypherRelationshipDelete(json, options) {
+    return await queryObjectToCypher(json, options, this, variables => {
       const relationships = [...variables].filter(v => v.startsWith('r'))
       return `DELETE ${relationships.join(',')}`
     })
   }
 
-  getSchema (json) {
+  getSchema(json) {
     const { nodes, relationships } = getNodesAndRelationships(json)
     const relationshipNames = relationships.filter(r => r.name).map(r => r.name)
     const nodeLabels = [...new Set(Object.values(nodes).map((n: any) => n._label))]
@@ -113,7 +113,7 @@ export class Parser extends EventEmitter {
     }
   }
 
-  async parseRows (rows, rootKey, options = {}) {
+  async parseRows(rows, rootKey, options = {}) {
     const relationships = {}
     const nodes = {}
     const nodesPerKonektoId = {}
