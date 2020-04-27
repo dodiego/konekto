@@ -150,9 +150,19 @@ class Konekto {
 
   async save(json, options = {}) {
     return _handleTransaction(async parser => {
-      const statement = await parser.jsonToCypherWrite(json, { sqlProjections: this.sqlMappings, ...options })
-      await Promise.all([_runQuery(this.client, statement.cypher), _runQuery(this.client, statement.sql)])
-      return statement.cypher.graph.root._id
+      let items = []
+      if (Array.isArray(json)) {
+        items = json
+      } else {
+        items.push(json)
+      }
+      return Promise.all(
+        items.map(async item => {
+          const statement = await parser.jsonToCypherWrite(item, { sqlProjections: this.sqlMappings, ...options })
+          await Promise.all([_runQuery(this.client, statement.cypher), _runQuery(this.client, statement.sql)])
+          return statement.cypher.graph.root._id
+        })
+      )
     }, this.client)
   }
 
