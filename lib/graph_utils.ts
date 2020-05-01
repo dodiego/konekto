@@ -15,13 +15,15 @@ export async function getWhereCypher(params, json, variableName) {
       whereQuery.push('AND')
     }
     whereQuery.push(
-      `${json._where.filter.replace(/this\./g, `${variableName}.`).replace(/\s+:(\w+)/g, (_a, b) => {
-        if (typeof json._where.params[b] === 'string') {
-          return `$${params.push(`"${json._where.params[b]}"`)}`
-        } else {
-          return `$${params.push(json._where.params[b])}`
-        }
-      })}`
+      `${(json._where.filter as string)
+        .replace(/this\./g, `${variableName}.`)
+        .replace(/\s+(\$params\.)(\w+)/g, (_a, b, c) => {
+          if (typeof json._where.params[c] === 'string') {
+            return `$${params.push(`"${json._where.params[c]}"`)}`
+          } else {
+            return `$${params.push(json._where.params[c])}`
+          }
+        })}`
     )
   }
   if (whereQuery.length > 0) {

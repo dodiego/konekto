@@ -4,7 +4,7 @@ export function getWhereSql(params, json, variableName) {
   if (json._sqlWhere) {
     return json._sqlWhere.filter
       .replace(/this\./g, `${variableName}.`)
-      .replace(/\s+:(\w+)/g, (_a, b) => `$${params.push(json._sqlWhere.params[b])}`)
+      .replace(/\s+(\$params\.)(\w+)/g, (_a, _b, c) => `$${params.push(json._sqlWhere.params[c])}`)
   }
   return ''
 }
