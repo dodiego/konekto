@@ -17,7 +17,7 @@ export async function getWhereCypher(params, json, variableName) {
     whereQuery.push(
       `${(json._where.filter as string)
         .replace(/this\./g, `${variableName}.`)
-        .replace(/\s+(\$params\.)(\w+)/g, (_a, b, c) => {
+        .replace(/(\$params\.)(\w+)/g, (_a, b, c) => {
           if (typeof json._where.params[c] === 'string') {
             return `$${params.push(`"${json._where.params[c]}"`)}`
           } else {
