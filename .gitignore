@@ -60,5 +60,9 @@ typings/
 # next.js build output
 .next
 
+# IDE project configs
 .idea
 .vscode
+
+# Transpilation output
+dist
