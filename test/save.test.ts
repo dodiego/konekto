@@ -24,7 +24,7 @@ describe('save', () => {
   })
 
   afterAll(async () => {
-    await konekto.raw({ query: 'drop table public.dates' })
+    // await konekto.raw({ query: 'drop table public.dates' })
     return konekto.disconnect()
   })
 
