@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4'
+import { v4 as uuid } from 'uuid'
 const yielded = Symbol('yielded')
 const labelRegex = /^[a-z$][a-z_0-9]*$/
 export const id = Symbol('id')
