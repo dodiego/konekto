@@ -1,7 +1,10 @@
 version: '3.7'
 services:
-  agensgraph:
-    image: 'dodiego/agensgraph-postgis'
+  database:
+    image: 'apache/age'
+    environment:
+      POSTGRES_USER: konekto
+      POSTGRES_PASSWORD: konekto
+      POSTGRES_DB: konekto
     ports:
-      - '5433:5432'
-    tty: true
+      - '5432:5432'
